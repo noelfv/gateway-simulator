@@ -6,6 +6,7 @@ import org.example.orchestrator.common.DataTypeISO8583;
 import org.example.orchestrator.common.ISOUtil;
 import org.example.orchestrator.common.ParseResult;
 import org.example.orchestrator.dto.ISO20022;
+import org.example.orchestrator.iso20022.ISO20022To8583Mapper;
 import org.example.orchestrator.iso20022.ISO8583To20022Mapper;
 import org.example.orchestrator.iso8583.ISO8583;
 import org.example.orchestrator.iso8583.ISO8583Builder;
@@ -14,7 +15,6 @@ import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.ToolWindowManager;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
 
 public class MastercardParserGUI4 extends JFrame {
 
@@ -52,7 +53,7 @@ public class MastercardParserGUI4 extends JFrame {
         messageParser = new MCMessageParserImpl();
         initializeComponents();
         initializeMenu();
-        setupMyDoggy();
+       // setupMyDoggy();
         setupEventHandlers();
     }
 
@@ -86,6 +87,9 @@ public class MastercardParserGUI4 extends JFrame {
 
         unparseCleanButton.setEnabled(false);
         unparseEBCDICButton.setEnabled(false);
+
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(new JPanel(), BorderLayout.CENTER);
     }
 
 
@@ -94,7 +98,7 @@ public class MastercardParserGUI4 extends JFrame {
         menuBar = new JMenuBar();
 
         // Crear menú "Parse"
-        parseMenu = new JMenu("Parse");
+        parseMenu = new JMenu("Menu");
         parseMenuItem = new JMenuItem("Parsear mensaje");
         parseMenu.add(parseMenuItem);
 
@@ -116,7 +120,11 @@ public class MastercardParserGUI4 extends JFrame {
         parseMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parseMessage();
+
+                if (toolWindowManager == null) {
+                    setupMyDoggy();
+                }
+               // parseMessage();
             }
         });
 
@@ -185,16 +193,12 @@ public class MastercardParserGUI4 extends JFrame {
         ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("output",
                 "Resultado", null, createOutputPanel(), ToolWindowAnchor.BOTTOM);
         outputToolWindow.setAvailable(true);
-
-        /*
-        // Tool Window para comparación
-        ToolWindow comparisonToolWindow = toolWindowManager.registerToolWindow("comparison",
-                "Comparación", null, createComparisonPanel(), ToolWindowAnchor.RIGHT);
-        comparisonToolWindow.setAvailable(false); // Inicialmente oculto
-        // */
-
         // Cambiar esta línea para obtener el componente correcto
+        //getContentPane().add((Component) toolWindowManager, BorderLayout.CENTER);
+        getContentPane().removeAll(); // Limpia el panel vacío
         getContentPane().add((Component) toolWindowManager, BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
 
     private JPanel createMainPanel() {
@@ -301,6 +305,10 @@ public class MastercardParserGUI4 extends JFrame {
             Map<String, String> subFields = messageParser.mapSubFields(currentMappedFieldsByDescription);
             iso8583 = ISO8583Builder.buildISO8583(inputMessage, currentMappedFieldsByDescription);
             iso20022 = ISO8583To20022Mapper.translateToISO20022(iso8583, subFields);
+
+           // ISO8583 iso8583temp= ISO20022To8583Mapper.translateToISO8583(iso20022);
+            String tramaGen= ISO20022To8583Mapper.getOriginalIsoMessage(iso20022);
+            System.out.println("Trama generada: [" + tramaGen+"]");
 
             // Actualizar el árbol jerárquico
             updateTreeView();

@@ -2,8 +2,8 @@ package org.example.orchestrator.iso20022;
 
 
 import org.example.orchestrator.ParserException;
-import org.example.orchestrator.common.ISO8583Context;
 import org.example.orchestrator.common.ISOSubFieldProcess;
+import org.example.orchestrator.common.MappingMetadata;
 import org.example.orchestrator.configuration.monitoring.FieldDto;
 import org.example.orchestrator.dto.*;
 import org.example.orchestrator.iso8583.ISO8583;
@@ -32,18 +32,22 @@ public class ISO8583To20022Mapper {
     }
 
     public static ISO20022 translateToISO20022(ISO8583 inputObject, Map<String, String> subFields) {
+
+        MappingMetadata mappingMetadata = new MappingMetadata();
+
+
         try {
             /*----------------------------------------
             * TRACE DATA SECTION
             ----------------------------------------*/
-
-
 
             // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
             TraceDataDTO posAdditionalData = TraceDataDTO.builder()
                     .key("posAdditionalData")
                     .value(inputObject.getNetworkData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P063][" + inputObject.getNetworkData()+"]","traceData[posAdditionalData]");
 
             // ======== HEADER OF ISO ========
             TraceDataDTO originHeader = TraceDataDTO.builder()
@@ -86,6 +90,11 @@ public class ISO8583To20022Mapper {
                     .track2(track2)
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P002][" + inputObject.getPrimaryAccountNumber()+"]","environment.card.pan");
+            mappingMetadata.addFieldOrigin("[P014]["+ inputObject.getDateExpiration()+"]","environment.card.expiryDate");
+            mappingMetadata.addFieldOrigin("[P035][" + track2.getTextValue()+"]","environment.card.track2");
+            mappingMetadata.addFieldOrigin("[P045][" + inputObject.getTrackOneData()+"]","environment.card.track1");
+
             CapabilitiesDTO capabilities = CapabilitiesDTO.builder()
                     .approvalCodeLength(null)
                     .build();
@@ -96,6 +105,9 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 60 (POS TERMINAL DATA) ========
                     .assigner(inputObject.getPosTerminalData())
                     .build();
+
+            mappingMetadata.addFieldOrigin( "[P041][" + inputObject.getCardAcceptorTerminalIdentification()+"]","environment.terminal.terminalId.id");
+            mappingMetadata.addFieldOrigin( "[P060][" + inputObject.getPosTerminalData()+"]","environment.terminal.terminalId.assigner");
 
             String type = ISOSubFieldProcess.channelTPVIndicator(inputObject, subFields, "PEER02");
             String otherType = type != null && type.length() > 4 ? type.substring(4) : null;
@@ -121,17 +133,24 @@ public class ISO8583To20022Mapper {
                     .country(inputObject.getAcquirerCountryCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P032][" + inputObject.getAcquiringInstitutionIdentificationCode()+"]","environment.acquirer.id");
+            mappingMetadata.addFieldOrigin("[P019][" + inputObject.getAcquirerCountryCode()+"]","environment.acquirer.country");
+
             // ======== FIELD 48 (ADDITIONAL DATA RETAILER) ========
             AdditionalIdDTO additionalDataRetailer = AdditionalIdDTO.builder()
                     .key("additionalDataRetailer")
                     .value(inputObject.getAdditionalDataRetailer())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P048]["+ inputObject.getAdditionalDataRetailer()+"]","environment.sender.additionalId[additionalDataRetailer]");
+
             SenderDTO sender = SenderDTO.builder()
                     // ======== FIELD 33 (FORWARDING INSTITUTION IDENTIFICATION CODE) ========
                     .id(inputObject.getForwardingInstitutionIdentificationCode())
                     .additionalId(additionalDataRetailer)
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P033][" + inputObject.getForwardingInstitutionIdentificationCode()+"]","environment.sender.id");
 
             AcceptorDTO acceptor = AcceptorDTO.builder()
                     // ======== FIELD 42 (CARD ACCEPTOR IDENTIFICATION CODE) ========
@@ -140,10 +159,15 @@ public class ISO8583To20022Mapper {
                     .nameAndLocation(inputObject.getCardAcceptorNameLocation())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P042][" + inputObject.getCardAcceptorIdentificationCode()+"]","environment.acceptor.id");
+            mappingMetadata.addFieldOrigin("[P043][" + inputObject.getCardAcceptorNameLocation()+"]","environment.acceptor.nameAndLocation");
+
             IssuerDTO issuer = IssuerDTO.builder()
                     // ======== FIELD 61 (POS CARD ISSUER / OTHER AMOUNTS) ========
                     .assigner(inputObject.getPosCardIssuer())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P061][" + inputObject.getPosCardIssuer()+"]","environment.issuer.assigner");
 
             EnvironmentDTO environment = EnvironmentDTO.builder()
                     .card(card)
@@ -179,6 +203,11 @@ public class ISO8583To20022Mapper {
                     .currency(inputObject.getTransactionCurrencyCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P003][" + inputObject.getProcessingCode()+"]","transaction.accountTo.accountFrom");
+            mappingMetadata.addFieldOrigin("[P004][" + inputObject.getTransactionAmount()+"]","transaction.transactionAmounts.transactionAmount.amount");
+            mappingMetadata.addFieldOrigin("[P049][" + inputObject.getTransactionCurrencyCode()+"]","transaction.transactionAmounts.transactionAmount.currency");
+            mappingMetadata.addFieldOrigin("[P103][" + inputObject.getAccountIdentification()+"]","transaction.accountTo.accountId");
+
             ReconciliationAmountDTO reconciliationAmount = ReconciliationAmountDTO.builder()
                     // ======== FIELD 5 (RECONCILIATION AMOUNT) ========
                     .amount(parseDouble(inputObject.getSettlementAmount()))
@@ -188,6 +217,10 @@ public class ISO8583To20022Mapper {
                     .currency(inputObject.getSettlementCurrencyCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P005][" + inputObject.getSettlementAmount()+"]","transaction.transactionAmounts.reconciliationAmount.amount");
+            mappingMetadata.addFieldOrigin("[P050][" + inputObject.getSettlementCurrencyCode()+"]","transaction.transactionAmounts.reconciliationAmount.currency");
+            mappingMetadata.addFieldOrigin("[P009][" + inputObject.getConversionRateSettlement()+"]","transaction.transactionAmounts.reconciliationAmount.effectiveExchangeRate");
+
             CardholderBillingAmountDTO cardholderBillingAmount = CardholderBillingAmountDTO.builder()
                     // ======== FIELD 6 (CARDHOLDER BILLING AMOUNT) ========
                     .amount(parseDouble(inputObject.getCardHolderBillingAmount()))
@@ -196,6 +229,10 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 51 (CARDHOLDER BILLING CURRENCY CODE) ========
                     .currency(inputObject.getCardholderBillingCurrencyCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P006][" + inputObject.getCardHolderBillingAmount()+"]","transaction.transactionAmounts.cardholderBillingAmount.amount");
+            mappingMetadata.addFieldOrigin("[P051][" + inputObject.getCardholderBillingCurrencyCode()+"]","transaction.transactionAmounts.cardholderBillingAmount.currency");
+            mappingMetadata.addFieldOrigin("[P010][" + inputObject.getConversionRate()+"]","transaction.transactionAmounts.cardholderBillingAmount.effectiveExchangeRate");
 
 
             TransactionAmountsDTO transactionAmounts = TransactionAmountsDTO.builder()
@@ -237,6 +274,12 @@ public class ISO8583To20022Mapper {
                     .transactionReference(ProcessMonitoring.createTransactionReference(inputObject, subFields,  "PEER02"))
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P007][" + inputObject.getTransmissionDateTime()+"]","transaction.transactionId.transmissionDateTime");
+            mappingMetadata.addFieldOrigin("[P011][" + inputObject.getSystemTraceAuditNumber()+"]","transaction.transactionId.systemTraceAuditNumber");
+            mappingMetadata.addFieldOrigin("[P012][" + inputObject.getLocalTransactionDate()+"]","transaction.transactionId.localDate");
+            mappingMetadata.addFieldOrigin("[P013][" + inputObject.getLocalTransactionTime()+"]","transaction.transactionId.localTime");
+            mappingMetadata.addFieldOrigin("[P037][" + inputObject.getRetrievalReferenceNumber()+"]","transaction.transactionId.retrievalReferenceNumber");
+
             FeeAmountDTO feeAmount = FeeAmountDTO.builder()
                     .amount(null)
                     .build();
@@ -266,6 +309,7 @@ public class ISO8583To20022Mapper {
                     )
                     .build();
 
+            //mappingMetadata.addFieldOrigin("transaction.transactionAmounts.cardholderBillingAmount.effectiveExchangeRate", "[P054][" + inputObject.getConversionRate()+"]");
 
             additionalAmountList.add(additionalAmount);
 
@@ -285,7 +329,8 @@ public class ISO8583To20022Mapper {
                     .build();
             additionalTransactionDataList.add(additionalResponseData);
 
-            // FIELD 54 - Se mapea los 4 primeros subcampos a esta variable AdditionalData temporalmente
+            mappingMetadata.addFieldOrigin("[P044][" + inputObject.getAdditionalResponseData()+"]","transaction.additionalData.additionalResponseData");
+            // FIELD 54[Se mapea los 4 primeros subcampos a esta variable AdditionalData temporalmente
             // SUB CAMPO 01
             AdditionalDataDTO accountType = AdditionalDataDTO.builder()
                     .key("accountType")
@@ -334,9 +379,10 @@ public class ISO8583To20022Mapper {
                     .messageReason(inputObject.getPointServiceConditionCode())
                     //.additionalFee(additionalFeesList)
                     //.additionalAmount(additionalAmountList)
-                    //.additionalData(additionalTransactionDataList)
+                    .additionalData(additionalTransactionDataList)
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P025][" + inputObject.getPointServiceConditionCode()+"]","transaction.messageReason");
 
             /*----------------------------------------
             * CONTEXT SECTION
@@ -353,6 +399,8 @@ public class ISO8583To20022Mapper {
             SettlementServiceDatesDTO settlementServiceDates = SettlementServiceDatesDTO.builder()
                     .settlementDate(inputObject.getSettlementDate())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P015][" + inputObject.getSettlementDate()+"]","context.transactionContext.settlementService.settlementServiceDates.settlementDate");
 
             SettlementServiceDTO settlementService = SettlementServiceDTO.builder()
                     .settlementServiceDates(settlementServiceDates)
@@ -382,16 +430,22 @@ public class ISO8583To20022Mapper {
                     .additionalData(additionalDataList)
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P018][" + inputObject.getMerchantType()+"]","context.transactionContext.merchantCategoryCode");
+
             PointOfServiceContextDTO pointOfServiceContext = PointOfServiceContextDTO.builder()
                     // ======== FIELD 22 (POINT OF SERVICE ENTRY MODE) ========
                     .cardDataEntryMode(inputObject.getPointServiceEntryMode())
                     .ecommerceIndicator(eCommerceIndicatorString)
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P022][" + inputObject.getPointServiceEntryMode()+"]","context.transactionContext.pointOfServiceContext.cardDataEntryMode");
+
             PINDataDTO pinDataDTO = PINDataDTO.builder()
                     // ======== FIELD 52 (PIN DATA) ========
                     .encryptedPINBlock(inputObject.getPinData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P052][" + inputObject.getPinData()+"]","context.verification.verificationInformation.value.pinData.encryptedPINBlock");
 
             ValueDTO verificationValue = ValueDTO.builder()
                     .pinData(pinDataDTO)
@@ -414,6 +468,8 @@ public class ISO8583To20022Mapper {
                     .value(inputObject.getCampaignData())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P059][" + inputObject.getCampaignData()+"]","context.saleContext.additionalData[campaignData]");
+
             List<AdditionalDataDTO> saleContextList = new ArrayList<>();
             saleContextList.add(campaignData);
 
@@ -427,7 +483,7 @@ public class ISO8583To20022Mapper {
             ContextDTO context = ContextDTO.builder()
                     .transactionContext(transactionContext)
                     .pointOfServiceContext(pointOfServiceContext)
-                   // .verification(verificationList)
+                    .verification(verificationList)
                     //.saleContext(saleContext)
                     .build();
 
@@ -441,11 +497,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getNetworkManagementInformationCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P070][" + inputObject.getNetworkManagementInformationCode()+"]","supplementaryData[networkManagementInfoCode]");
+
             // ======== FIELD 120 (MAPPED AS KEY MANAGEMENT) ========
             SupplementaryDataDTO keyManagement = SupplementaryDataDTO.builder()
                     .placeAndName("keyManagement")
                     .envelope(inputObject.getKeyManagement())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P120][" + inputObject.getKeyManagement()+"]","supplementaryData[keyManagement]");
 
             // ======== FIELD 125 (MAPPED AS SETTLEMENT DATA) ========
             SupplementaryDataDTO settlementData = SupplementaryDataDTO.builder()
@@ -453,11 +513,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getSettlementData())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P125][" + inputObject.getSettlementData()+"]","supplementaryData[settlementData]");
+
             // ======== FIELD 126 (MAPPED AS ISSUER TRACE ID) ========
             SupplementaryDataDTO issuerTraceId = SupplementaryDataDTO.builder()
                     .placeAndName("issuerTraceId")
                     .envelope(inputObject.getIssuerTraceId())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P126][" + inputObject.getIssuerTraceId()+"]","supplementaryData[issuerTraceId]");
 
             /*MAPEO TEMPORAL- INICIO.
              *
@@ -473,11 +537,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getDateConversion())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P016][" + inputObject.getDateConversion()+"]","supplementaryData[dateConversion]");
+
             // ======== FIELD 26 (POINT SERVICE PIN) ========
             SupplementaryDataDTO pointServicePIN = SupplementaryDataDTO.builder()
                     .placeAndName("pointServicePIN")
                     .envelope(inputObject.getPointServicePIN())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P026][" + inputObject.getPointServicePIN()+"]","supplementaryData[pointServicePIN]");
 
             // ======== FIELD 56 (PAYMENT ACCOUNT DATA) ========
             SupplementaryDataDTO paymentAccountData = SupplementaryDataDTO.builder()
@@ -485,11 +553,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getPaymentAccountData())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P056][" + inputObject.getPaymentAccountData()+"]","supplementaryData[paymentAccountData]");
+
             // ======== FIELD 94 (SERVICE INDICATOR) ========
             SupplementaryDataDTO serviceIndicator = SupplementaryDataDTO.builder()
                     .placeAndName("serviceIndicator")
                     .envelope(inputObject.getServiceIndicator())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P094][" + inputObject.getServiceIndicator()+"]","supplementaryData[serviceIndicator]");
 
             // ======== FIELD 96 (MESSAGE SECURITY CODE) ========
             SupplementaryDataDTO messageSecurityCode = SupplementaryDataDTO.builder()
@@ -497,11 +569,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getMessageSecurityCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P096][" + inputObject.getMessageSecurityCode()+"]","supplementaryData[messageSecurityCode]");
+
             // ======== FIELD 104 (TRANSACTION DATA) ========
             SupplementaryDataDTO transactionData = SupplementaryDataDTO.builder()
                     .placeAndName("transactionData")
                     .envelope(inputObject.getTransactionData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P104][" + inputObject.getTransactionData()+"]","supplementaryData[transactionData]");
 
             // ======== FIELD 112 (ADDITIONAL DATA NATIONAL USE) ========
             SupplementaryDataDTO additionalDataNationalUse = SupplementaryDataDTO.builder()
@@ -509,11 +585,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getAdditionalDataNationalUse())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P112][" + inputObject.getAdditionalDataNationalUse()+"]","supplementaryData[additionalDataNationalUse]");
+
             // ======== FIELD 121 (AUTHORIZING AGENT ID CODE) ========
             SupplementaryDataDTO authorizingAgentIdCode = SupplementaryDataDTO.builder()
                     .placeAndName("authorizingAgentIdCode")
                     .envelope(inputObject.getAuthorizingAgentIdCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P121][" + inputObject.getAuthorizingAgentIdCode()+"]","supplementaryData[authorizingAgentIdCode]");
 
             // ======== FIELD 8 (AMOUNT_CARD_HOLDER_BILLING_FEE) ========
             SupplementaryDataDTO amountCardholderBillingFee = SupplementaryDataDTO.builder()
@@ -521,11 +601,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getAmountCardholderBillingFee())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P008][" + inputObject.getAmountCardholderBillingFee()+"]","supplementaryData[amountCardholderBillingFee]");
+
             // ======== FIELD 20 (PAN_COUNTRY_CODE) ========
             SupplementaryDataDTO primaryAccountNumberCountryCode = SupplementaryDataDTO.builder()
                     .placeAndName("primaryAccountNumberCountryCode")
                     .envelope(inputObject.getPrimaryAccountNumberCountryCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P020][" + inputObject.getPrimaryAccountNumberCountryCode()+"]","supplementaryData[primaryAccountNumberCountryCode]");
 
             // ======== FIELD 21 (FORWARDING_INSTITUTION_COUNTRY_CODE) ========
             SupplementaryDataDTO forwardingInstitutionCountryCode = SupplementaryDataDTO.builder()
@@ -533,11 +617,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getForwardingInstitutionCountryCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P021][" + inputObject.getForwardingInstitutionCountryCode()+"]","supplementaryData[forwardingInstitutionCountryCode]");
+
             // ======== FIELD 24 (NETWORK_INTERNATIONAL_ID) ========
             SupplementaryDataDTO networkInternationalId = SupplementaryDataDTO.builder()
                     .placeAndName("networkInternationalId")
                     .envelope(inputObject.getNetworkInternationalId())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P024][" + inputObject.getNetworkInternationalId()+"]","supplementaryData[networkInternationalId]");
 
             // ======== FIELD 27 (AUTHORIZATION_ID_RESPONSE_LENGTH) ========
             SupplementaryDataDTO authorizationIdResponseLength = SupplementaryDataDTO.builder()
@@ -545,11 +633,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getAuthorizationIdResponseLength())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P027][" + inputObject.getAuthorizationIdResponseLength()+"]","supplementaryData[authorizationIdResponseLength]");
+
             // ======== FIELD 29 (AMOUNT_SETTLEMENT_FEE) ========
             SupplementaryDataDTO amountSettlementFee = SupplementaryDataDTO.builder()
                     .placeAndName("amountSettlementFee")
                     .envelope(inputObject.getAmountSettlementFee())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P029][" + inputObject.getAmountSettlementFee()+"]","supplementaryData[amountSettlementFee]");
 
             // ======== FIELD 30 (AMOUNT_TRANSACTION_PROCESSING_FEE) ========
             SupplementaryDataDTO amountTransactionProcessingFee = SupplementaryDataDTO.builder()
@@ -557,11 +649,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getAmountTransactionProcessingFee())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P030][" + inputObject.getAmountTransactionProcessingFee()+"]","supplementaryData[amountTransactionProcessingFee]");
+
             // ======== FIELD 31 (AMOUNT_SETTLEMENT_PROCESSING_FEE) ========
             SupplementaryDataDTO amountSettlementProcessingFee = SupplementaryDataDTO.builder()
                     .placeAndName("amountSettlementProcessingFee")
                     .envelope(inputObject.getAmountSettlementProcessingFee())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P031][" + inputObject.getAmountSettlementProcessingFee()+"]","supplementaryData[amountSettlementProcessingFee]");
 
             // ======== FIELD 34 (PAN_EXTENDED) ========
             SupplementaryDataDTO primaryAccountNumberExtended = SupplementaryDataDTO.builder()
@@ -569,11 +665,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getPrimaryAccountNumberExtended())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P034][" + inputObject.getPrimaryAccountNumberExtended()+"]","supplementaryData[primaryAccountNumberExtended]");
+
             // ======== FIELD 36 (TRACK_THREE_DATA) ========
             SupplementaryDataDTO trackThreeData = SupplementaryDataDTO.builder()
                     .placeAndName("trackThreeData")
                     .envelope(inputObject.getTrackThreeData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P036][" + inputObject.getTrackThreeData()+"]","supplementaryData[trackThreeData]");
 
             // ======== FIELD 46 (EXPANDED_ADDITIONAL_AMOUNTS) ========
             SupplementaryDataDTO expandedAdditionalAmounts = SupplementaryDataDTO.builder()
@@ -581,11 +681,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getExpandedAdditionalAmounts())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P046][" + inputObject.getExpandedAdditionalAmounts()+"]","supplementaryData[expandedAdditionalAmounts]");
+
             // ======== FIELD 47 (ADDITIONAL_DATA_NATIONAL_USE_2) ========
             SupplementaryDataDTO additionalDataNationalUse2 = SupplementaryDataDTO.builder()
                     .placeAndName("additionalDataNationalUse2")
                     .envelope(inputObject.getAdditionalDataNationalUse2())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P047][" + inputObject.getAdditionalDataNationalUse2()+"]","supplementaryData[additionalDataNationalUse2]");
 
             // ======== FIELD 64 (MESSAGE_AUTHENTICATION_CODE) ========
             SupplementaryDataDTO messageAuthenticationCode = SupplementaryDataDTO.builder()
@@ -593,11 +697,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getMessageAuthenticationCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P064][" + inputObject.getMessageAuthenticationCode()+"]","supplementaryData[messageAuthenticationCode]");
+
             // ======== FIELD 66 (SETTLEMENT_CODE) ========
             SupplementaryDataDTO settlementCode = SupplementaryDataDTO.builder()
                     .placeAndName("settlementCode")
                     .envelope(inputObject.getSettlementCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P066][" + inputObject.getSettlementCode()+"]","supplementaryData[settlementCode]");
 
             // ======== FIELD 67 (EXTENDED_PAYMENT_CODE) ========
             SupplementaryDataDTO extendedPaymentCode = SupplementaryDataDTO.builder()
@@ -605,11 +713,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getExtendedPaymentCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P067][" + inputObject.getExtendedPaymentCode()+"]","supplementaryData[extendedPaymentCode]");
+
             // ======== FIELD 68 (RECEIVING_INSTITUTION_COUNTRY_CODE) ========
             SupplementaryDataDTO receivingInstitutionCountryCode = SupplementaryDataDTO.builder()
                     .placeAndName("receivingInstitutionCountryCode")
                     .envelope(inputObject.getReceivingInstitutionCountryCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P068][" + inputObject.getReceivingInstitutionCountryCode()+"]","supplementaryData[receivingInstitutionCountryCode]");
 
             // ======== FIELD 69 (SETTLEMENT_INSTITUTION_COUNTRY_CODE) ========
             SupplementaryDataDTO settlementInstitutionCountryCode = SupplementaryDataDTO.builder()
@@ -617,11 +729,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getSettlementInstitutionCountryCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P069][" + inputObject.getSettlementInstitutionCountryCode()+"]","supplementaryData[settlementInstitutionCountryCode]");
+
             // ======== FIELD 71 (MESSAGE_NUMBER) ========
             SupplementaryDataDTO messageNumber = SupplementaryDataDTO.builder()
                     .placeAndName("messageNumber")
                     .envelope(inputObject.getMessageNumber())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P071][" + inputObject.getMessageNumber()+"]","supplementaryData[messageNumber]");
 
             // ======== FIELD 72 (MESSAGE_NUMBER_LAST) ========
             SupplementaryDataDTO messageNumberLast = SupplementaryDataDTO.builder()
@@ -629,11 +745,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getMessageNumberLast())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P072][" + inputObject.getMessageNumberLast()+"]","supplementaryData[messageNumberLast]");
+
             // ======== FIELD 73 (DATE_ACTION) ========
             SupplementaryDataDTO dateAction = SupplementaryDataDTO.builder()
                     .placeAndName("dateAction")
                     .envelope(inputObject.getDateAction())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P073][" + inputObject.getDateAction()+"]","supplementaryData[dateAction]");
 
             // ======== FIELD 74 (CREDITS_NUMBER) ========
             SupplementaryDataDTO creditsNumber = SupplementaryDataDTO.builder()
@@ -641,11 +761,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getCreditsNumber())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P074][" + inputObject.getCreditsNumber()+"]","supplementaryData[creditsNumber]");
+
             // ======== FIELD 75 (CREDITS_REVERSAL_NUMBER) ========
             SupplementaryDataDTO creditsReversalNumber = SupplementaryDataDTO.builder()
                     .placeAndName("creditsReversalNumber")
                     .envelope(inputObject.getCreditsReversalNumber())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P075][" + inputObject.getCreditsReversalNumber()+"]","supplementaryData[creditsReversalNumber]");
 
             // ======== FIELD 76 (DEBITS_NUMBER) ========
             SupplementaryDataDTO debitsNumber = SupplementaryDataDTO.builder()
@@ -653,11 +777,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getDebitsNumber())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P076][" + inputObject.getDebitsNumber()+"]","supplementaryData[debitsNumber]");
+
             // ======== FIELD 77 (DEBITS_REVERSAL_NUMBER) ========
             SupplementaryDataDTO debitsReversalNumber = SupplementaryDataDTO.builder()
                     .placeAndName("debitsReversalNumber")
                     .envelope(inputObject.getDebitsReversalNumber())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P077][" + inputObject.getDebitsReversalNumber()+"]","supplementaryData[debitsReversalNumber]");
 
             // ======== FIELD 78 (TRANSFER_NUMBER) ========
             SupplementaryDataDTO transferNumber = SupplementaryDataDTO.builder()
@@ -665,11 +793,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getTransferNumber())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P078][" + inputObject.getTransferNumber()+"]","supplementaryData[transferNumber]");
+
             // ======== FIELD 79 (TRANSFER_REVERSAL_NUMBER) ========
             SupplementaryDataDTO transferReversalNumber = SupplementaryDataDTO.builder()
                     .placeAndName("transferReversalNumber")
                     .envelope(inputObject.getTransferReversalNumber())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P079][" + inputObject.getTransferReversalNumber()+"]","supplementaryData[transferReversalNumber]");
 
             // ======== FIELD 80 (INQUIRIES_NUMBER) ========
             SupplementaryDataDTO inquiriesNumber = SupplementaryDataDTO.builder()
@@ -677,11 +809,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getInquiriesNumber())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P080][" + inputObject.getInquiriesNumber()+"]","supplementaryData[inquiriesNumber]");
+
             // ======== FIELD 81 (AUTHORIZATION_NUMBER) ========
             SupplementaryDataDTO authorizationNumber = SupplementaryDataDTO.builder()
                     .placeAndName("authorizationNumber")
                     .envelope(inputObject.getAuthorizationNumber())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P081][" + inputObject.getAuthorizationNumber()+"]","supplementaryData[authorizationNumber]");
 
             // ======== FIELD 82 (CREDITS_PROCESSING_FEE_AMOUNT) ========
             SupplementaryDataDTO creditsProcessingFeeAmount = SupplementaryDataDTO.builder()
@@ -689,11 +825,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getCreditsProcessingFeeAmount())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P082][" + inputObject.getCreditsProcessingFeeAmount()+"]","supplementaryData[creditsProcessingFeeAmount]");
+
             // ======== FIELD 83 (CREDITS_TRANSACTION_FEE_AMOUNT) ========
             SupplementaryDataDTO creditsTransactionFeeAmount = SupplementaryDataDTO.builder()
                     .placeAndName("creditsTransactionFeeAmount")
                     .envelope(inputObject.getCreditsTransactionFeeAmount())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P083][" + inputObject.getCreditsTransactionFeeAmount()+"]","supplementaryData[creditsTransactionFeeAmount]");
 
             // ======== FIELD 84 (DEBITS_PROCESSING_FEE_AMOUNT) ========
             SupplementaryDataDTO debitsProcessingFeeAmount = SupplementaryDataDTO.builder()
@@ -701,11 +841,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getDebitsProcessingFeeAmount())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P084][" + inputObject.getDebitsProcessingFeeAmount()+"]","supplementaryData[debitsProcessingFeeAmount]");
+
             // ======== FIELD 85 (DEBITS_TRANSACTION_FEE_AMOUNT) ========
             SupplementaryDataDTO debitsTransactionFeeAmount = SupplementaryDataDTO.builder()
                     .placeAndName("debitsTransactionFeeAmount")
                     .envelope(inputObject.getDebitsTransactionFeeAmount())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P085][" + inputObject.getDebitsTransactionFeeAmount()+"]","supplementaryData[debitsTransactionFeeAmount]");
 
             // ======== FIELD 86 (CREDITS_AMOUNT) ========
             SupplementaryDataDTO creditsAmount = SupplementaryDataDTO.builder()
@@ -713,11 +857,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getCreditsAmount())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P086][" + inputObject.getCreditsAmount()+"]","supplementaryData[creditsAmount]");
+
             // ======== FIELD 87 (CREDITS_REVERSAL_AMOUNT) ========
             SupplementaryDataDTO creditsReversalAmount = SupplementaryDataDTO.builder()
                     .placeAndName("creditsReversalAmount")
                     .envelope(inputObject.getCreditsReversalAmount())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P087][" + inputObject.getCreditsReversalAmount()+"]","supplementaryData[creditsReversalAmount]");
 
             // ======== FIELD 88 (DEBITS_AMOUNT) ========
             SupplementaryDataDTO debitsAmount = SupplementaryDataDTO.builder()
@@ -725,11 +873,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getDebitsAmount())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P088][" + inputObject.getDebitsAmount()+"]","supplementaryData[debitsAmount]");
+
             // ======== FIELD 89 (DEBITS_REVERSAL_AMOUNT) ========
             SupplementaryDataDTO debitsReversalAmount = SupplementaryDataDTO.builder()
                     .placeAndName("debitsReversalAmount")
                     .envelope(inputObject.getDebitsReversalAmount())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P089][" + inputObject.getDebitsReversalAmount()+"]","supplementaryData[debitsReversalAmount]");
 
             // ======== FIELD 91 (ISSUER_FILE_UPDATE_CODE) ========
             SupplementaryDataDTO issuerFileUpdateCode = SupplementaryDataDTO.builder()
@@ -737,11 +889,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getIssuerFileUpdateCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P091][" + inputObject.getIssuerFileUpdateCode()+"]","supplementaryData[issuerFileUpdateCode]");
+
             // ======== FIELD 92 (FILE_SECURITY_CODE) ========
             SupplementaryDataDTO fileSecurityCode = SupplementaryDataDTO.builder()
                     .placeAndName("fileSecurityCode")
                     .envelope(inputObject.getFileSecurityCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P092][" + inputObject.getFileSecurityCode()+"]","supplementaryData[fileSecurityCode]");
 
             // ======== FIELD 93 (RESPONSE_INDICATOR) ========
             SupplementaryDataDTO responseIndicator = SupplementaryDataDTO.builder()
@@ -749,11 +905,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getResponseIndicator())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P093][" + inputObject.getResponseIndicator()+"]","supplementaryData[responseIndicator]");
+
             // ======== FIELD 95 (REPLACEMENT_AMOUNTS) ========
             SupplementaryDataDTO replacementAmounts = SupplementaryDataDTO.builder()
                     .placeAndName("replacementAmounts")
                     .envelope(inputObject.getReplacementAmounts())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P095][" + inputObject.getReplacementAmounts()+"]","supplementaryData[replacementAmounts]");
 
             // ======== FIELD 97 (AMOUNT_NET_SETTLEMENT) ========
             SupplementaryDataDTO amountNetSettlement = SupplementaryDataDTO.builder()
@@ -761,11 +921,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getAmountNetSettlement())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P097][" + inputObject.getAmountNetSettlement()+"]","supplementaryData[amountNetSettlement]");
+
             // ======== FIELD 98 (PAYEE) ========
             SupplementaryDataDTO payee = SupplementaryDataDTO.builder()
                     .placeAndName("payee")
                     .envelope(inputObject.getPayee())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P098][" + inputObject.getPayee()+"]","supplementaryData[payee]");
 
             // ======== FIELD 99 (SETTLEMENT_INSTITUTION_IDENTIFICATION_CODE) ========
             SupplementaryDataDTO settlementInstitutionIdentificationCode = SupplementaryDataDTO.builder()
@@ -773,11 +937,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getSettlementInstitutionIdentificationCode())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P099][" + inputObject.getSettlementInstitutionIdentificationCode()+"]","supplementaryData[settlementInstitutionIdentificationCode]");
+
             // ======== FIELD 100 (RECEIVING_INSTITUTION_IDENTIFICATION_CODE) ========
             SupplementaryDataDTO receivingInstitutionIdentificationCode = SupplementaryDataDTO.builder()
                     .placeAndName("receivingInstitutionIdentificationCode")
                     .envelope(inputObject.getReceivingInstitutionIdentificationCode())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P100][" + inputObject.getReceivingInstitutionIdentificationCode()+"]","supplementaryData[receivingInstitutionIdentificationCode]");
 
             // ======== FIELD 101 (FILE_NAME) ========
             SupplementaryDataDTO fileName = SupplementaryDataDTO.builder()
@@ -785,11 +953,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getFileName())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P101][" + inputObject.getFileName()+"]","supplementaryData[fileName]");
+
             // ======== FIELD 102 (ACCOUNT_IDENTIFICATION_1) ========
             SupplementaryDataDTO accountIdentification1 = SupplementaryDataDTO.builder()
                     .placeAndName("accountIdentification1")
                     .envelope(inputObject.getAccountIdentification1())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P102][" + inputObject.getAccountIdentification1()+"]","supplementaryData[accountIdentification1]");
 
             // ======== FIELD 106 (FLEET_SERVICE_DATA) ========
             SupplementaryDataDTO fleetServiceData = SupplementaryDataDTO.builder()
@@ -797,11 +969,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getFleetServiceData())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P106][" + inputObject.getFleetServiceData()+"]","supplementaryData[fleetServiceData]");
+
             // ======== FIELD 108 (ADDITIONAL_TRANSACTION_REFERENCE_DATA) ========
             SupplementaryDataDTO additionalTransactionReferenceData = SupplementaryDataDTO.builder()
                     .placeAndName("additionalTransactionReferenceData")
                     .envelope(inputObject.getAdditionalTransactionReferenceData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P108][" + inputObject.getAdditionalTransactionReferenceData()+"]","supplementaryData[additionalTransactionReferenceData]");
 
             // ======== FIELD 109 (ISO_USE) ========
             SupplementaryDataDTO isoUse = SupplementaryDataDTO.builder()
@@ -809,11 +985,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getIsoUse())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P109][" + inputObject.getIsoUse()+"]","supplementaryData[isoUse]");
+
             // ======== FIELD 115 (RESERVED_NATIONAL_USE) ========
             SupplementaryDataDTO reservedNationalUse = SupplementaryDataDTO.builder()
                     .placeAndName("reservedNationalUse")
                     .envelope(inputObject.getReservedNationalUse())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P115][" + inputObject.getReservedNationalUse()+"]","supplementaryData[reservedNationalUse]");
 
             // ======== FIELD 119 (RESERVED_NATIONAL_USE_2) ========
             SupplementaryDataDTO reservedNationalUse2 = SupplementaryDataDTO.builder()
@@ -821,11 +1001,15 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getReservedNationalUse2())
                     .build();
 
+            mappingMetadata.addFieldOrigin("[P119][" + inputObject.getReservedNationalUse2()+"]","supplementaryData[reservedNationalUse2]");
+
             // ======== FIELD 127 (PRIVATE_DATA) ========
             SupplementaryDataDTO privateData = SupplementaryDataDTO.builder()
                     .placeAndName("privateData")
                     .envelope(inputObject.getPrivateData())
                     .build();
+
+            mappingMetadata.addFieldOrigin("[P127][" + inputObject.getPrivateData()+"]","supplementaryData[privateData]");
 
             // ======== FIELD 128 (MESSAGE_AUTHENTICATION_CODE_2) ========
             SupplementaryDataDTO messageAuthenticationCode2 = SupplementaryDataDTO.builder()
@@ -833,7 +1017,9 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getMessageAuthenticationCode2())
                     .build();
 
-            /*MAPEO TEMPORAL. - FIN*/
+            mappingMetadata.addFieldOrigin("[P128][" + inputObject.getMessageAuthenticationCode2()+"]","supplementaryData[messageAuthenticationCode2]");
+
+            /*MAPEO TEMPORAL.[FIN*/
 
             List<SupplementaryDataDTO> supplementaryDataList = new ArrayList<>();
             supplementaryDataList.add(networkManagementInfoCode);
@@ -1016,6 +1202,7 @@ public class ISO8583To20022Mapper {
                     //.supplementaryData(supplementaryDataList)
                     .addendumData(addendumData)
                     .monitoring(ProcessMonitoring.createMonitoring(inputObject, fieldDto))
+                    .mappingMetadata(mappingMetadata)
                     .build();
 
         } catch (Exception e) {
@@ -1095,7 +1282,7 @@ public class ISO8583To20022Mapper {
         }
 
         conversionRate.deleteCharAt(0);
-        conversionRate.insert(conversionRate.length() - precision, ".");
+        conversionRate.insert(conversionRate.length(), ".");
         return Double.parseDouble(conversionRate.toString());
     }
 

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.orchestrator.common.MappingMetadata;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -37,4 +38,5 @@ public class ISO20022 implements Serializable {
 	private AddendumDataDTO addendumData;
 	private MonitoringDTO monitoring;
 	private String socketIp;
+	private MappingMetadata mappingMetadata;
 }
