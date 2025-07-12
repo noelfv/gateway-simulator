@@ -1,6 +1,7 @@
 package org.example.gui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.gui.componentes.NoIconTreeCellRenderer;
 import org.example.orchestrator.MCMessageParserImpl;
 import org.example.orchestrator.common.DataTypeISO8583;
 import org.example.orchestrator.common.ISOUtil;
@@ -39,8 +40,8 @@ public class MastercardParserGUI4 extends JFrame {
     private JMenu parseMenu;
     private JMenu conversionMenu;
     private JMenuItem parseMenuItem;
-    private JMenuItem clearMenuItem;
-    private JMenuItem ebcdicMenuItem;
+    private JMenuItem generarTramaMenuItem;
+    private JMenuItem parserTramaMenuItem;
     private MCMessageParserImpl messageParser;
     private Map<String, String> currentMappedFields;
     private ToolWindowManager toolWindowManager;
@@ -104,10 +105,10 @@ public class MastercardParserGUI4 extends JFrame {
 
         // Crear menú "Conversión" con submenús
         conversionMenu = new JMenu("Conversión");
-        clearMenuItem = new JMenuItem("Clear");
-        ebcdicMenuItem = new JMenuItem("EBCDIC");
-        conversionMenu.add(clearMenuItem);
-        conversionMenu.add(ebcdicMenuItem);
+        generarTramaMenuItem = new JMenuItem("Generar trama");
+        parserTramaMenuItem = new JMenuItem("EBCDIC");
+        conversionMenu.add(generarTramaMenuItem);
+        conversionMenu.add(parserTramaMenuItem);
 
         // Agregar menús a la barra
         menuBar.add(parseMenu);
@@ -120,22 +121,22 @@ public class MastercardParserGUI4 extends JFrame {
         parseMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (toolWindowManager == null) {
+                getContentPane().removeAll();
+               // if (toolWindowManager == null) {
                     setupMyDoggy();
-                }
+               // }
                // parseMessage();
             }
         });
 
-        clearMenuItem.addActionListener(new ActionListener() {
+        generarTramaMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 unparseMessage(true);
             }
         });
 
-        ebcdicMenuItem.addActionListener(new ActionListener() {
+        parserTramaMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 unparseMessage(false);
@@ -143,8 +144,8 @@ public class MastercardParserGUI4 extends JFrame {
         });
 
         // Deshabilitar opciones de conversión hasta que se parsee un mensaje
-        clearMenuItem.setEnabled(false);
-        ebcdicMenuItem.setEnabled(false);
+        //clearMenuItem.setEnabled(false);
+        //ebcdicMenuItem.setEnabled(false);
     }
 
 
@@ -286,8 +287,8 @@ public class MastercardParserGUI4 extends JFrame {
             // Habilitar botones y opciones de menú
             unparseCleanButton.setEnabled(true);
             unparseEBCDICButton.setEnabled(true);
-            clearMenuItem.setEnabled(true);
-            ebcdicMenuItem.setEnabled(true);
+            //generarTramaMenuItem.setEnabled(true);
+           //ebcdicMenuItem.setEnabled(true);
 
             boolean clear=false;
             if(inputMessage.startsWith("F0")){

@@ -684,7 +684,7 @@ public class ISO8583To20022Mapper {
             mappingMetadata.addFieldOrigin("[P046][" + inputObject.getExpandedAdditionalAmounts()+"]","supplementaryData[expandedAdditionalAmounts]");
 
             // ======== FIELD 47 (ADDITIONAL_DATA_NATIONAL_USE_2) ========
-            SupplementaryDataDTO additionalDataNationalUse2 = SupplementaryDataDTO.builder()
+           SupplementaryDataDTO additionalDataNationalUse2 = SupplementaryDataDTO.builder()
                     .placeAndName("additionalDataNationalUse2")
                     .envelope(inputObject.getAdditionalDataNationalUse2())
                     .build();
@@ -1184,7 +1184,7 @@ public class ISO8583To20022Mapper {
 
             //String transactionReference = transaction.getTransactionId().getTransactionReference();
             //System.out.println(String.format("requestMessage %s|%s", inputObject.getOriginalMessage(), transactionReference));
-
+            mappingMetadata.addFieldOrigin("[P055][" + inputObject.getIntegratedCircuitCard()+"]","iccRelatedData");
             return ISO20022.builder()
                     .networkName("PEER02")
                     // Cambio de tipo de mensaje hacia uno interno de gateway
@@ -1197,7 +1197,7 @@ public class ISO8583To20022Mapper {
                     .processingResult(ProcessingResult.createProcessingResult(inputObject))
                    // .securityTrailer(securityTrailer)
                     // ======== FIELD 55 (ICC RELATED DATA) ========
-                    //.iccRelatedData(inputObject.getIntegratedCircuitCard())
+                    .iccRelatedData(inputObject.getIntegratedCircuitCard())
                    // .protectedData(protectedDataList)
                     //.supplementaryData(supplementaryDataList)
                     .addendumData(addendumData)
