@@ -1,9 +1,10 @@
 package org.example.gui.componentes;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TreeNodeData {
+public class TreeNodeData implements Serializable {
     private String label;
     private String value;
     private static Map<String, String> persistentValues = new HashMap<>();

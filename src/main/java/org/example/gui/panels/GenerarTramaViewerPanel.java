@@ -6,7 +6,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-
 import org.example.gui.componentes.NoIconTreeCellRenderer;
 import org.example.gui.componentes.TreeNodeData;
 import org.example.orchestrator.MCMessageParserImpl;
@@ -17,6 +16,7 @@ import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 import java.awt.*;
 import java.util.Map;
+import java.util.HashMap;
 import org.example.gui.componentes.TextFieldTreeCellRenderer;
 import org.example.gui.componentes.TextFieldTreeCellEditor;
 
@@ -32,21 +32,22 @@ public class GenerarTramaViewerPanel extends JPanel {
     private Map<String, String> currentMappedFieldsByDescription;
     private boolean editorListenerAdded = false;
 
-   public GenerarTramaViewerPanel() {
-       initializeComponents();
-       setupMyDoggy();
+    // Mapa para almacenar los valores de cada nodo
+    private Map<String, String> nodeValues = new HashMap<>();
+
+    public GenerarTramaViewerPanel() {
+        initializeComponents();
+        setupMyDoggy();
     }
 
-
     private void initializeComponents() {
-
         setLayout(new BorderLayout());
         outputTextArea = new JTextArea(12, 60);
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
         outputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         outputTextArea.setEditable(false);
-        //outputTextArea.setEnabled(false);
+
         // Inicializar el árbol jerárquico
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Mensaje Parseado");
         treeModel = new DefaultTreeModel(root);
@@ -54,37 +55,31 @@ public class GenerarTramaViewerPanel extends JPanel {
         resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
         processarButton = new JButton("Procesar");
-
     }
-
 
     private void setupMyDoggy() {
         toolWindowManager = new MyDoggyToolWindowManager();
+
         // Panel principal con entrada y botones
         JPanel mainPanel = createMainPanel();
+
         // Crear un panel contenedor para combinar radio buttons y panel principal
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(mainPanel, BorderLayout.CENTER);
+
         // Agregar el panel contenedor como contenido central
         toolWindowManager.getContentManager().addContent("main", "Parser Principal", null, contentPanel);
-        // Agregar el panel principal como contenido central
-        //toolWindowManager.getContentManager().addContent("main", "Parser Principal", null, mainPanel);
 
         // Tool Window para el árbol jerárquico
         ToolWindow treeToolWindow = toolWindowManager.registerToolWindow("Parser",
                 "Estructura Jerárquica", null, new JScrollPane(resultTree), ToolWindowAnchor.LEFT);
         treeToolWindow.setAvailable(true);
 
-        // Tool Window para resultados
-        /*ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("output",
-                "Resultado", null, createOutputPanel(), ToolWindowAnchor.RIGHT);
-        outputToolWindow.setAvailable(true);*/
-        // Cambiar esta línea para obtener el componente correcto
-        updateTreeView();
+        // Inicializar el árbol
+        initializeTree();
+
         add(toolWindowManager, BorderLayout.CENTER);
-
     }
-
 
     private JPanel createMainPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -94,51 +89,42 @@ public class GenerarTramaViewerPanel extends JPanel {
         inputPanel.setBorder(BorderFactory.createTitledBorder("Resultado"));
         inputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
 
-        // Panel de botones
-        //JPanel buttonPanel = new JPanel(new FlowLayout());
-        //buttonPanel.add(parseButton);
-
         panel.add(inputPanel, BorderLayout.CENTER);
-       // panel.add(buttonPanel, BorderLayout.SOUTH);
-
         return panel;
     }
 
+    private void initializeTree() {
+        // Crear raíz
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
 
-    private void updateTreeView() {
-        // Solo crear el árbol una vez, no recrear si ya existe
-        if (treeModel.getRoot() == null ||
-                !treeModel.getRoot().toString().equals("Campos ISO8583")) {
-
-            // Crear raíz con objeto personalizado
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
-            for (int i = 1; i <= 10; i++) {
-                root.add(new DefaultMutableTreeNode(
-                        new TreeNodeData("P" + ISOUtil.padLeft("" + i, 3, '0'), "")));
-            }
-            treeModel.setRoot(root);
+        // Crear nodos hijos con TreeNodeData
+        for (int i = 1; i <= 10; i++) {
+            String nodeKey = "P" + ISOUtil.padLeft("" + i, 3, '0');
+            TreeNodeData nodeData = new TreeNodeData(nodeKey, "");
+            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(nodeData);
+            root.add(childNode);
         }
+
+        treeModel.setRoot(root);
 
         // Configurar renderer y editor
         resultTree.setCellRenderer(new TextFieldTreeCellRenderer());
         resultTree.setCellEditor(new TextFieldTreeCellEditor());
         resultTree.setEditable(true);
 
-        // Agregar listener solo una vez
+        // Agregar listener para manejar cambios
+        setupEditorListener();
+
+        // Expandir todos los nodos
+        expandAllNodes();
+    }
+
+    private void setupEditorListener() {
         if (!editorListenerAdded) {
             resultTree.getCellEditor().addCellEditorListener(new CellEditorListener() {
                 @Override
                 public void editingStopped(ChangeEvent e) {
-                    TreePath path = resultTree.getSelectionPath();
-                    if (path != null) {
-                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        Object userObject = node.getUserObject();
-                        if (userObject instanceof TreeNodeData) {
-                            String value = (String) resultTree.getCellEditor().getCellEditorValue();
-                            ((TreeNodeData) userObject).setValue(value);
-                            treeModel.nodeChanged(node);
-                        }
-                    }
+                    saveCurrentNodeValue();
                 }
 
                 @Override
@@ -148,96 +134,81 @@ public class GenerarTramaViewerPanel extends JPanel {
             });
             editorListenerAdded = true;
         }
-
-        // Expandir todos los nodos
-        for (int i = 0; i < resultTree.getRowCount(); i++) {
-            resultTree.expandRow(i);
-        }
     }
 
+    private void saveCurrentNodeValue() {
+        TreePath path = resultTree.getSelectionPath();
+        if (path != null) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+            Object userObject = node.getUserObject();
 
+            if (userObject instanceof TreeNodeData) {
+                TreeNodeData nodeData = (TreeNodeData) userObject;
+                String value = (String) resultTree.getCellEditor().getCellEditorValue();
 
+                // Guardar en el objeto TreeNodeData
+                nodeData.setValue(value);
 
-    private void updateTreeView2() {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
-        for (int i = 1; i <= 10; i++) {
-            String nodeText = "P" + ISOUtil.padLeft("" + i, 3, '0');
-            root.add(new DefaultMutableTreeNode(nodeText));
-        }
+                // También guardar en el mapa para respaldo
+                nodeValues.put(nodeData.getLabel(), value);
 
-        treeModel.setRoot(root);
-        // Asignar renderer y editor personalizados
-        resultTree.setCellRenderer(new TextFieldTreeCellRenderer());
-        resultTree.setCellEditor(new TextFieldTreeCellEditor());
-        resultTree.setEditable(true);
+                System.out.println("Valor guardado: '" + value + "' para nodo: " + nodeData.getLabel());
 
-        // Expandir todos los nodos
-        for (int i = 1 ;i < resultTree.getRowCount(); i++) {
-            resultTree.expandRow(i);
-        }
-    }
-
-
-    private void updateTreeView3() {
-        // Solo crear el árbol una vez, no recrear si ya existe
-        if (treeModel.getRoot() == null ||
-                !treeModel.getRoot().toString().equals("Campos ISO8583")) {
-
-            // Crear raíz con objeto personalizado
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
-            for (int i = 1; i <= 10; i++) {
-                // Nodo con objeto que almacena nombre y valor editable
-                root.add(new DefaultMutableTreeNode(
-                        new TreeNodeData("P" + ISOUtil.padLeft("" + i, 3, '0'), "")));
+                // Notificar cambio al modelo
+                treeModel.nodeChanged(node);
             }
-            treeModel.setRoot(root);
         }
+    }
 
-        // Configurar renderer y editor solo una vez
-        if (!(resultTree.getCellRenderer() instanceof TextFieldTreeCellRenderer)) {
-            resultTree.setCellRenderer(new TextFieldTreeCellRenderer());
-        }
-        if (!(resultTree.getCellEditor() instanceof TextFieldTreeCellEditor)) {
-            resultTree.setCellEditor(new TextFieldTreeCellEditor());
-
-            // Agregar el listener solo cuando se crea el editor
-            resultTree.getCellEditor().addCellEditorListener(new CellEditorListener() {
-                @Override
-                public void editingStopped(ChangeEvent e) {
-                    TreePath path = resultTree.getSelectionPath();
-                    if (path != null) {
-                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        Object userObject = node.getUserObject();
-                        if (userObject instanceof TreeNodeData) {
-                            String value = (String) resultTree.getCellEditor().getCellEditorValue();
-
-                            System.out.println("CellEditorListener - Guardando valor: '" + value +
-                                    "' en nodo: " + ((TreeNodeData) userObject).getLabel());
-
-                            ((TreeNodeData) userObject).setValue(value);
-
-                            // Refrescar solo el nodo editado
-                            treeModel.nodeChanged(node);
-                        }
-                    }
-                }
-
-                @Override
-                public void editingCanceled(ChangeEvent e) {
-                    System.out.println("Edición cancelada");
-                }
-            });
-        }
-
-        resultTree.setEditable(true);
-
-        // Expandir todos los nodos
+    private void expandAllNodes() {
         for (int i = 0; i < resultTree.getRowCount(); i++) {
             resultTree.expandRow(i);
         }
     }
 
+    // Método para obtener todos los valores ingresados
+    public Map<String, String> getAllNodeValues() {
+        Map<String, String> allValues = new HashMap<>();
 
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+        for (int i = 0; i < root.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
+            Object userObject = child.getUserObject();
 
+            if (userObject instanceof TreeNodeData) {
+                TreeNodeData nodeData = (TreeNodeData) userObject;
+                allValues.put(nodeData.getLabel(), nodeData.getValue() != null ? nodeData.getValue() : "");
+            }
+        }
 
+        return allValues;
+    }
+
+    // Método para establecer valores programáticamente
+    public void setNodeValue(String nodeLabel, String value) {
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+        for (int i = 0; i < root.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
+            Object userObject = child.getUserObject();
+
+            if (userObject instanceof TreeNodeData) {
+                TreeNodeData nodeData = (TreeNodeData) userObject;
+                if (nodeData.getLabel().equals(nodeLabel)) {
+                    nodeData.setValue(value);
+                    nodeValues.put(nodeLabel, value);
+                    treeModel.nodeChanged(child);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Método para imprimir todos los valores (para debugging)
+    public void printAllValues() {
+        System.out.println("=== Valores actuales ===");
+        Map<String, String> values = getAllNodeValues();
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            System.out.println(entry.getKey() + ": '" + entry.getValue() + "'");
+        }
+    }
 }

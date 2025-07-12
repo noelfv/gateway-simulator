@@ -1,6 +1,7 @@
 package org.example.gui;
 
 import org.example.gui.panels.ConvertitTramaViewerPanel;
+import org.example.gui.panels.GeneratePanelGpt;
 import org.example.gui.panels.ParseViewerPanel;
 import org.example.gui.panels.GenerarTramaViewerPanel;
 import javax.swing.*;
@@ -77,7 +78,8 @@ public class MastercardParserGUI5 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
-                getContentPane().add(new GenerarTramaViewerPanel(), BorderLayout.CENTER);
+                //getContentPane().add(new GenerarTramaViewerPanel(), BorderLayout.CENTER);
+                getContentPane().add(new GeneratePanelGpt(), BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }

@@ -1,20 +1,21 @@
 package org.example.gui.componentes;
 
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
 
-public class TextFieldTreeCellRenderer extends JPanel implements TreeCellRenderer {
+public class CellRendererGpt extends JPanel implements TreeCellRenderer {
     private JLabel label;
     private JTextField textField;
+    private TreeNodeData currentNodeData;
 
-    public TextFieldTreeCellRenderer() {
+    public CellRendererGpt() {
         setLayout(new BorderLayout());
         label = new JLabel();
         textField = new JTextField(10);
-        textField.setEditable(false); // No editable en el renderer
-        textField.setBorder(BorderFactory.createLoweredBevelBorder());
+        textField.setEditable(false);
     }
 
     @Override
@@ -25,45 +26,40 @@ public class TextFieldTreeCellRenderer extends JPanel implements TreeCellRendere
 
         if (node.isRoot()) {
             label.setText(value.toString());
-            label.setFont(label.getFont().deriveFont(Font.BOLD));
             add(label, BorderLayout.CENTER);
         } else {
-            Object userObject = node.getUserObject();
-            if (userObject instanceof TreeNodeData) {
-                TreeNodeData nodeData = (TreeNodeData) userObject;
+            currentNodeData = (TreeNodeData) node.getUserObject();
+            if (currentNodeData instanceof TreeNodeData) {
+                label.setText(currentNodeData.getLabel());
+                // AQUÍ está la clave - recuperar el valor guardado
+                String savedValue = currentNodeData.getValue();
+                textField.setText(currentNodeData.getValue());
+                System.out.println("RENDERER - Cargando nodo: " + currentNodeData.getLabel() +
+                        " con valor: '" + savedValue + "' - ID objeto: " + currentNodeData.hashCode());
 
-                label.setText(nodeData.getLabel() + ":");
-                label.setPreferredSize(new Dimension(80, 25));
-
-                // Mostrar el valor guardado
-                String savedValue = nodeData.getValue();
-                textField.setText(savedValue != null ? savedValue : "campo = ");
-                textField.setPreferredSize(new Dimension(150, 25));
-
-                add(label, BorderLayout.WEST);
-                add(textField, BorderLayout.CENTER);
             } else {
                 label.setText(value.toString());
-                add(label, BorderLayout.CENTER);
+                textField.setText("");
             }
+
+            add(label, BorderLayout.WEST);
+            add(textField, BorderLayout.CENTER);
         }
 
-        // Configurar colores según selección
         if (selected) {
             setBackground(UIManager.getColor("Tree.selectionBackground"));
             setForeground(UIManager.getColor("Tree.selectionForeground"));
             label.setForeground(UIManager.getColor("Tree.selectionForeground"));
-            textField.setBackground(UIManager.getColor("Tree.selectionBackground"));
-            textField.setForeground(UIManager.getColor("Tree.selectionForeground"));
         } else {
             setBackground(UIManager.getColor("Tree.background"));
             setForeground(UIManager.getColor("Tree.foreground"));
             label.setForeground(UIManager.getColor("Tree.foreground"));
-            textField.setBackground(Color.WHITE);
-            textField.setForeground(Color.BLACK);
         }
 
-        setOpaque(true);
+        setOpaque(true); // Importante para que se vea el color de fondo
+
+
         return this;
     }
+
 }
