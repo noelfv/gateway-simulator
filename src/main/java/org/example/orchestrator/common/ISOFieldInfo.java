@@ -1,20 +1,35 @@
 package org.example.orchestrator.common;
 
 
-public class DataTypeISO8583 {
+public class ISOFieldInfo {
 
-    private  int id;
-    private  String name;
-    private  String typeData;
-    private  boolean isVariable;
-    private  int length;
-    private  String caracteristicaDato;
+    private int id;
+    private String name;
+    private String value;
+    private String typeData;
+    private boolean isVariable;
+    private int length;
+    private String caracteristicaDato;
 
-    public DataTypeISO8583() {
+    public ISOFieldInfo() {
 
     }
 
-    public DataTypeISO8583(int id, String name, String typeData, boolean isVariable, int length) {
+    public ISOFieldInfo(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public ISOFieldInfo(int id, String name, String value, String typeData, int length, boolean isVariable) {
+        this.id = id;
+        this.name = name;
+        this.value = value;
+        this.typeData = typeData;
+        this.isVariable = isVariable;
+        this.length = length;
+    }
+
+    public ISOFieldInfo(int id, String name, String typeData, boolean isVariable, int length) {
         this.id = id;
         this.name = name;
         this.typeData = typeData;
@@ -22,7 +37,7 @@ public class DataTypeISO8583 {
         this.length = length;
     }
 
-    public DataTypeISO8583(int id, String name, String typeData, String caracteristicaDato, int length) {
+    public ISOFieldInfo(int id, String name, String typeData, String caracteristicaDato, int length) {
         this.id = id;
         this.name = name;
         this.typeData = typeData;
@@ -77,5 +92,19 @@ public class DataTypeISO8583 {
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+    public String getValue() {
+        return value;
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("ISOFieldInfo{id=%d, name=%s, value=%s, typeData=%s, length=%d, isVariable=%s}",
+                id, name, value, typeData, length, isVariable);
     }
 }

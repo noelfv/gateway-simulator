@@ -3,7 +3,7 @@ package org.example.gui.panels;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.orchestrator.MCMessageParserImpl;
-import org.example.orchestrator.common.DataTypeISO8583;
+import org.example.orchestrator.common.ISOFieldInfo;
 import org.example.orchestrator.common.ISOUtil;
 import org.example.orchestrator.common.ParseResult;
 import org.example.orchestrator.dto.ISO20022;
@@ -312,7 +312,7 @@ public class ParseViewerPanel extends JPanel {
                 }
 
                 // Buscar información adicional del campo
-                DataTypeISO8583 dataType = getDataTypeISO8583(fieldId);
+                ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
 
                 // Crear panel personalizado para el popup
                 JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -344,7 +344,7 @@ public class ParseViewerPanel extends JPanel {
     }
 
 
-    private DataTypeISO8583 getDataTypeISO8583(String fieldId) {
+    private ISOFieldInfo getDataTypeISO8583(String fieldId) {
         try {
             int id = Integer.parseInt(fieldId);
             // Buscar en el enum ISOFieldMastercard por el ID numérico
@@ -352,11 +352,11 @@ public class ParseViewerPanel extends JPanel {
                 if (field.getId() == id) {
                     //return field.getDescription();
                     if(!field.isVariable()){
-                        return new DataTypeISO8583(field.getId(),field.getName(),
+                        return new ISOFieldInfo(field.getId(),field.getName(),
                                 field.getTypeData().name(), "FIXED", field.getLength());
                     }
 
-                    return new DataTypeISO8583(field.getId(),field.getName(),
+                    return new ISOFieldInfo(field.getId(),field.getName(),
                             field.getTypeData().name(), "VARIABLE", field.getLength());
                 }
             }
@@ -364,7 +364,7 @@ public class ParseViewerPanel extends JPanel {
             // Si no es un número válido, no hacer nada
         }
 
-        return new DataTypeISO8583();
+        return new ISOFieldInfo();
     }
 
     public void setInputText(String text) {

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.formdev.flatlaf.FlatLightLaf;
 import org.example.gui.componentes.NoIconTreeCellRenderer;
 import org.example.orchestrator.MCMessageParserImpl;
-import org.example.orchestrator.common.DataTypeISO8583;
+import org.example.orchestrator.common.ISOFieldInfo;
 import org.example.orchestrator.common.ISOUtil;
 import org.example.orchestrator.common.ParseResult;
 import org.example.orchestrator.dto.ISO20022;
@@ -516,7 +516,7 @@ public class MastercardParserGUI2 extends JFrame {
                 // Buscar información adicional del campo
                 String value = currentMappedFieldsById.get(fieldId);
                 String description = getFieldDescription(fieldId);
-                DataTypeISO8583 dataType = getDataTypeISO8583(fieldId);
+                ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
 
                 // Crear panel personalizado para el popup
                 JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -563,7 +563,7 @@ public class MastercardParserGUI2 extends JFrame {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private DataTypeISO8583 getDataTypeISO8583(String fieldId) {
+    private ISOFieldInfo getDataTypeISO8583(String fieldId) {
         try {
             int id = Integer.parseInt(fieldId);
             // Buscar en el enum ISOFieldMastercard por el ID numérico
@@ -571,11 +571,11 @@ public class MastercardParserGUI2 extends JFrame {
                 if (field.getId() == id) {
                     //return field.getDescription();
                     if(!field.isVariable()){
-                        return new DataTypeISO8583(field.getId(),field.getName(),
+                        return new ISOFieldInfo(field.getId(),field.getName(),
                                 field.getTypeData().name(), "FIXED", field.getLength());
                     }
 
-                    return new DataTypeISO8583(field.getId(),field.getName(),
+                    return new ISOFieldInfo(field.getId(),field.getName(),
                             field.getTypeData().name(), "VARIABLE", field.getLength());
                 }
             }
@@ -583,7 +583,7 @@ public class MastercardParserGUI2 extends JFrame {
             // Si no es un número válido, no hacer nada
         }
 
-        return new DataTypeISO8583();
+        return new ISOFieldInfo();
     }
 
     /**

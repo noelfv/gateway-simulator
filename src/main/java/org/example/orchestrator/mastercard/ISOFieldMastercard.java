@@ -5,8 +5,10 @@ import org.example.orchestrator.common.ISODataType;
 import org.example.orchestrator.common.ISOField;
 import org.example.orchestrator.common.ISOUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.example.orchestrator.common.ISODataType.HEXADECIMAL;
 
@@ -211,6 +213,12 @@ public enum ISOFieldMastercard implements ISOField {
             }
         }
         return originalField.append(value).toString();
+    }
+
+    public static Optional<ISOFieldMastercard> findById(int id) {
+        return Arrays.stream(values())
+                .filter(f -> f.id == id)
+                .findFirst();
     }
 
 
