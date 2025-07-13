@@ -1,9 +1,9 @@
 package org.example.gui;
 
 import org.example.gui.panels.ConvertitTramaViewerPanel;
-import org.example.gui.panels.GeneratePanelGpt;
-import org.example.gui.panels.ParseViewerPanel;
 import org.example.gui.panels.GenerarTramaViewerPanel;
+import org.example.gui.panels.ParseViewerPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,9 +16,13 @@ public class MastercardParserGUI5 extends JFrame {
     private JMenuBar menuBar;
     private JMenu parseMenu;
     private JMenu conversionMenu;
+    private JMenu especificacionMenu;
     private JMenuItem parseMenuItem;
     private JMenuItem generarTramaMenuItem;
     private JMenuItem convertirTramaMenuItem;
+    private JMenuItem campo48MenuItem;
+    private JMenuItem campo54MenuItem;
+    private JMenu subcamposMenu;
 
     public MastercardParserGUI5() {
         initializeComponents();
@@ -41,13 +45,22 @@ public class MastercardParserGUI5 extends JFrame {
         conversionMenu = new JMenu("Conversion");
         generarTramaMenuItem = new JMenuItem("Generar trama");
         convertirTramaMenuItem = new JMenuItem("Convertir trama");
+        subcamposMenu = new JMenu("Campos variables");
+        campo48MenuItem=new JMenuItem("Campo 48");
+        campo54MenuItem=new JMenuItem("Campo 54");
+        subcamposMenu.add(campo48MenuItem);
+        subcamposMenu.add(campo54MenuItem);
         conversionMenu.add(convertirTramaMenuItem);
         conversionMenu.add(generarTramaMenuItem);
-        
+        conversionMenu.add(subcamposMenu);
+
+        especificacionMenu = new JMenu("Especificacion");
+
 
         // Agregar menús a la barra
         menuBar.add(parseMenu);
         menuBar.add(conversionMenu);
+        menuBar.add(especificacionMenu);
 
 
         // Establecer la barra de menú en el frame
@@ -78,8 +91,7 @@ public class MastercardParserGUI5 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
-                //getContentPane().add(new GenerarTramaViewerPanel(), BorderLayout.CENTER);
-                getContentPane().add(new GeneratePanelGpt(), BorderLayout.CENTER);
+                getContentPane().add(new GenerarTramaViewerPanel(), BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }
@@ -98,7 +110,7 @@ public class MastercardParserGUI5 extends JFrame {
     }
 
 
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
         // Establece el Look and Feel ANTES de crear cualquier componente Swing
         //FlatLightLaf.setup(); // O el tema que prefieras
         SwingUtilities.invokeLater(new Runnable() {
@@ -122,5 +134,5 @@ public class MastercardParserGUI5 extends JFrame {
                 gui.setVisible(true);
             }
         });
-    }
+    }*/
 }
