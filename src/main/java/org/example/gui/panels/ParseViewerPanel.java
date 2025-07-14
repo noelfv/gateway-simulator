@@ -96,10 +96,6 @@ public class ParseViewerPanel extends JPanel {
         // Cambiar esta línea para obtener el componente correcto
 
         add(toolWindowManager, BorderLayout.CENTER);
-        /*getContentPane().removeAll(); // Limpia el panel vacío
-        getContentPane().add((Component) toolWindowManager, BorderLayout.CENTER);
-        revalidate();
-        repaint();*/
     }
 
     private JPanel createMainPanel() {
@@ -176,7 +172,6 @@ public class ParseViewerPanel extends JPanel {
                 clear=true;
             }
 
-            //currentMappedFields = messageParser.parser(inputMessage);
             ParseResult result = messageParser.parseWithBothMaps(inputMessage,clear);
             currentMappedFieldsByDescription = result.getFieldsByDescription();
             currentMappedFieldsById = result.getFieldsById();

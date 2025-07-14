@@ -5,6 +5,7 @@ import org.example.orchestrator.mastercard.processor.ISOStringMapper;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
+import org.slf4j.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 public class ConvertitTramaViewerPanel extends JPanel {
 
+    private static Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ConvertitTramaViewerPanel.class);
     private JTextArea inputTextArea;
     private JTextArea outputTextArea;
     private JButton convertirTramaButton;
@@ -150,6 +152,7 @@ public class ConvertitTramaViewerPanel extends JPanel {
             boolean clear=false;
             if(inputMessage.startsWith("F0")){
                 System.out.println("Mensaje en formato EBCDIC");
+                LOGGER.info("Mensaje en formato EBCDIC");
                 currentMappedFieldsByDescription = ISOStringMapper.mapFields(inputMessage);
                 clear=true;
             }else {

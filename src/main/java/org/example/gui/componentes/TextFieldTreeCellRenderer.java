@@ -34,8 +34,8 @@ public class TextFieldTreeCellRenderer extends JPanel implements TreeCellRendere
                 // AQUÍ está la clave - recuperar el valor guardado
                 String savedValue = currentNodeData.getValue();
                 textField.setText(currentNodeData.getValue());
-                System.out.println("RENDERER - Cargando nodo: " + currentNodeData.getLabel() +
-                        " con valor: '" + savedValue + "' - ID objeto: " + currentNodeData.hashCode());
+               /* System.out.println("RENDERER - Cargando nodo: " + currentNodeData.getLabel() +
+                        " con valor: '" + savedValue + "' - ID objeto: " + currentNodeData.hashCode());*/
 
             } else {
                 label.setText(value.toString());
@@ -46,7 +46,7 @@ public class TextFieldTreeCellRenderer extends JPanel implements TreeCellRendere
             add(textField, BorderLayout.CENTER);
         }
 
-        if (selected) {
+       /* if (selected) {
             setBackground(UIManager.getColor("Tree.selectionBackground"));
             setForeground(UIManager.getColor("Tree.selectionForeground"));
             label.setForeground(UIManager.getColor("Tree.selectionForeground"));
@@ -54,7 +54,7 @@ public class TextFieldTreeCellRenderer extends JPanel implements TreeCellRendere
             setBackground(UIManager.getColor("Tree.background"));
             setForeground(UIManager.getColor("Tree.foreground"));
             label.setForeground(UIManager.getColor("Tree.foreground"));
-        }
+        }*/
 
         setOpaque(true); // Importante para que se vea el color de fondo
 

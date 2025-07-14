@@ -1,0 +1,12 @@
+<Configuration>
+    <Appenders>
+        <File name="FileAppender" fileName="logs/app.log">
+            <PatternLayout pattern="%d %-5level [%t] %logger{36} - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

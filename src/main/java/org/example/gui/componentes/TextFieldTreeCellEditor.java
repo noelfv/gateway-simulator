@@ -1,5 +1,7 @@
 package org.example.gui.componentes;
 
+import org.example.gui.utils.UtilGUI;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
@@ -37,8 +39,8 @@ public class TextFieldTreeCellEditor extends AbstractCellEditor implements TreeC
                 // AQUÍ está la clave - recuperar el valor guardado
                 String savedValue = currentNodeData.getValue();
                 textField.setText(currentNodeData.getValue());
-                System.out.println("EDITOR - Cargando nodo: " + currentNodeData.getLabel() +
-                        " con valor: '" + savedValue + "' - ID objeto: " + currentNodeData.hashCode());
+                /*System.out.println("EDITOR - Cargando nodo: " + currentNodeData.getLabel() +
+                        " con valor: '" + savedValue + "' - ID objeto: " + currentNodeData.hashCode());*/
             } else {
                 label.setText(value.toString());
                 textField.setText("");
@@ -65,18 +67,40 @@ public class TextFieldTreeCellEditor extends AbstractCellEditor implements TreeC
                     if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER ||
                             e.getKeyCode() == java.awt.event.KeyEvent.VK_TAB) {
 
-                        // GUARDAR el valor ANTES de cambiar de nodo
+                        // VALIDAR el valor ANTES de cambiar de nodo
                         if (currentNodeData instanceof TreeNodeData) {
                             String currentValue = textField.getText();
+                            String label = currentNodeData.getLabel();
+
+                            // Validar específicamente el campo P002
+                            if ("P002".equals(label)) {
+                                if (!UtilGUI.validateP002Field(currentValue)) {
+                                    // Mostrar popup de error
+                                    JOptionPane.showMessageDialog(
+                                            tree,
+                                            "Error en campo P002 (PAN):\n" +
+                                                    "- Debe tener entre 16 y 19 dígitos\n" +
+                                                    "- Solo se permiten números\n" +
+                                                    "Valor ingresado: '" + currentValue + "' (longitud: " + currentValue.length() + ")",
+                                            "Error de Validación",
+                                            JOptionPane.ERROR_MESSAGE
+                                    );
+
+                                    // Mantener el foco en el campo actual y no avanzar
+                                    SwingUtilities.invokeLater(() -> {
+                                        textField.requestFocusInWindow();
+                                        textField.selectAll();
+                                    });
+                                    e.consume();
+                                    return; // No continuar con el cambio de nodo
+                                }
+                            }
+
+                            // Si la validación es exitosa, guardar el valor
                             currentNodeData.setValue(currentValue);
-                            System.out.println("EDITOR - Valor guardado: '" + currentValue +
-                                    "' en nodo: " + currentNodeData.getLabel() +
-                                    " - ID objeto: " + currentNodeData.hashCode());
                         }
 
-                        //stopCellEditing();
-
-                        // Mueve al siguiente nodo
+                        // Solo si la validación pasó, cambiar al siguiente nodo
                         SwingUtilities.invokeLater(() -> {
                             int nextRow = tree.getLeadSelectionRow() + 1;
                             if (nextRow < tree.getRowCount() &&
@@ -90,7 +114,6 @@ public class TextFieldTreeCellEditor extends AbstractCellEditor implements TreeC
                     }
                 }
             });
-
             panel.add(label, BorderLayout.WEST);
             panel.add(textField, BorderLayout.CENTER);
         }

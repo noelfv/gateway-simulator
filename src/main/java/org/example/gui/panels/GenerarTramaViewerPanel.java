@@ -7,12 +7,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
 import org.example.gui.componentes.*;
+import org.example.gui.utils.UtilGUI;
 import org.example.orchestrator.MCMessageParserImpl;
 import org.example.orchestrator.common.ISOFieldInfo;
 import org.example.orchestrator.common.ISOUtil;
 import org.example.orchestrator.iso8583.ISO8583;
 import org.example.orchestrator.mastercard.ISOFieldMastercard;
+import org.example.orchestrator.mastercard.processor.ISOStringMapper;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
@@ -32,9 +36,12 @@ public class GenerarTramaViewerPanel extends JPanel {
     private ISO8583 iso8583;
     private MCMessageParserImpl messageParser;
     private Map<String, String> currentMappedFieldsByDescription;
+    private DefaultMutableTreeNode currentEditingNode;
+    private TreeNodeData currentEditingData;
     private boolean editorListenerAdded = false;
 
     public GenerarTramaViewerPanel() {
+        messageParser = new MCMessageParserImpl();
         initializeComponents();
         setupEventHandlers();
         setupMyDoggy();
@@ -77,6 +84,7 @@ public class GenerarTramaViewerPanel extends JPanel {
         ToolWindow treeToolWindow = toolWindowManager.registerToolWindow("Parser",
                 "Estructura Jerárquica", null, new JScrollPane(resultTree), ToolWindowAnchor.LEFT);
         treeToolWindow.setAvailable(true);
+        treeToolWindow.setActive(true);
 
         // Tool Window para resultados
         /*ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("output",
@@ -113,22 +121,23 @@ public class GenerarTramaViewerPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateOutputTextArea();
+                //processMap();
             }
         });
     }
-
 
     private void updateTreeView() {
         // Solo crear el árbol una vez, no recrear si ya existe
         if (treeModel.getRoot() == null ||
                 !treeModel.getRoot().toString().equals("Campos ISO8583")) {
 
-            // Crear raíz con objeto personalizado
             DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
-            for (int i = 2; i <= 10; i++) {
-                root.add(new DefaultMutableTreeNode(
-                        new TreeNodeData("P" + ISOUtil.padLeft("" + i, 3, '0'), "")));
-            }
+
+            root.add(new DefaultMutableTreeNode(new TreeNodeData("P002", "5536509999999999")));
+            root.add(new DefaultMutableTreeNode(new TreeNodeData("P003", "000000")));
+            root.add(new DefaultMutableTreeNode(new TreeNodeData("P004", "")));
+            root.add(new DefaultMutableTreeNode(new TreeNodeData("P005", "")));
+            root.add(new DefaultMutableTreeNode(new TreeNodeData("P006", "")));
             treeModel.setRoot(root);
         }
 
@@ -138,23 +147,13 @@ public class GenerarTramaViewerPanel extends JPanel {
         resultTree.setEditable(true);
         resultTree.setInvokesStopCellEditing(true);
 
+
         // Agregar listener solo una vez
         if (!editorListenerAdded) {
             resultTree.getCellEditor().addCellEditorListener(new CellEditorListener() {
                 @Override
                 public void editingStopped(ChangeEvent e) {
-                    /*TreePath path = resultTree.getSelectionPath();
-                    if (path != null) {
-                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        Object userObject = node.getUserObject();
-                        if (userObject instanceof TreeNodeData) {
-                            String value = (String) resultTree.getCellEditor().getCellEditorValue();
-                            ((TreeNodeData) userObject).setValue(value);
-                            treeModel.nodeChanged(node);
-                        }
-                    }*/
                     treeModel.nodeChanged((TreeNode) resultTree.getSelectionPath().getLastPathComponent());
-
                 }
 
                 @Override
@@ -182,7 +181,11 @@ public class GenerarTramaViewerPanel extends JPanel {
             TreeNodeData data = (TreeNodeData) userObject;
             String label = data.getLabel();
             String value = data.getValue();
-            int fieldId = extractFieldIdFromLabel(label);
+
+
+
+
+            int fieldId = UtilGUI.extractFieldIdFromLabel(label);
             Map<String, String> mapData = new HashMap<>();
             if (value != null && !value.isBlank()) {
 
@@ -224,7 +227,7 @@ public class GenerarTramaViewerPanel extends JPanel {
             String value = data.getValue();
 
             if (value != null && !value.isBlank()) {
-                int fieldId = extractFieldIdFromLabel(label);
+                int fieldId = UtilGUI.extractFieldIdFromLabel(label);
 
                 ISOFieldMastercard.findById(fieldId).ifPresent(field -> {
                     mapData.put(field.getName(), value);
@@ -253,22 +256,53 @@ public class GenerarTramaViewerPanel extends JPanel {
         Map<String, String> isoDataMap = new HashMap<>();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) resultTree.getModel().getRoot();
         collectTreeData(root, output, "", isoDataMap);
-
-        outputTextArea.setText(output.toString());
-
+        isoDataMap.put("messageType", "0100");
+        String trama=messageParser.unParser(isoDataMap, true);
+        outputTextArea.setText(trama);
         ISO8583 iso = mapToISO8583(isoDataMap);
         System.out.println(iso.getProcessingCode());
         System.out.println(iso.getPrimaryAccountNumber());
     }
 
-    private int extractFieldIdFromLabel(String label) {
-        try {
-            // Elimina la "P" y convierte a entero
-            return Integer.parseInt(label.replaceAll("[^0-9]", ""));
-        } catch (NumberFormatException e) {
-            return -1; // o lanza una excepción si prefieres
-        }
+    private void processMap(){
+        Map<String,String> inputMessage = new HashMap<>();
+        inputMessage.put("primaryAccountNumber", "5536509999999999");
+        inputMessage.put("processingCode", "000000");
+        inputMessage.put("systemTraceAuditNumber", "898716");
+        inputMessage.put("cardholderBillingCurrencyCode", "604");
+        inputMessage.put("localTransactionDate", "0616");
+        inputMessage.put("retrievalReferenceNumber", "516754898716");
+        inputMessage.put("paymentAccountData", "01330129500193HKQIWEYVISE7UKTQK8YJ5C0");
+        inputMessage.put("cardAcceptorNameLocation", "APPLE.COM/BILL         866-712-7753  USA");
+        inputMessage.put("transmissionDateTime", "0616072724");
+        inputMessage.put("posCardIssuer", "000410000060084095014     ");
+        inputMessage.put("messageType", "0100");
+        inputMessage.put("dateExpiration", "2905");
+        inputMessage.put("transactionAmount", "0000000229.90");
+        inputMessage.put("transactionCurrencyCode", "604");
+        inputMessage.put("additionalRecordData", "001095001018ONE APPLE PARK WAY002003CA 003013APPLE.COM BIL0040108667127753007021842805822           Y");
+        inputMessage.put("cardAcceptorIdentificationCode", "400216000108778");
+        inputMessage.put("forwardingInstitutionIdentificationCode", "003286");
+        inputMessage.put("merchantType", "5818");
+        inputMessage.put("additionalDataRetailer", "T37150511000009999974207010321022080504M1036105000015618AQV116AQS609AQF116753201038800202140303880040214050200710418C ");
+        inputMessage.put("acquirerCountryCode", "840");
+        inputMessage.put("settlementCurrencyCode", "840");
+        inputMessage.put("conversionRate", "61000000");
+        inputMessage.put("acquiringInstitutionIdentificationCode", "003286");
+        inputMessage.put("localTransactionTime", "032724");
+        inputMessage.put("cardHolderBillingAmount", "0000000229.90");
+        inputMessage.put("networkData", "MBKCG462F");
+        inputMessage.put("conversionRateSettlement", "72764680");
+        inputMessage.put("dateConversion", "0615");
+        inputMessage.put("pointServiceEntryMode", "100");
+        inputMessage.put("settlementAmount", "000000006356");
+        inputMessage.put("cardAcceptorTerminalIdentification", "00400216");
+        inputMessage.put("settlementDate", "0616");
+
+        String trama=messageParser.unParser(inputMessage, false);
+        outputTextArea.setText(trama);
     }
+
 
     public ISO8583 mapToISO8583(Map<String, String> fieldMap) {
         ISO8583.ISO8583Builder builder = ISO8583.builder();   // usa tu builder real
