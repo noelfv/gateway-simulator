@@ -2,7 +2,10 @@ package org.example.gui.utils;
 
 import org.example.orchestrator.mastercard.ISOFieldMastercard;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Random;
 
 public class UtilGUI {
 
@@ -49,7 +52,7 @@ public class UtilGUI {
                 case 2: // PAN
                     return validateP002Field(value);
                 case 3: // Processing Code
-                    return value.matches("\\d{6}");
+                    return value.matches("\\d{6}") && value.matches("\\d+");
                 case 4: // Transaction Amount
                     return value.matches("\\d{1,12}");
                 case 11: // System Trace Audit Number
@@ -99,4 +102,20 @@ public class UtilGUI {
 
         return null; // No hay error
     }
+
+
+    public static String generateOperationDateTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddHHmmss");
+        return now.format(formatter);
+    }
+
+    public static String generateRandomSixDigitNumber() {
+        Random random = new Random();
+        int min = 111111;
+        int max = 999999;
+        int randomNumber = random.nextInt(max - min + 1) + min;
+        return String.format("%06d", randomNumber);
+    }
+
 }

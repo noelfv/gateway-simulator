@@ -1,8 +1,7 @@
-package org.example.gui;
+package org.example.gui.aaa;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import javax.swing.tree.TreePath;
 

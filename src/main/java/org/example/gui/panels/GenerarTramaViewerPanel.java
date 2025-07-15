@@ -116,7 +116,6 @@ public class GenerarTramaViewerPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateOutputTextArea();
-                //processMap0100();
             }
         });
     }
@@ -127,6 +126,24 @@ public class GenerarTramaViewerPanel extends JPanel {
                 !treeModel.getRoot().toString().equals("Campos ISO8583")) {
 
             DefaultMutableTreeNode root = new DefaultMutableTreeNode("Campos ISO8583");
+
+            //campo 6
+            // String cardHolderBillingAmount = P010/P004
+
+            //campo 7
+            String operationDateTime = UtilGUI.generateOperationDateTime();
+            //campo 11
+            String systemCurrentTrace = UtilGUI.generateRandomSixDigitNumber();
+            //campo 15
+            String settlementDate = UtilGUI.generateOperationDateTime().substring(1,4);
+            //campo 18
+            String merchantCategoryCode = "6011";
+            //campo 22
+            String cardDataEntryMode = "051";
+
+            //campo 49
+            String currency = "valor ingresado";
+
 
             root.add(new DefaultMutableTreeNode(new TreeNodeData("P002", "5536509999999999")));
             root.add(new DefaultMutableTreeNode(new TreeNodeData("P003", "000000")));

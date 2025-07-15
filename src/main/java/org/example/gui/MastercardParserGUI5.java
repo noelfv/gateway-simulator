@@ -1,5 +1,6 @@
 package org.example.gui;
 
+import org.example.gui.aaa.*;
 import org.example.gui.panels.ConvertitTramaViewerPanel;
 import org.example.gui.panels.GenerarTramaViewerPanel;
 import org.example.gui.panels.ParseViewerPanel;
@@ -9,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MastercardParserGUI5 extends JFrame {
@@ -27,8 +30,17 @@ public class MastercardParserGUI5 extends JFrame {
     private JMenuItem tramasExampleMenuItem;
     private JMenuItem especificacionMastercadMenuItem;
     private JMenuItem especificacionVisaMenuItem;
+    private JMenuItem mostrarCalculadoraMenuItem;
+    private JMenu configuracionesMenu;
+    private JMenuItem cargarConfiguracionMenuItem;
+
+    private List<String> processCodeOptions = new ArrayList<>(); // Lista para almacenar las opciones cargadas
+
 
     public MastercardParserGUI5() {
+        processCodeOptions.add("Default Option 1");
+        processCodeOptions.add("Default Option 2");
+        processCodeOptions.add("Default Option 3");
         initializeComponents();
         actionsMenu();
     }
@@ -62,16 +74,26 @@ public class MastercardParserGUI5 extends JFrame {
         especificacionMastercadMenuItem=new JMenuItem("Mastercard");
         especificacionVisaMenuItem=new JMenuItem("Visa");
         tramasExampleMenuItem=new JMenuItem("Tramas de ejemplo");
+
         especificacionMenu.add(especificacionMastercadMenuItem);
         especificacionMenu.add(especificacionVisaMenuItem);
+        especificacionMenu.addSeparator();
         especificacionMenu.add(tramasExampleMenuItem);
 
+        // Nuevo JMenuItem para la calculadora
+
+        mostrarCalculadoraMenuItem = new JMenuItem("Mostrar Calculadora");
+        conversionMenu.add(mostrarCalculadoraMenuItem); // Añadir el nuevo item
+
+        configuracionesMenu= new JMenu("Configuraciones");
+        cargarConfiguracionMenuItem=new JMenuItem("Cargar Configuración de Proceso");
+        configuracionesMenu.add(cargarConfiguracionMenuItem);
 
         // Agregar menús a la barra
         menuBar.add(parseMenu);
         menuBar.add(conversionMenu);
         menuBar.add(especificacionMenu);
-
+        menuBar.add(configuracionesMenu);
 
         // Establecer la barra de menú en el frame
         setJMenuBar(menuBar);
@@ -128,11 +150,49 @@ public class MastercardParserGUI5 extends JFrame {
             }
         });
 
+        // Listener para el nuevo JMenuItem de la calculadora
+        mostrarCalculadoraMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Crear e mostrar la nueva ventana de la calculadora
+               // CalculatorDialog calculator = new CalculatorDialog(MastercardParserGUI5.this); // Pasa 'this' como padre
+                JDialog calculator = new Y(MastercardParserGUI5.this); // Pasa 'this' como padre
+                calculator.setVisible(true); // Muestra el diálogo
+
+               /* getContentPane().removeAll();
+                JPanel parserPanel = new X();
+                getContentPane().add(parserPanel, BorderLayout.CENTER);
+                revalidate();
+                repaint();*/
+            }
+        });
+
+
+        cargarConfiguracionMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LoadConfigDialog loadDialog = new LoadConfigDialog(MastercardParserGUI5.this);
+                loadDialog.setVisible(true); // Se muestra el diálogo de carga
+                // Cuando loadDialog se cierra (después de presionar "Aceptar"), obtenemos las opciones
+                List<String> loaded = loadDialog.getLoadedOptions();
+                if (loaded != null && !loaded.isEmpty()) {
+                    processCodeOptions = loaded; // Actualizar la lista de opciones
+                    JOptionPane.showMessageDialog(MastercardParserGUI5.this,
+                            "Opciones de código de proceso actualizadas: " + processCodeOptions,
+                            "Configuración Cargada", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    // Si no se cargó nada o el archivo estaba vacío, se mantiene la lista anterior o la por defecto
+                    JOptionPane.showMessageDialog(MastercardParserGUI5.this,
+                            "No se cargaron nuevas opciones de código de proceso. Se mantienen las actuales.",
+                            "Advertencia", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
 
     }
 
 
-   /* public static void main(String[] args) {
+    public static void main(String[] args) {
         // Establece el Look and Feel ANTES de crear cualquier componente Swing
         //FlatLightLaf.setup(); // O el tema que prefieras
         SwingUtilities.invokeLater(new Runnable() {
@@ -156,5 +216,5 @@ public class MastercardParserGUI5 extends JFrame {
                 gui.setVisible(true);
             }
         });
-    }*/
+    }
 }

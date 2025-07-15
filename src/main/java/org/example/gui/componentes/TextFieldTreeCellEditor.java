@@ -76,16 +76,21 @@ public class TextFieldTreeCellEditor extends AbstractCellEditor implements TreeC
                             if ("P002".equals(label)) {
                                 if (!UtilGUI.validateP002Field(currentValue)) {
                                     // Mostrar popup de error
-                                    JOptionPane.showMessageDialog(
-                                            tree,
-                                            "Error en campo P002 (PAN):\n" +
-                                                    "- Debe tener entre 16 y 19 dígitos\n" +
-                                                    "- Solo se permiten números\n" +
-                                                    "Valor ingresado: '" + currentValue + "' (longitud: " + currentValue.length() + ")",
-                                            "Error de Validación",
-                                            JOptionPane.ERROR_MESSAGE
-                                    );
+                                    showErrorDialog(tree,currentValue,currentValue.length());
+                                    // Mantener el foco en el campo actual y no avanzar
+                                    SwingUtilities.invokeLater(() -> {
+                                        textField.requestFocusInWindow();
+                                        textField.selectAll();
+                                    });
+                                    e.consume();
+                                    return; // No continuar con el cambio de nodo
+                                }
+                            }
 
+                            if ("P004".equals(label)) {
+                                if (!UtilGUI.validateP002Field(currentValue)) {
+                                    // Mostrar popup de error
+                                    showErrorDialog(tree,currentValue,currentValue.length());
                                     // Mantener el foco en el campo actual y no avanzar
                                     SwingUtilities.invokeLater(() -> {
                                         textField.requestFocusInWindow();
@@ -157,5 +162,25 @@ public class TextFieldTreeCellEditor extends AbstractCellEditor implements TreeC
             currentNodeData.setValue(textField.getText());   // guarda lo escrito
         }
         return super.stopCellEditing();
+    }
+
+
+    private void showErrorDialog(JTree tree, String currentValue, int longitud) {
+
+        JOptionPane.showMessageDialog(
+                tree,
+                "Error en campo P002 (PAN):\n" +
+                        "- Debe tener entre 16 y 19 dígitos\n" +
+                        "- Solo se permiten números\n" +
+                        "Valor ingresado: '" + currentValue + "' (longitud: " + longitud+ ")",
+                "Error de Validación",
+                JOptionPane.ERROR_MESSAGE
+        );
+
+/*
+        String htmlMessage = "<html><body style='width: 250px; padding: 10px;'>" +
+                currentValue.replace("\n", "<br>") + "</body></html>";
+
+        JOptionPane.showMessageDialog(tree, htmlMessage, "Error", JOptionPane.ERROR_MESSAGE);*/
     }
 }
