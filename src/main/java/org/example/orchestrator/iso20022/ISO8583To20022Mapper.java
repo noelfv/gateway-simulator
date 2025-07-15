@@ -1022,21 +1022,26 @@ public class ISO8583To20022Mapper {
             /*MAPEO TEMPORAL.[FIN*/
 
             List<SupplementaryDataDTO> supplementaryDataList = new ArrayList<>();
-            supplementaryDataList.add(networkManagementInfoCode);
+
             supplementaryDataList.add(keyManagement);
-            supplementaryDataList.add(settlementData);
+            /*supplementaryDataList.add(settlementData);
             supplementaryDataList.add(issuerTraceId);
+            supplementaryDataList.add(networkManagementInfoCode);
+            */
             // MAPEOS TEMPORALES
             supplementaryDataList.add(dateConversion);
             supplementaryDataList.add(pointServicePIN);
-            supplementaryDataList.add(paymentAccountData);
+            supplementaryDataList.add(privateData);
+            supplementaryDataList.add(additionalDataNationalUse);
+            supplementaryDataList.add(primaryAccountNumberCountryCode);
+            supplementaryDataList.add(dateAction);
+            supplementaryDataList.add(replacementAmounts);
+            /*supplementaryDataList.add(paymentAccountData);
             supplementaryDataList.add(serviceIndicator);
             supplementaryDataList.add(messageSecurityCode);
             supplementaryDataList.add(transactionData);
-            supplementaryDataList.add(additionalDataNationalUse);
             supplementaryDataList.add(authorizingAgentIdCode);
             supplementaryDataList.add(amountCardholderBillingFee);
-            supplementaryDataList.add(primaryAccountNumberCountryCode);
             supplementaryDataList.add(forwardingInstitutionCountryCode);
             supplementaryDataList.add(networkInternationalId);
             supplementaryDataList.add(authorizationIdResponseLength);
@@ -1054,7 +1059,6 @@ public class ISO8583To20022Mapper {
             supplementaryDataList.add(settlementInstitutionCountryCode);
             supplementaryDataList.add(messageNumber);
             supplementaryDataList.add(messageNumberLast);
-            supplementaryDataList.add(dateAction);
             supplementaryDataList.add(creditsNumber);
             supplementaryDataList.add(creditsReversalNumber);
             supplementaryDataList.add(debitsNumber);
@@ -1074,7 +1078,6 @@ public class ISO8583To20022Mapper {
             supplementaryDataList.add(issuerFileUpdateCode);
             supplementaryDataList.add(fileSecurityCode);
             supplementaryDataList.add(responseIndicator);
-            supplementaryDataList.add(replacementAmounts);
             supplementaryDataList.add(amountNetSettlement);
             supplementaryDataList.add(payee);
             supplementaryDataList.add(settlementInstitutionIdentificationCode);
@@ -1086,8 +1089,7 @@ public class ISO8583To20022Mapper {
             supplementaryDataList.add(isoUse);
             supplementaryDataList.add(reservedNationalUse);
             supplementaryDataList.add(reservedNationalUse2);
-            supplementaryDataList.add(privateData);
-            supplementaryDataList.add(messageAuthenticationCode2);
+            supplementaryDataList.add(messageAuthenticationCode2);/*
 
             /*----------------------------------------
             * PROTECTED DATA SECTION
@@ -1199,7 +1201,7 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 55 (ICC RELATED DATA) ========
                     .iccRelatedData(inputObject.getIntegratedCircuitCard())
                    // .protectedData(protectedDataList)
-                    //.supplementaryData(supplementaryDataList)
+                    .supplementaryData(supplementaryDataList)
                     .addendumData(addendumData)
                     .monitoring(ProcessMonitoring.createMonitoring(inputObject, fieldDto))
                     .mappingMetadata(mappingMetadata)

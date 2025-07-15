@@ -3,6 +3,7 @@ package org.example.gui;
 import org.example.gui.panels.ConvertitTramaViewerPanel;
 import org.example.gui.panels.GenerarTramaViewerPanel;
 import org.example.gui.panels.ParseViewerPanel;
+import org.example.gui.panels.TramaExamplesViewerPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,9 @@ public class MastercardParserGUI5 extends JFrame {
     private JMenuItem campo48MenuItem;
     private JMenuItem campo54MenuItem;
     private JMenu subcamposMenu;
+    private JMenuItem tramasExampleMenuItem;
+    private JMenuItem especificacionMastercadMenuItem;
+    private JMenuItem especificacionVisaMenuItem;
 
     public MastercardParserGUI5() {
         initializeComponents();
@@ -55,6 +59,12 @@ public class MastercardParserGUI5 extends JFrame {
         conversionMenu.add(subcamposMenu);
 
         especificacionMenu = new JMenu("Especificacion");
+        especificacionMastercadMenuItem=new JMenuItem("Mastercard");
+        especificacionVisaMenuItem=new JMenuItem("Visa");
+        tramasExampleMenuItem=new JMenuItem("Tramas de ejemplo");
+        especificacionMenu.add(especificacionMastercadMenuItem);
+        especificacionMenu.add(especificacionVisaMenuItem);
+        especificacionMenu.add(tramasExampleMenuItem);
 
 
         // Agregar menús a la barra
@@ -101,12 +111,24 @@ public class MastercardParserGUI5 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
-                ConvertitTramaViewerPanel parserPanel = new ConvertitTramaViewerPanel();
+                getContentPane().add(new ConvertitTramaViewerPanel(), BorderLayout.CENTER);
+                revalidate();
+                repaint();
+            }
+        });
+
+        tramasExampleMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getContentPane().removeAll();
+                JPanel parserPanel = new TramaExamplesViewerPanel();
                 getContentPane().add(parserPanel, BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }
         });
+
+
     }
 
 
