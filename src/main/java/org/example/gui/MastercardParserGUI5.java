@@ -1,6 +1,6 @@
 package org.example.gui;
 
-import org.example.gui.aaa.*;
+import org.example.gui.temp.*;
 import org.example.gui.panels.ConvertitTramaViewerPanel;
 import org.example.gui.panels.GenerarTramaViewerPanel;
 import org.example.gui.panels.ParseViewerPanel;
@@ -109,8 +109,8 @@ public class MastercardParserGUI5 extends JFrame {
 
         //ver si va
         getContentPane().setLayout(new BorderLayout());
-        //getContentPane().add(new JPanel(), BorderLayout.CENTER);
-        getContentPane().add(createImagePanel(), BorderLayout.CENTER);
+        getContentPane().add(new JPanel(), BorderLayout.CENTER);
+        //getContentPane().add(createImagePanel(), BorderLayout.CENTER);
     }
 
     private JPanel createImagePanel() {

@@ -1,7 +1,6 @@
-package org.example.gui.aaa;
+package org.example.gui.temp;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;

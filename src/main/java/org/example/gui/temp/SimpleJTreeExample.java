@@ -1,4 +1,4 @@
-package org.example.gui.aaa;
+package org.example.gui.temp;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
