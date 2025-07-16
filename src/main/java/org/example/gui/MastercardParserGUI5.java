@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +37,7 @@ public class MastercardParserGUI5 extends JFrame {
     private JMenuItem mostrarCalculadoraMenuItem;
     private JMenu configuracionesMenu;
     private JMenuItem cargarConfiguracionMenuItem;
+    private JMenuItem cargarLlmMenuItem;
 
     private List<String> processCodeOptions = new ArrayList<>(); // Lista para almacenar las opciones cargadas
 
@@ -47,6 +49,7 @@ public class MastercardParserGUI5 extends JFrame {
         processCodeOptions.add("Default Option 3");
         initializeComponents();
         actionsMenu();
+        customMenu();
     }
 
     private void initializeComponents() {
@@ -75,19 +78,21 @@ public class MastercardParserGUI5 extends JFrame {
         conversionMenu.add(subcamposMenu);
 
         especificacionMenu = new JMenu("Especificacion");
-        especificacionMastercadMenuItem=new JMenuItem("Mastercard");
-        especificacionVisaMenuItem=new JMenuItem("Visa");
+        especificacionMastercadMenuItem=new JMenuItem("Mastercard IA");
+        especificacionVisaMenuItem=new JMenuItem("Visa IA");
         tramasExampleMenuItem=new JMenuItem("Tramas de ejemplo");
+        cargarLlmMenuItem=new JMenuItem("Cargar LLM");
 
         especificacionMenu.add(especificacionMastercadMenuItem);
         especificacionMenu.add(especificacionVisaMenuItem);
         especificacionMenu.addSeparator();
-        especificacionMenu.add(tramasExampleMenuItem);
+        especificacionMenu.add(cargarLlmMenuItem);
 
         // Nuevo JMenuItem para la calculadora
 
+        conversionMenu.addSeparator();
         mostrarCalculadoraMenuItem = new JMenuItem("Mostrar Calculadora");
-        conversionMenu.add(mostrarCalculadoraMenuItem); // Añadir el nuevo item
+        conversionMenu.add(tramasExampleMenuItem); // Añadir el nuevo item
 
         configuracionesMenu= new JMenu("Configuraciones");
         cargarConfiguracionMenuItem=new JMenuItem("Cargar Configuración de Proceso");
@@ -104,9 +109,18 @@ public class MastercardParserGUI5 extends JFrame {
 
         //ver si va
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(new JPanel(), BorderLayout.CENTER);
+        //getContentPane().add(new JPanel(), BorderLayout.CENTER);
+        getContentPane().add(createImagePanel(), BorderLayout.CENTER);
     }
 
+    private JPanel createImagePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        // Asegúrate de que la ruta sea correcta y la imagen esté en resources
+        ImageIcon icon = new ImageIcon(getClass().getResource("/leonhard-unsplash.jpg"));
+        JLabel label = new JLabel(icon, JLabel.CENTER);
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
+    }
 
     private void actionsMenu() {
 
@@ -161,8 +175,12 @@ public class MastercardParserGUI5 extends JFrame {
                 // Crear e mostrar la nueva ventana de la calculadora
                // CalculatorDialog calculator = new CalculatorDialog(MastercardParserGUI5.this); // Pasa 'this' como padre
                 JDialog calculator = new Y(MastercardParserGUI5.this); // Pasa 'this' como padre
-                calculator.setVisible(true); // Muestra el diálogo
-
+                calculator.setVisible(true);
+               /* JDesktopPane desktopPane = new JDesktopPane();
+                setContentPane(desktopPane);
+                JInternalFrame calculator = new Z();
+                calculator.setVisible(true);
+                desktopPane.add(calculator);*/
                /* getContentPane().removeAll();
                 JPanel parserPanel = new X();
                 getContentPane().add(parserPanel, BorderLayout.CENTER);
@@ -192,7 +210,81 @@ public class MastercardParserGUI5 extends JFrame {
                 }
             }
         });
+    }
 
+
+    private void customMenu(){
+
+        Font menuFont = new Font("Segoe UI", Font.PLAIN, 14);
+        menuBar.setFont(menuFont);
+        parseMenu.setFont(menuFont);
+        conversionMenu.setFont(menuFont);
+        especificacionMenu.setFont(menuFont);
+        configuracionesMenu.setFont(menuFont);
+
+        Font menuItemFont = new Font("Segoe UI", Font.PLAIN, 12);
+        parseMenuItem.setFont(menuItemFont);
+        generarTramaMenuItem.setFont(menuItemFont);
+        convertirTramaMenuItem.setFont(menuItemFont);
+        campo48MenuItem.setFont(menuItemFont);
+        campo54MenuItem.setFont(menuItemFont);
+
+        // En initializeComponents() después de crear los componentes
+        Color menuBgColor = new Color(50, 50, 50); // Un gris oscuro para el fondo del menú
+        Color menuFgColor = Color.BLACK; // Texto blanco para el menú
+        Color menuItemBgColor = new Color(70, 70, 70); // Un gris ligeramente más claro para elementos
+        Color menuItemFgColor = Color.BLACK; // Texto blanco para elementos
+        Color selectedItemBgColor = new Color(0, 120, 215); // Un azul para el elemento seleccionado
+
+        // Colores para JMenuBar
+        menuBar.setBackground(menuBgColor);
+        menuBar.setForeground(menuFgColor);
+
+        // Colores para JMenu
+        parseMenu.setBackground(menuBgColor);
+        parseMenu.setForeground(menuFgColor);
+        conversionMenu.setBackground(menuBgColor);
+        conversionMenu.setForeground(menuFgColor);
+        especificacionMenu.setBackground(menuBgColor);
+        especificacionMenu.setForeground(menuFgColor);
+        subcamposMenu.setBackground(menuBgColor);
+        subcamposMenu.setForeground(menuFgColor);
+
+        // Colores para JMenuItem
+        parseMenuItem.setBackground(menuItemBgColor);
+        parseMenuItem.setForeground(menuItemFgColor);
+        generarTramaMenuItem.setBackground(menuItemBgColor);
+        generarTramaMenuItem.setForeground(menuItemFgColor);
+        convertirTramaMenuItem.setBackground(menuItemBgColor);
+        convertirTramaMenuItem.setForeground(menuItemFgColor);
+        campo48MenuItem.setBackground(menuItemBgColor);
+        campo48MenuItem.setForeground(menuItemFgColor);
+        campo54MenuItem.setBackground(menuItemBgColor);
+        campo54MenuItem.setForeground(menuItemFgColor);
+
+        // Para cambiar el color de selección (hover), es más complejo y generalmente se maneja
+        // a través del UIManager o un Look and Feel personalizado.
+        // Sin embargo, para un cambio rápido, podrías intentar:
+        UIManager.put("MenuItem.selectionBackground", selectedItemBgColor);
+        UIManager.put("MenuItem.selectionForeground", menuItemFgColor);
+        UIManager.put("Menu.selectionBackground", selectedItemBgColor);
+        UIManager.put("Menu.selectionForeground", menuItemFgColor);
+    }
+
+    private void borderMenu(){
+        EmptyBorder itemPadding = new EmptyBorder(5, 10, 5, 30);
+        conversionMenu.setBorder(itemPadding);
+        parseMenu.setBorder(itemPadding);
+        especificacionMenu.setBorder(itemPadding);
+
+        /*
+        parseMenuItem.setBorder(itemPadding);
+        generarTramaMenuItem.setBorder(itemPadding);
+        convertirTramaMenuItem.setBorder(itemPadding);
+        campo48MenuItem.setBorder(itemPadding);
+        campo54MenuItem.setBorder(itemPadding);
+
+         */
     }
 
 

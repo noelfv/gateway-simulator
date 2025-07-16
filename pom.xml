@@ -263,14 +263,6 @@
         <version>3.1.0</version>
         <configuration>
           <mainClass>org.example.gui.MastercardParserGUI5</mainClass>
-          <!-- Pasar propiedades del sistema para logging
-          <systemProperties>
-            <systemProperty>
-              <key>log4j2.configurationFile</key>
-              <value>log4j2-backup.xml</value>
-            </systemProperty>
-          </systemProperties>
-          -->
         </configuration>
       </plugin>
       <plugin>

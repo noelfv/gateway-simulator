@@ -1,16 +1,13 @@
 package org.example.gui.aaa;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-public class Y extends JDialog {
+public class Z extends JInternalFrame {
 
     // Colores y Fuentes recomendados para una apariencia elegante y amigable
     private static final Color PRIMARY_ACCENT_COLOR = new Color(0, 102, 204); // Azul vibrante
@@ -22,19 +19,19 @@ public class Y extends JDialog {
     private static final Font COMPONENT_FONT = new Font("Segoe UI", Font.PLAIN, 13);
     private static final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 18);
 
-    public Y(JFrame parentFrame) {
-        super(parentFrame, "Generador de Trama", true); // Título y modal (true)
-        initializeComponents(parentFrame);
+    public Z() {
+        super( "Generador de Trama", true,true,true,true); // Título y modal (true)
+        initializeComponents();
         // --- Generar 5 Filas de Componentes ---
 
     }
 
 
-    void initializeComponents(JFrame parentFrame){
+    void initializeComponents(){
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // Cierra solo este diálogo al presionar X
         setSize(800, 600); // Tamaño adecuado para el diálogo
-        setLocationRelativeTo(parentFrame); // Centrar respecto al frame padre
+        //setLocationRelativeTo(parentFrame); // Centrar respecto al frame padre
 
         // Contenedor principal del diálogo
         JPanel mainPanel = new JPanel();
@@ -178,14 +175,19 @@ public class Y extends JDialog {
 
         SwingUtilities.invokeLater(() -> {
             // Un JFrame dummy para actuar como padre (puedes usar tu clase principal real)
-            JFrame dummyParentFrame = new JFrame();
-            dummyParentFrame.setSize(400, 300);
-            dummyParentFrame.setLocationRelativeTo(null);
-            dummyParentFrame.setVisible(false); // No es necesario que sea visible
+            JFrame frame = new JFrame("Principal");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(900, 700);
 
-            Y dialog = new Y(dummyParentFrame);
-            dialog.setVisible(true); // Muestra el diálogo
-            dummyParentFrame.dispose(); // Cierra el frame dummy cuando el diálogo se cierra
+            JDesktopPane desktopPane = new JDesktopPane();
+            frame.setContentPane(desktopPane);
+
+            Z internalFrame = new Z();
+            internalFrame.setVisible(true);
+            desktopPane.add(internalFrame);
+
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
         });
     }
 }
