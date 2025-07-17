@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.orchestrator.common.MappingMetadata;
+import org.example.gui.utils.MappingMetadata;
 
 import java.io.Serial;
 import java.io.Serializable;

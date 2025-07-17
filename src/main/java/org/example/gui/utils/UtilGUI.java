@@ -2,6 +2,7 @@ package org.example.gui.utils;
 
 import org.example.orchestrator.mastercard.ISOFieldMastercard;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -116,6 +117,18 @@ public class UtilGUI {
         int max = 999999;
         int randomNumber = random.nextInt(max - min + 1) + min;
         return String.format("%06d", randomNumber);
+    }
+
+
+    public static void showErrorDialog(String message) {
+        // Limitar mensaje a 150 caracteres y usar HTML para wrap
+        String displayMessage = message.length() > 200 ?
+                message.substring(0, 200) + "..." : message;
+
+        String htmlMessage = "<html><body style='width: 250px; padding: 10px;'>" +
+                displayMessage.replace("\n", "<br>") + "</body></html>";
+
+        JOptionPane.showMessageDialog(null, htmlMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
 }

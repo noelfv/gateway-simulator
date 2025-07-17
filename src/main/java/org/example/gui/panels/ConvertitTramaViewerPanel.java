@@ -1,5 +1,6 @@
 package org.example.gui.panels;
 
+import org.example.gui.utils.ISO8583Processor;
 import org.example.orchestrator.MCMessageParserImpl;
 import org.example.orchestrator.mastercard.processor.ISOStringMapper;
 import org.noos.xing.mydoggy.ToolWindow;
@@ -156,20 +157,12 @@ public class ConvertitTramaViewerPanel extends JPanel {
                 currentMappedFieldsByDescription = ISOStringMapper.mapFields(inputMessage);
                 clear=true;
             }else {
-                currentMappedFieldsByDescription = ISOStringMapper.mapFieldsTramaClaro(inputMessage);
-                clear=false;
+                currentMappedFieldsByDescription = ISO8583Processor.mapFieldsTramaClaro(inputMessage);
             }
 
             String trama=messageParser.unParser(currentMappedFieldsByDescription, clear);
-            System.out.println("Trama generada: [" + trama+"]");
-
-
-            // Actualizar el área de texto
-            StringBuilder output = new StringBuilder();
-            output.append("=== CAMPOS PARSEADOS ===\n\n");
-            output.append(trama);
-
-            outputTextArea.setText(output.toString() );
+            LOGGER.info("Trama generada: [{}]", trama);
+            outputTextArea.setText(trama );
 
         } catch (Exception ex) {
             showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());

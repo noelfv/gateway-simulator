@@ -1,20 +1,24 @@
-package org.example.orchestrator.common;
+package org.example.gui.utils;
+
+import lombok.Getter;
 
 import java.util.Comparator;
 import java.util.TreeMap;
 import java.util.Map;
 
 // Crear una clase para almacenar metadatos de mapeo
+@Getter
 public class MappingMetadata {
-    //private Map<String, String> fieldOrigins = new TreeMap<>();
-    private Map<String, String> fieldFilled = new TreeMap<>(Comparator.naturalOrder());
-    private Map<String, String> fieldEmpty = new TreeMap<>(Comparator.naturalOrder());
+
+    private final Map<String, String> fieldFilled = new TreeMap<>(Comparator.naturalOrder());
+    private final Map<String, String> fieldEmpty = new TreeMap<>(Comparator.naturalOrder());
 
     public void addFieldOrigin( String origin,String fieldPath) {
         if (origin != null && !origin.trim().isEmpty() && !shouldExclude(origin)) {
             fieldFilled.put(origin, fieldPath);
         }
 
+        assert origin != null;
         if(shouldExclude(origin)){
             fieldEmpty.put( origin,fieldPath);
         }
@@ -28,14 +32,6 @@ public class MappingMetadata {
     public Map<String, String> getFieldAlls(String origin) {
         return fieldAlls.get(origin);
     }*/
-
-    public Map<String, String> getFieldFilled() {
-        return fieldFilled;
-    }
-
-    public Map<String, String> getFieldEmpty() {
-        return fieldEmpty;
-    }
 
     private boolean shouldExclude(String value) {
         String trimmed = value.trim();

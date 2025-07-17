@@ -3,16 +3,12 @@ package org.example.orchestrator;
 
 
 import org.example.orchestrator.common.ISO8583SubFieldsParser;
-import org.example.orchestrator.common.ISOField;
-import org.example.orchestrator.common.ParseResult;
 import org.example.orchestrator.dto.AdditionalDataDTO;
 import org.example.orchestrator.dto.ISO20022;
 import org.example.orchestrator.iso8583.ISO8583;
-import org.example.orchestrator.mastercard.ISOFieldMastercard;
 import org.example.orchestrator.mastercard.processor.ISOStringConverterMastercard;
 import org.example.orchestrator.mastercard.processor.ISOStringMapper;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MCMessageParserImpl implements MessageParser {
@@ -24,49 +20,6 @@ public class MCMessageParserImpl implements MessageParser {
     @Override
     public Map<String, String> parser(String originalMessage) {
         return ISOStringMapper.mapFields(originalMessage);
-    }
-
-    public ParseResult parseWithBothMaps(String originalMessage,boolean clean) throws Exception {
-        // Usar el método existente para obtener los campos mapeados
-        Map<String, String> originalMappedFields;
-        if(!clean) {
-            originalMappedFields = ISOStringMapper.mapFields(originalMessage);
-        }else {
-            originalMappedFields = ISOStringMapper.mapFieldsTramaClaro(originalMessage);
-        }
-
-
-        Map<String, String> fieldsByDescription = new HashMap<>();
-        Map<String, String> fieldsById = new HashMap<>();
-
-        // Iterar sobre los campos ya mapeados
-        for (Map.Entry<String, String> entry : originalMappedFields.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            // El mapa original ya contiene las descripciones, así que lo copiamos
-            fieldsByDescription.put(key, value);
-
-            // Para el mapa por ID, necesitamos mapear las descripciones a IDs
-            String fieldId = findFieldIdByName(key);
-            if (fieldId != null) {
-                fieldsById.put(fieldId, value);
-            } else {
-                // Si no encontramos el ID, usar la descripción como clave
-                fieldsById.put(key, value);
-            }
-        }
-
-        return new ParseResult(fieldsByDescription, fieldsById);
-    }
-
-    private String findFieldIdByName(String fieldName) {
-        for (ISOField field : ISOFieldMastercard.values()) {
-            if (field.getName().equalsIgnoreCase(fieldName)) {
-                return String.valueOf(field.getId());
-            }
-        }
-        return null;
     }
 
     @Override

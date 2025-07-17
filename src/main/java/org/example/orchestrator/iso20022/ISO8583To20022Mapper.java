@@ -3,7 +3,7 @@ package org.example.orchestrator.iso20022;
 
 import org.example.orchestrator.ParserException;
 import org.example.orchestrator.common.ISOSubFieldProcess;
-import org.example.orchestrator.common.MappingMetadata;
+import org.example.gui.utils.MappingMetadata;
 import org.example.orchestrator.configuration.monitoring.FieldDto;
 import org.example.orchestrator.dto.*;
 import org.example.orchestrator.iso8583.ISO8583;
