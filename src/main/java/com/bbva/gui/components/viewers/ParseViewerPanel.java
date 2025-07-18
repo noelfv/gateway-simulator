@@ -29,7 +29,7 @@ public class ParseViewerPanel extends JPanel {
     private JTree resultTree;
     private DefaultTreeModel treeModel;
     private JButton parseButton;
-    //  private MCMessageParserImpl messageParser;
+    private JInternalFrame parentFrame;
 
     public ParseViewerPanel() {
        //messageParser = new MCMessageParserImpl();
@@ -37,6 +37,7 @@ public class ParseViewerPanel extends JPanel {
        setupEventHandlers();
        setupMyDoggy();
     }
+
 
     private void initializeComponents() {
 
@@ -148,7 +149,7 @@ public class ParseViewerPanel extends JPanel {
         try {
             String inputMessage = inputTextArea.getText().trim();
             if (inputMessage.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor ingrese un mensaje para parsear",
+                JOptionPane.showMessageDialog(parentFrame, "Por favor ingrese un mensaje para parsear",
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -184,6 +185,10 @@ public class ParseViewerPanel extends JPanel {
             UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
             outputTextArea.setText("Error: " + ex.getMessage());
         }
+    }
+
+    public void setParentFrame(JInternalFrame parentFrame) {
+        this.parentFrame = parentFrame;
     }
 
 

@@ -174,7 +174,6 @@ public class Z extends JInternalFrame {
         }
 
         SwingUtilities.invokeLater(() -> {
-            // Un JFrame dummy para actuar como padre (puedes usar tu clase principal real)
             JFrame frame = new JFrame("Principal");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(900, 700);
@@ -182,12 +181,40 @@ public class Z extends JInternalFrame {
             JDesktopPane desktopPane = new JDesktopPane();
             frame.setContentPane(desktopPane);
 
-            Z internalFrame = new Z();
-            internalFrame.setVisible(true);
-            desktopPane.add(internalFrame);
+            // Crear la barra de menú
+            JMenuBar menuBar = new JMenuBar();
+
+            // Crear menú principal
+            JMenu ventanasMenu = new JMenu("Ventanas");
+
+            // Crear item de menú
+            JMenuItem abrirGeneradorItem = new JMenuItem("Generador de Trama");
+            abrirGeneradorItem.addActionListener(e -> {
+                Z internalFrame = new Z();
+                internalFrame.setVisible(true);
+                desktopPane.add(internalFrame);
+
+                // Centrar el internal frame en el desktop pane
+                try {
+                    internalFrame.setSelected(true);
+                    internalFrame.moveToFront();
+                } catch (java.beans.PropertyVetoException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            // Agregar item al menú
+            ventanasMenu.add(abrirGeneradorItem);
+
+            // Agregar menú a la barra de menú
+            menuBar.add(ventanasMenu);
+
+            // Establecer la barra de menú al frame
+            frame.setJMenuBar(menuBar);
 
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }
+
 }

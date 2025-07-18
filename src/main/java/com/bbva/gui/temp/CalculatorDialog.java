@@ -115,4 +115,8 @@ public class CalculatorDialog extends JDialog implements ActionListener {
         display.setText(String.valueOf(result));
         firstOperand = result; // El resultado se convierte en el primer operando para operaciones encadenadas
     }
+
+    // O para diálogos personalizados:
+  //  JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parentFrame));
+//dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
 }
