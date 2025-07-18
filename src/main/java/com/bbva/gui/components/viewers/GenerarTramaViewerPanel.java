@@ -16,6 +16,7 @@ import com.bbva.orchestrator.MCMessageParserImpl;
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
+import lombok.Setter;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
@@ -38,6 +39,8 @@ public class GenerarTramaViewerPanel extends JPanel {
     private DefaultMutableTreeNode currentEditingNode;
     private TreeNodeData currentEditingData;
     private boolean editorListenerAdded = false;
+    @Setter
+    private JInternalFrame parentFrame;
 
     public GenerarTramaViewerPanel() {
         messageParser = new MCMessageParserImpl();

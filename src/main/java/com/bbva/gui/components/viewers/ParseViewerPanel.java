@@ -11,6 +11,7 @@ import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.gateway.dto.iso20022.ISO20022;
+import lombok.Setter;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
@@ -29,6 +30,7 @@ public class ParseViewerPanel extends JPanel {
     private JTree resultTree;
     private DefaultTreeModel treeModel;
     private JButton parseButton;
+    @Setter
     private JInternalFrame parentFrame;
 
     public ParseViewerPanel() {
@@ -186,11 +188,6 @@ public class ParseViewerPanel extends JPanel {
             outputTextArea.setText("Error: " + ex.getMessage());
         }
     }
-
-    public void setParentFrame(JInternalFrame parentFrame) {
-        this.parentFrame = parentFrame;
-    }
-
 
     public void setInputText(String text) {
         inputTextArea.setText(text);

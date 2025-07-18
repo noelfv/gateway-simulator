@@ -39,4 +39,7 @@ public class ISO20022 implements Serializable {
 	private MonitoringDTO monitoring;
 	private String socketIp;
 	private MappingMetadata mappingMetadata;
+
+	public ISO20022() {
+	}
 }

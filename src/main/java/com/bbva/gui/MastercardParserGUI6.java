@@ -1,6 +1,6 @@
 package com.bbva.gui;
 
-import com.bbva.gui.components.viewers.ConvertitTramaViewerPanel;
+import com.bbva.gui.components.viewers.ConverterTramaViewerPanel;
 import com.bbva.gui.components.viewers.GenerarTramaViewerPanel;
 import com.bbva.gui.components.viewers.ParseViewerPanel;
 import com.bbva.gui.components.viewers.TramaExamplesViewerPanel;
@@ -201,7 +201,7 @@ public class MastercardParserGUI6 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
-                getContentPane().add(new ConvertitTramaViewerPanel(), BorderLayout.CENTER);
+                getContentPane().add(new ConverterTramaViewerPanel(), BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }

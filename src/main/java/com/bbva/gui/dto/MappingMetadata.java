@@ -1,6 +1,8 @@
 package com.bbva.gui.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Comparator;
 import java.util.TreeMap;

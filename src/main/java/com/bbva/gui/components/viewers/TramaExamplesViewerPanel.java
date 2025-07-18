@@ -2,6 +2,7 @@ package com.bbva.gui.components.viewers;
 
 
 import com.bbva.gui.components.TreeNodeData;
+import lombok.Setter;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
@@ -18,6 +19,8 @@ public class TramaExamplesViewerPanel extends JPanel {
     private MyDoggyToolWindowManager toolWindowManager;
     private DefaultMutableTreeNode top;
     private TreeNodeData currentEditingData;
+    @Setter
+    private JInternalFrame parentFrame;
 
     public TramaExamplesViewerPanel() {
         initializeComponents();
