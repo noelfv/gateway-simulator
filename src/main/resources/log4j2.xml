@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="logDir">logs</Property>
+        <Property name="appName">gateway-simulator</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Appender para consola -->
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- Archivo con fecha fija al iniciar -->
+        <File name="StartupFile" fileName="${logDir}/${appName}-startup-${date:yyyy-MM-dd-HH-mm-ss}.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </File>
+
+        <!-- Archivo que rota diariamente -->
+        <RollingFile name="DailyRollingFile"
+                     fileName="${logDir}/${appName}-daily.log"
+                     filePattern="${logDir}/${appName}-daily-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- Archivo solo para errores -->
+        <RollingFile name="ErrorFile"
+                     fileName="${logDir}/${appName}-errors.log"
+                     filePattern="${logDir}/${appName}-errors-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!--<Logger name="sun.awt.shell" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>-->
+        <!-- Logger específico para tu aplicación -->
+        <Logger name="org.example" level="DEBUG" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="StartupFile"/>
+            <AppenderRef ref="DailyRollingFile"/>
+            <AppenderRef ref="ErrorFile"/>
+        </Logger>
+
+        <!-- Logger para librerías externas -->
+        <Logger name="org.apache" level="WARN"/>
+        <Logger name="org.springframework" level="WARN"/>
+        <Logger name="com.fasterxml.jackson" level="WARN"/>
+        <Logger name="sun.awt.shell" level="ERROR"/>
+
+        <!-- Logger raíz -->
+        <Root level="INFO">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="DailyRollingFile"/>
+            <AppenderRef ref="ErrorFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
