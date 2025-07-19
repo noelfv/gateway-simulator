@@ -7,6 +7,7 @@ import com.bbva.orchestrator.parser.common.ISOField;
 import com.bbva.orchestrator.parser.common.ISOUtil;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.bbva.orchestrator.network.mastercard.ISOFieldMastercard.*;
@@ -21,10 +22,11 @@ public class ISO8583Processor {
     }
 
 
-    public static Map<String, String> mapFieldsTramaClaro(String iso) {
+    public static Map<String, String> createMapFieldsISO8583(String iso) {
 
-        Map<String, String> valuesMap = new HashMap<>();
-        Map<String, String> valuesMapInt = new HashMap<>();
+        Map<String, String> valuesMap = new LinkedHashMap<>();
+        Map<String, String> valuesMapInt = new  LinkedHashMap<>();
+
         boolean containsSecondaryBitmap = false;
 
         try {
@@ -62,6 +64,7 @@ public class ISO8583Processor {
 
 
     private static int processNextFieldTramaClaro(ISOField isoField, StringBuilder isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
+
         try {
 
             int fieldLength = isoField.getLength();
@@ -78,7 +81,7 @@ public class ISO8583Processor {
             return position;
 
         } catch (Exception e) {
-            throw new ParserException(createMessageError(isoField.getId(), e.getMessage()));
+            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
         }
     }
 
@@ -101,6 +104,19 @@ public class ISO8583Processor {
 
     private static String createMessageError(int id, String message) {
         return "Error found in field " + id + ": " + message;
+    }
+
+
+    private static String createMessageError(int positionLast, Map<String,String> mapFields,int id, String message) {
+        StringBuilder resultado = new StringBuilder();
+        for (Map.Entry<String, String> entry : mapFields.entrySet()) {
+            resultado.append(entry.getKey())
+                    .append("=")
+                    .append(entry.getValue())
+                    .append("; ");
+        }
+
+        return    positionLast + " fieldLast : " +resultado +  "Error found in field " + id + ": " + message;
     }
 
 

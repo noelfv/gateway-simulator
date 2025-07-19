@@ -7,8 +7,6 @@ import com.bbva.gui.utils.ParseGUI;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
 import lombok.Setter;
-import org.noos.xing.mydoggy.ToolWindow;
-import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,7 +145,7 @@ public class ConverterTramaViewerPanel extends JPanel {
                 currentMappedFieldsByDescription = ISOStringMapper.mapFields(inputMessage);
                 clear=true;
             }else {
-                currentMappedFieldsByDescription = ISO8583Processor.mapFieldsTramaClaro(inputMessage);
+                currentMappedFieldsByDescription = ISO8583Processor.createMapFieldsISO8583(inputMessage);
             }
 
             ParseResult result = ParseGUI.process(currentMappedFieldsByDescription);

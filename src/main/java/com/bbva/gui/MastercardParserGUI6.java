@@ -1,9 +1,7 @@
 package com.bbva.gui;
 
-import com.bbva.gui.components.viewers.ConverterTramaViewerPanel;
-import com.bbva.gui.components.viewers.GenerarTramaViewerPanel;
-import com.bbva.gui.components.viewers.ParseViewerPanel;
-import com.bbva.gui.components.viewers.TramaExamplesViewerPanel;
+import com.bbva.gui.components.SwingUtils;
+import com.bbva.gui.components.viewers.*;
 import com.bbva.gui.temp.LoadConfigDialog;
 import com.bbva.gui.temp.Y;
 import com.bbva.gui.temp.Z;
@@ -30,6 +28,7 @@ public class MastercardParserGUI6 extends JFrame {
     private JMenuItem parseMenuItem;
     private JMenuItem generarTramaMenuItem;
     private JMenuItem convertirTramaMenuItem;
+    private JMenuItem convertirIso20022MenuItem;
     private JMenuItem campo48MenuItem;
     private JMenuItem campo54MenuItem;
     private JMenu subcamposMenu;
@@ -52,6 +51,7 @@ public class MastercardParserGUI6 extends JFrame {
         initializeComponents();
         actionsMenu();
         customMenu();
+        borderMenu();
     }
 
     private void initializeComponents() {
@@ -84,12 +84,14 @@ public class MastercardParserGUI6 extends JFrame {
         conversionMenu = new JMenu("Conversion");
         generarTramaMenuItem = new JMenuItem("Generar trama");
         convertirTramaMenuItem = new JMenuItem("Convertir trama");
+        convertirIso20022MenuItem = new JMenuItem("Convertir Objeto");
         subcamposMenu = new JMenu("Campos variables");
         campo48MenuItem=new JMenuItem("Campo 48");
         campo54MenuItem=new JMenuItem("Campo 54");
         subcamposMenu.add(campo48MenuItem);
         subcamposMenu.add(campo54MenuItem);
         conversionMenu.add(convertirTramaMenuItem);
+        conversionMenu.add(convertirIso20022MenuItem);
         conversionMenu.add(generarTramaMenuItem);
         conversionMenu.add(subcamposMenu);
 
@@ -117,16 +119,11 @@ public class MastercardParserGUI6 extends JFrame {
         // Agregar menús a la barra
         menuBar.add(parseMenu);
         menuBar.add(conversionMenu);
-        menuBar.add(especificacionMenu);
+        //menuBar.add(especificacionMenu);
         menuBar.add(configuracionesMenu);
 
         // Establecer la barra de menú en el frame
         setJMenuBar(menuBar);
-
-        //ver si va
-        //getContentPane().setLayout(new BorderLayout());
-        //getContentPane().add(new JPanel(), BorderLayout.CENTER);
-        //getContentPane().add(createImagePanel(), BorderLayout.CENTER);
     }
 
     private JPanel createImagePanel() {
@@ -144,46 +141,24 @@ public class MastercardParserGUI6 extends JFrame {
         parseMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*getContentPane().removeAll();
-                ParseViewerPanel parserPanel = new ParseViewerPanel();
-                parserPanel.setInputText(SAMPLE_MESSAGE);
-                getContentPane().add(parserPanel, BorderLayout.CENTER);
-                revalidate();
-                repaint();*/
-
-
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                desktopPane.removeAll();
+                SwingUtils.mostrarEnInternalFrame(desktopPane, new ParseViewerPanel(), "Parser Principal");
+            }
+        });
 
-                ParseViewerPanel parserPanel = new ParseViewerPanel();
-                parserPanel.setInputText(SAMPLE_MESSAGE);
+        convertirTramaMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDesktopPane desktopPane = (JDesktopPane) getContentPane();
+                SwingUtils.mostrarEnInternalFrame(desktopPane, new ConverterTramaViewerPanel(), "Convertir trama");
+            }
+        });
 
-                JInternalFrame internalFrame = new JInternalFrame("Parser", true, true, true, true);
-                internalFrame.setContentPane(parserPanel);
-                // Establecer el internal frame como parent para los diálogos
-                parserPanel.setParentFrame(internalFrame);
-
-                // Ajustar el tamaño para que no ocupe todo el desktop pane
-                int desktopWidth = desktopPane.getWidth();
-                int desktopHeight = desktopPane.getHeight();
-
-                // Usar 80% del tamaño del desktop pane
-                int frameWidth = (int) (desktopWidth * 0.8);
-                int frameHeight = (int) (desktopHeight * 0.8);
-
-                internalFrame.setSize(frameWidth, frameHeight);
-
-                // Centrar el internal frame
-                int x = (desktopWidth - frameWidth) / 2;
-                int y = (desktopHeight - frameHeight) / 2;
-                internalFrame.setLocation(x, y);
-
-                internalFrame.setVisible(true);
-                desktopPane.add(internalFrame);
-
-                desktopPane.revalidate();
-                desktopPane.repaint();
-
+        convertirIso20022MenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDesktopPane desktopPane = (JDesktopPane) getContentPane();
+                SwingUtils.mostrarEnInternalFrame(desktopPane, new ConverterIso20022ViewerPanel(), "Convertir Objeto");
             }
         });
 
@@ -192,16 +167,6 @@ public class MastercardParserGUI6 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
                 getContentPane().add(new GenerarTramaViewerPanel(), BorderLayout.CENTER);
-                revalidate();
-                repaint();
-            }
-        });
-
-        convertirTramaMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getContentPane().removeAll();
-                getContentPane().add(new ConverterTramaViewerPanel(), BorderLayout.CENTER);
                 revalidate();
                 repaint();
             }
@@ -222,20 +187,8 @@ public class MastercardParserGUI6 extends JFrame {
         mostrarCalculadoraMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Crear e mostrar la nueva ventana de la calculadora
-               // CalculatorDialog calculator = new CalculatorDialog(MastercardParserGUI5.this); // Pasa 'this' como padre
                 JDialog calculator = new Y(MastercardParserGUI6.this); // Pasa 'this' como padre
                 calculator.setVisible(true);
-               /* JDesktopPane desktopPane = new JDesktopPane();
-                setContentPane(desktopPane);
-                JInternalFrame calculator = new Z();
-                calculator.setVisible(true);
-                desktopPane.add(calculator);*/
-               /* getContentPane().removeAll();
-                JPanel parserPanel = new X();
-                getContentPane().add(parserPanel, BorderLayout.CENTER);
-                revalidate();
-                repaint();*/
             }
         });
 
@@ -266,27 +219,8 @@ public class MastercardParserGUI6 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-
-                Z internalFrame = new Z();
-
-                // Establecer un tamaño fijo más pequeño
-                internalFrame.setSize(400, 300);
-
-                // Centrar el internal frame en el desktop pane
-                int x = (desktopPane.getWidth() - 400) / 2;
-                int y = (desktopPane.getHeight() - 300) / 2;
-                internalFrame.setLocation(x, y);
-
-                internalFrame.setVisible(true);
-                desktopPane.add(internalFrame);
-
-                // Dar foco al internal frame
-                try {
-                    internalFrame.setSelected(true);
-                    internalFrame.moveToFront();
-                } catch (java.beans.PropertyVetoException ex) {
-                    ex.printStackTrace();
-                }
+                JPanel parserPanel = new TramaExamplesViewerPanel();
+                SwingUtils.mostrarEnInternalFrame(desktopPane, parserPanel, "Formato del Campo 48");
             }
         });
 
@@ -295,17 +229,18 @@ public class MastercardParserGUI6 extends JFrame {
 
     private void customMenu(){
 
-        Font menuFont = new Font("Segoe UI", Font.PLAIN, 14);
+        Font menuFont = new Font("Segoe UI", Font.PLAIN, 16);
         menuBar.setFont(menuFont);
         parseMenu.setFont(menuFont);
         conversionMenu.setFont(menuFont);
         especificacionMenu.setFont(menuFont);
         configuracionesMenu.setFont(menuFont);
 
-        Font menuItemFont = new Font("Segoe UI", Font.PLAIN, 12);
+        Font menuItemFont = new Font("Segoe UI", Font.PLAIN, 14);
         parseMenuItem.setFont(menuItemFont);
         generarTramaMenuItem.setFont(menuItemFont);
         convertirTramaMenuItem.setFont(menuItemFont);
+        convertirIso20022MenuItem.setFont(menuItemFont);
         campo48MenuItem.setFont(menuItemFont);
         campo54MenuItem.setFont(menuItemFont);
 
@@ -337,6 +272,8 @@ public class MastercardParserGUI6 extends JFrame {
         generarTramaMenuItem.setForeground(menuItemFgColor);
         convertirTramaMenuItem.setBackground(menuItemBgColor);
         convertirTramaMenuItem.setForeground(menuItemFgColor);
+        convertirIso20022MenuItem.setBackground(menuItemBgColor);
+        convertirIso20022MenuItem.setForeground(menuItemFgColor);
         campo48MenuItem.setBackground(menuItemBgColor);
         campo48MenuItem.setForeground(menuItemFgColor);
         campo54MenuItem.setBackground(menuItemBgColor);

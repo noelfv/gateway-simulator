@@ -1,5 +1,6 @@
 package com.bbva.gui.components;
 
+import com.bbva.gui.components.viewers.ParseViewerPanel;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
@@ -16,7 +17,7 @@ public class PanelDoggy {
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(mainPanel, BorderLayout.CENTER);
         // Agregar el panel contenedor como contenido central
-        toolWindowManager.getContentManager().addContent("main", "Parser Principal", null, contentPanel);
+        toolWindowManager.getContentManager().addContent("main", "Parser Principal",null , contentPanel);
 
         // Tool Window para el árbol jerárquico
         ToolWindow treeToolWindow = toolWindowManager.registerToolWindow("Parser",
