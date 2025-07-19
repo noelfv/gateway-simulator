@@ -635,6 +635,10 @@ public class ISO20022To8583Mapper {
                             StringUtils.defaultIfEmpty(
                                     getSupplementaryData(inputISO20022.getSupplementaryData(), "messageAuthenticationCode2"), "")
                     )
+                    .additionalRecordData(
+                            StringUtils.defaultIfEmpty(
+                                    getSupplementaryData(inputISO20022.getSupplementaryData(), "additionalRecordData"), "")
+                    )
                     .header(
                             StringUtils.defaultIfEmpty(
                                     getTraceDataValue(inputISO20022.getTraceData(), "header"), "")

@@ -255,7 +255,7 @@ public class ISO8583Builder {
         mapValues.put("additionalRecordData", iso8583.getAdditionalRecordData());
         mapValues.put("cryptographicServiceMessage", iso8583.getCryptographicServiceMessage());
         mapValues.put("infoText", iso8583.getInfoText());
-        mapValues.put("settlementData", iso8583.getSettlementAmount());
+        mapValues.put("settlementData", iso8583.getSettlementData());
         mapValues.put("issuerTraceId", iso8583.getIssuerTraceId());
         mapValues.put("privateData", iso8583.getPrivateData());
         mapValues.put("messageAuthenticationCode2", iso8583.getMessageAuthenticationCode2());

@@ -822,6 +822,13 @@ public class ISO8583To20022Mapper {
                     .envelope(inputObject.getReservedNationalUse2())
                     .build();*/
 
+
+            // ======== FIELD 122 (RESERVED_NATIONAL_USE_2) ======== COMENTADO
+            SupplementaryDataDTO additionalRecordData = SupplementaryDataDTO.builder()
+                    .placeAndName("additionalRecordData")
+                    .envelope(inputObject.getAdditionalRecordData())
+                    .build();
+
             // ======== FIELD 127 (PRIVATE_DATA) ========
             SupplementaryDataDTO privateData = SupplementaryDataDTO.builder()
                     .placeAndName("privateData")
@@ -862,6 +869,7 @@ public class ISO8583To20022Mapper {
             supplementaryDataList.add(fileSecurityCode);
             supplementaryDataList.add(responseIndicator);
             supplementaryDataList.add(accountIdentification1);
+            supplementaryDataList.add(additionalRecordData);
             /*supplementaryDataList.add(messageAuthenticationCode2);
             supplementaryDataList.add(amountCardholderBillingFee);
             supplementaryDataList.add(forwardingInstitutionCountryCode);

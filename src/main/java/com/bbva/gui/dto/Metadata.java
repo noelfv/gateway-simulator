@@ -108,6 +108,7 @@ public class Metadata {
         mappingMetadata.addFieldOrigin("[P115][" + inputObject.getReservedNationalUse()+"]","supplementaryData[reservedNationalUse]");
         mappingMetadata.addFieldOrigin("[P119][" + inputObject.getReservedNationalUse2()+"]","supplementaryData[reservedNationalUse2]");
         mappingMetadata.addFieldOrigin("[P127][" + inputObject.getPrivateData()+"]","supplementaryData[privateData]");
+        mappingMetadata.addFieldOrigin("[P122][" + inputObject.getAdditionalRecordData()+"]","supplementaryData[additionalRecordData]");
         mappingMetadata.addFieldOrigin("[P128][" + inputObject.getMessageAuthenticationCode2()+"]","supplementaryData[messageAuthenticationCode2]");
         mappingMetadata.addFieldOrigin("[P055][" + inputObject.getIntegratedCircuitCard()+"]","iccRelatedData");
         return mappingMetadata;
