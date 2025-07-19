@@ -1,5 +1,7 @@
 package com.bbva.gui.components.viewers;
 
+import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.gui.components.PanelDoggy;
 import com.bbva.orchestrator.parser.common.ISO8583SubFieldsParser;
 import com.bbva.orchestrator.parser.iso20022.ISO20022To8583Mapper;
 import com.bbva.orchestrator.parser.iso20022.ISO8583To20022Mapper;
@@ -30,6 +32,7 @@ public class ParseViewerPanel extends JPanel {
     private JTree resultTree;
     private DefaultTreeModel treeModel;
     private JButton parseButton;
+    private JButton limpiarButton;
     @Setter
     private JInternalFrame parentFrame;
 
@@ -37,7 +40,7 @@ public class ParseViewerPanel extends JPanel {
        //messageParser = new MCMessageParserImpl();
        initializeComponents();
        setupEventHandlers();
-       setupMyDoggy();
+       setupMyDoggy2();
     }
 
 
@@ -63,6 +66,7 @@ public class ParseViewerPanel extends JPanel {
         //resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
         parseButton = new JButton("Parser");
+        limpiarButton = new JButton("Limpiar");
 
     }
 
@@ -91,6 +95,12 @@ public class ParseViewerPanel extends JPanel {
         add(toolWindowManager, BorderLayout.CENTER);
     }
 
+
+    private void setupMyDoggy2() {
+        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        add(toolWindowManager, BorderLayout.CENTER);
+    }
+
     private JPanel createMainPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -102,6 +112,7 @@ public class ParseViewerPanel extends JPanel {
         // Panel de botones
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(parseButton);
+        buttonPanel.add(limpiarButton);
 
         panel.add(inputPanel, BorderLayout.CENTER);
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -124,6 +135,18 @@ public class ParseViewerPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parseMessage();
+            }
+        });
+
+        limpiarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inputTextArea.setText("");
+                outputTextArea.setText("");
+                // Limpiar el JTree
+                DefaultMutableTreeNode root = new DefaultMutableTreeNode("Mensaje Parseado");
+                treeModel.setRoot(root);
+                treeModel.reload();
             }
         });
 
@@ -158,18 +181,16 @@ public class ParseViewerPanel extends JPanel {
 
             Map<String,String> mapValues;
             if(inputMessage.startsWith("F0")){
-                System.out.println("Mensaje en formato EBCDIC");
+                LogsTraces.writeInfo("Mensaje en formato EBCDIC");
                 mapValues=ISO8583Processor.mapFields(inputMessage);
             }else {
-                System.out.println("Mensaje en formato ASCII");
+                LogsTraces.writeInfo("Mensaje en formato ASCII");
                 mapValues=ISO8583Processor.mapFieldsTramaClaro(inputMessage);
             }
 
             ParseResult result = ParseGUI.process(mapValues);
 
             Map<String, String> currentMappedFieldsByDescription = result.fieldsByDescription();
-            //Map<String, String> currentMappedFieldsById = result.fieldsById();
-           // Map<String, String> subFields = messageParser.mapSubFields(currentMappedFieldsByDescription);
             Map<String, String> subFields =  ISO8583SubFieldsParser.mapSubFieldsMastercard(currentMappedFieldsByDescription);
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, currentMappedFieldsByDescription);
             ISO20022 iso20022 = ISO8583To20022Mapper.translateToISO20022(iso8583, subFields,true);

@@ -290,9 +290,7 @@ public class ISO8583To20022Mapper {
             // SUB CAMPO 01
             AdditionalDataDTO accountType = AdditionalDataDTO.builder()
                     .key("accountType")
-                    .value(subFields.containsKey(ADDITIONAL_ACCOUNT_TYPE)
-                            ? subFields.get(ADDITIONAL_ACCOUNT_TYPE)
-                            : null)
+                    .value(subFields.getOrDefault(ADDITIONAL_ACCOUNT_TYPE, null))
                     .build();
             additionalTransactionDataList.add(accountType);
 

@@ -5,6 +5,8 @@ import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
 import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -157,5 +159,175 @@ public class UtilGUI {
 
         JOptionPane.showMessageDialog(null, htmlMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+
+    private void processMap0100(){
+        Map<String,String> inputMessage = new HashMap<>();
+        inputMessage.put("messageType", "0100");
+        //campo 2
+        inputMessage.put("primaryAccountNumber", "5536509999999999");
+        //campo 3
+        inputMessage.put("processingCode", "000000");
+        //campo 4
+        inputMessage.put("transactionAmount", "0000000229.90");
+        //campo 5
+        inputMessage.put("settlementAmount", "000000006356");
+        //campo 6
+        inputMessage.put("cardHolderBillingAmount", "0000000229.90");
+        //campo 7
+        inputMessage.put("transmissionDateTime", "0616072724");
+        //campo 9
+        inputMessage.put("conversionRateSettlement", "72764680");
+        //campo 10
+        inputMessage.put("conversionRate", "61000000");
+        //campo 11
+        inputMessage.put("systemTraceAuditNumber", "898716");
+        //campo 12
+        inputMessage.put("localTransactionTime", "101604");
+        //campo 13
+        inputMessage.put("localTransactionDate", "0715");
+        //campo 14
+        inputMessage.put("dateExpiration", "2905");
+        //campo 15
+        inputMessage.put("settlementDate", "0616");
+        //campo 16
+        inputMessage.put("dateConversion", "0615");
+        //campo 18
+        inputMessage.put("merchantType", "0001");
+        //campo 20
+        inputMessage.put("primaryAccountNumberCountryCode", "123");
+        //campo 22
+        inputMessage.put("pointServiceEntryMode", "123");
+        //campo 26
+        inputMessage.put("pointServicePIN", "12");
+        //campo 32
+        inputMessage.put("acquiringInstitutionIdentificationCode", "003286");
+        // campo 33
+        inputMessage.put("forwardingInstitutionIdentificationCode", "003286");
+        // campo 35
+        inputMessage.put("trackTwoData", "12345678901234567890=29051000000000000000");
+        //campo 37
+        inputMessage.put("retrievalReferenceNumber", "516754898716");
+        //campo 41
+        inputMessage.put("cardAcceptorTerminalIdentification", "00400216");
+        //campo 42
+        inputMessage.put("cardAcceptorIdentificationCode", "400216000108778");
+        //campo 43
+        inputMessage.put("cardAcceptorNameLocation", "APPLE.COM/BILL         866-712-7753  USA");
+        //campo 44
+        //inputMessage.put("additionalResponseData", "22");
+        //campo 45
+        inputMessage.put("trackOneData", "000000000000000000000000000000000000000");
+        //campo 48
+        inputMessage.put("additionalDataRetailer", "T37150511000009999974207010321022080504M1036105000015618AQV116AQS609AQF116753201038800202140303880040214050200710418C ");
+        //campo 49
+        inputMessage.put("transactionCurrencyCode", "604");
+        //campo 50
+        inputMessage.put("settlementCurrencyCode", "840");
+        //campo 51
+        inputMessage.put("cardholderBillingCurrencyCode", "604");
+        //campo 52
+        inputMessage.put("pinData", "ABCDEF12");
+        //campo 54
+        inputMessage.put("additionalAmounts", "123");
+        //campo 55
+        inputMessage.put("integratedCircuitCard", "123");
+        //campo 61
+        inputMessage.put("posCardIssuer", "000410000060084095014     ");
+        //campo 62
+        inputMessage.put("postalCode", "123");
+        //campo 63
+        inputMessage.put("networkData", "123");
+        //campo 73
+        inputMessage.put("dateAction", "123456");
+        //campo 95
+        inputMessage.put("replacementAmounts", "000000000000000000000000000000000000000000");
+        //campo 112
+        inputMessage.put("additionalDataNationalUse", "123");
+        //campo 120
+        inputMessage.put("keyManagement", "123");
+        // campo 121
+        //inputMessage.put("authorizingAgentIdCode", "123");
+        //campo 127
+        inputMessage.put("privateData", "123");
+
+        //String trama=messageParser.unParser(inputMessage, true);
+        //outputTextArea.setText(trama);
+    }
+
+
+    private void processMap0110(){
+        Map<String,String> inputMessage = new HashMap<>();
+        inputMessage.put("messageType", "0110");
+        //campo 2
+        inputMessage.put("primaryAccountNumber", "5536509999999999");
+        //campo 3
+        inputMessage.put("processingCode", "000000");
+        //campo 4
+        inputMessage.put("transactionAmount", "0000000229.90");
+        //campo 5
+        inputMessage.put("settlementAmount", "000000006356");
+        //campo 6
+        inputMessage.put("cardHolderBillingAmount", "0000000229.90");
+        //campo 7
+        inputMessage.put("transmissionDateTime", "0616072724");
+        //campo 9
+        inputMessage.put("conversionRateSettlement", "72764680");
+        //campo 10
+        inputMessage.put("conversionRate", "61000000");
+        //campo 11
+        inputMessage.put("systemTraceAuditNumber", "898716");
+        //campo 12
+        //inputMessage.put("localTransactionTime", "061604");
+        //campo 15
+        inputMessage.put("settlementDate", "0616");
+        //campo 16
+        inputMessage.put("dateConversion", "0615");
+        //campo 20
+        inputMessage.put("primaryAccountNumberCountryCode", "123");
+        //campo 32
+        inputMessage.put("acquiringInstitutionIdentificationCode", "003286");
+        // campo 33
+        inputMessage.put("forwardingInstitutionIdentificationCode", "003286");
+        //campo 37
+        inputMessage.put("retrievalReferenceNumber", "516754898716");
+        //campo 38
+        inputMessage.put("authorizationIdentificationResponse", "012345");
+        //campo 39
+        inputMessage.put("responseCode", "00");
+        //campo 41
+        inputMessage.put("cardAcceptorTerminalIdentification", "00400216");
+        //campo 44
+        inputMessage.put("additionalResponseData", "22");
+        //campo 48
+        inputMessage.put("additionalDataRetailer", "T37150511000009999974207010321022080504M1036105000015618AQV116AQS609AQF116753201038800202140303880040214050200710418C ");
+        //campo 49
+        inputMessage.put("transactionCurrencyCode", "604");
+        //campo 50
+        inputMessage.put("settlementCurrencyCode", "840");
+        //campo 51
+        inputMessage.put("cardholderBillingCurrencyCode", "604");
+        //campo 54
+        inputMessage.put("additionalAmounts", "123");
+        //campo 55
+        inputMessage.put("integratedCircuitCard", "123");
+        //campo 62
+        inputMessage.put("postalCode", "123");
+        //campo 63
+        inputMessage.put("networkData", "123");
+        //campo 112
+        inputMessage.put("additionalDataNationalUse", "123");
+        //campo 120
+        inputMessage.put("keyManagement", "123");
+        //campo 121
+        inputMessage.put("authorizingAgentIdCode", "123");
+        //campo 127
+        inputMessage.put("privateData", "123");
+
+       // String trama=messageParser.unParser(inputMessage, true);
+        //outputTextArea.setText(trama);
+    }
+
+
 
 }

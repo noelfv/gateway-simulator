@@ -49,9 +49,9 @@
         <!-- Logger específico para tu aplicación -->
         <Logger name="org.example" level="DEBUG" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="StartupFile"/>
+            <!-- <AppenderRef ref="StartupFile"/>
             <AppenderRef ref="DailyRollingFile"/>
-            <AppenderRef ref="ErrorFile"/>
+             <AppenderRef ref="ErrorFile"/>-->
         </Logger>
 
         <!-- Logger para librerías externas -->
@@ -63,8 +63,8 @@
         <!-- Logger raíz -->
         <Root level="INFO">
             <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="DailyRollingFile"/>
-            <AppenderRef ref="ErrorFile"/>
+           <!-- <AppenderRef ref="DailyRollingFile"/>
+            <AppenderRef ref="ErrorFile"/>-->
         </Root>
     </Loggers>
 </Configuration>
