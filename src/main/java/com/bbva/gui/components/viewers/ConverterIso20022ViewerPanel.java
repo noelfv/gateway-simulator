@@ -1,13 +1,18 @@
 package com.bbva.gui.components.viewers;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
+import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
+import com.bbva.gui.dto.ParseResult;
+import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.orchestrator.MCMessageParserImpl;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
+import com.bbva.orchestrator.parser.common.ISO8583SubFieldsParser;
 import com.bbva.orchestrator.parser.iso20022.ISO20022To8583Mapper;
+import com.bbva.orchestrator.parser.iso20022.ISO8583To20022Mapper;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.parser.iso8583.ISO8583Builder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -43,8 +48,8 @@ public class ConverterIso20022ViewerPanel extends JPanel {
 
     public ConverterIso20022ViewerPanel() {
         initializeComponents();
+        createPanelsLayout();
         setupEventHandlers();
-        setupMyDoggy2();
         //Poner el foco en el JTextArea de entrada
         SwingUtilities.invokeLater(() -> {
             inputTextArea.requestFocusInWindow();
@@ -77,29 +82,7 @@ public class ConverterIso20022ViewerPanel extends JPanel {
        resultTree.setRootVisible(true);
     }
 
-    private void setupMyDoggy() {
-        MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
-        // Panel principal con entrada y botones
-        JPanel mainPanel = createMainPanel();
-        mainPanel.setPreferredSize(new Dimension(800, 600));
-
-        // Crear un panel contenedor para combinar radio buttons y panel principal
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(mainPanel, BorderLayout.CENTER);
-
-        // Agregar el panel contenedor como contenido central
-        toolWindowManager.getContentManager().addContent("main", "Parser Principal", null, contentPanel);
-
-        // Tool Window para resultados
-        ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("output",
-                "Resultado", null, createOutputPanel(), ToolWindowAnchor.BOTTOM);
-        outputToolWindow.setAvailable(true);
-        outputToolWindow.setVisible(true);
-
-        add(toolWindowManager, BorderLayout.CENTER);
-    }
-
-    private void setupMyDoggy2() {
+    private void  createPanelsLayout() {
         MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }
@@ -159,35 +142,77 @@ public class ConverterIso20022ViewerPanel extends JPanel {
     private void convertMessage() {
         try {
             String jsonString = inputTextArea.getText().trim();
-            if (jsonString.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor ingrese un mensaje para parsear",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+            if (!jsonString.startsWith("{")) {
+                JOptionPane.showMessageDialog(parentFrame, "Por favor ingrese una estructura json correcta en formato ISO20022",
+                        "WARNING", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             // Convertir de String JSON a objeto ISO20022
             ObjectMapper objectMapper = new ObjectMapper();
-
             // Configurar ObjectMapper de forma más permisiva
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            /*objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             objectMapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
             objectMapper.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false);
             objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-            objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);*/
 
 
             ISO20022 inputObject = objectMapper.readValue(jsonString, ISO20022.class);
             ISO8583 iso8583 = ISO20022To8583Mapper.translateToISO8583(inputObject);
             Map<String, String> currentMappedFieldsByDescription = ISO8583Builder.buildMapISO8583(iso8583);
-            LOGGER.info("Trama generada: [{}]", currentMappedFieldsByDescription);
             String trama=ISOStringConverterMastercard.getInstance().convertToISOString(currentMappedFieldsByDescription, true);
             LOGGER.info("Trama generada: [{}]", trama);
             outputTextArea.setText(trama );
+
+            ParseResult result = ParseGUI.process(ISO8583Processor.mapFieldsTramaClaro(trama));
+            ParseGUI.updateTreeView(treeModel, resultTree, result);
 
         } catch (Exception ex) {
             UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
             outputTextArea.setText("Error: " + ex.getMessage());
         }
     }
+
+
+    private void parseMessage() {
+        try {
+            String inputMessage = inputTextArea.getText().trim();
+            if (inputMessage.isEmpty()) {
+                JOptionPane.showMessageDialog(parentFrame, "Por favor ingrese un mensaje para parsear",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Map<String,String> mapValues;
+            if(inputMessage.startsWith("F0")){
+                LogsTraces.writeInfo("Mensaje en formato EBCDIC");
+                mapValues=ISO8583Processor.mapFields(inputMessage);
+            }else {
+                LogsTraces.writeInfo("Mensaje en formato ASCII");
+                mapValues=ISO8583Processor.mapFieldsTramaClaro(inputMessage);
+            }
+
+            ParseResult result = ParseGUI.process(mapValues);
+
+            Map<String, String> currentMappedFieldsByDescription = result.fieldsByDescription();
+            Map<String, String> subFields =  ISO8583SubFieldsParser.mapSubFieldsMastercard(currentMappedFieldsByDescription);
+            ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, currentMappedFieldsByDescription);
+            ISO20022 iso20022 = ISO8583To20022Mapper.translateToISO20022(iso8583, subFields,true);
+            String tramaGen= ISO20022To8583Mapper.getOriginalIsoMessage(iso20022);
+            System.out.println("Trama generada: [" + tramaGen+"]");
+
+            //updateTreeView();
+            ParseGUI.updateTreeView(treeModel, resultTree, result);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            outputTextArea.setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022) );
+
+        } catch (Exception ex) {
+            UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            outputTextArea.setText("Error: " + ex.getMessage());
+        }
+    }
+
 
 }

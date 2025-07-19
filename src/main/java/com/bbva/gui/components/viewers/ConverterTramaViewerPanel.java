@@ -35,8 +35,9 @@ public class ConverterTramaViewerPanel extends JPanel {
 
     public ConverterTramaViewerPanel() {
         initializeComponents();
+        createPanelsLayout();
         setupEventHandlers();
-        setupMyDoggy();
+
         //Poner el foco en el JTextArea de entrada
         SwingUtilities.invokeLater(() -> {
             inputTextArea.requestFocusInWindow();
@@ -70,7 +71,7 @@ public class ConverterTramaViewerPanel extends JPanel {
 
     }
 
-    private void setupMyDoggy() {
+    private void createPanelsLayout() {
         MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }

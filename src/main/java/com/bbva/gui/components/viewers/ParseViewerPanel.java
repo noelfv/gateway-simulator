@@ -37,10 +37,13 @@ public class ParseViewerPanel extends JPanel {
     private JInternalFrame parentFrame;
 
     public ParseViewerPanel() {
-       //messageParser = new MCMessageParserImpl();
        initializeComponents();
+       createPanelsLayout();
        setupEventHandlers();
-       setupMyDoggy2();
+        //Poner el foco en el JTextArea de entrada
+        SwingUtilities.invokeLater(() -> {
+            inputTextArea.requestFocusInWindow();
+        });
     }
 
 
@@ -96,7 +99,7 @@ public class ParseViewerPanel extends JPanel {
     }
 
 
-    private void setupMyDoggy2() {
+    private void createPanelsLayout() {
         MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }
