@@ -4,6 +4,7 @@ import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.ParseGUI;
+import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConverterTramaViewerPanel extends JPanel {
@@ -130,6 +132,10 @@ public class ConverterTramaViewerPanel extends JPanel {
     }
 
     private void convertMessage() {
+
+        ParseResult result;
+        Map<String, String> currentMappedFieldsByDescription=new HashMap<>();
+
         try {
             String inputMessage = inputTextArea.getText().trim();
             if (inputMessage.isEmpty()) {
@@ -139,7 +145,6 @@ public class ConverterTramaViewerPanel extends JPanel {
             }
 
             boolean clear=false;
-            Map<String, String> currentMappedFieldsByDescription;
             if(inputMessage.startsWith("F0")){
                 LOGGER.info("Mensaje en formato EBCDIC");
                 currentMappedFieldsByDescription = ISOStringMapper.mapFields(inputMessage);
@@ -148,7 +153,7 @@ public class ConverterTramaViewerPanel extends JPanel {
                 currentMappedFieldsByDescription = ISO8583Processor.createMapFieldsISO8583(inputMessage);
             }
 
-            ParseResult result = ParseGUI.process(currentMappedFieldsByDescription);
+            result = ParseGUI.process(currentMappedFieldsByDescription);
             ParseGUI.updateTreeView(treeModel, resultTree, result);
 
             String trama= ISOStringConverterMastercard.getInstance().convertToISOString(currentMappedFieldsByDescription, clear);
@@ -156,8 +161,10 @@ public class ConverterTramaViewerPanel extends JPanel {
             LOGGER.info("Trama generada: [{}]", trama);
             outputTextArea.setText(trama );
 
-        } catch (Exception ex) {
+        } catch (ParserLocalException ex) {
             showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            result = ParseGUI.process(ex.getValuesMap());
+            ParseGUI.updateTreeView(treeModel, resultTree, result);
             outputTextArea.setText("Error: " + ex.getMessage());
         }
     }

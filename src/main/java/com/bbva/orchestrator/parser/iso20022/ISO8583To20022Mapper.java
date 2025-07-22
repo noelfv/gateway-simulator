@@ -11,6 +11,8 @@ import com.bbva.orchestrator.validations.FieldLocalCodeMapper;
 import com.bbva.orchlib.parser.ParserException;
 import com.bbva.orchestrator.processes.ProcessMonitoring;
 import com.bbva.orchestrator.processes.ProcessingResult;
+
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -184,7 +186,8 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 5 (RECONCILIATION AMOUNT) ========
                     .amount(parseDouble(inputObject.getSettlementAmount()))
                     // ======== FIELD 9 (RECONCILIATION EXCHANGE RATE) ========
-                    .effectiveExchangeRate(parseDouble(inputObject.getConversionRateSettlement()))
+                   // .effectiveExchangeRate(parseDouble(inputObject.getConversionRateSettlement()))
+                    .effectiveExchangeRate(conversionRateValidation(inputObject.getConversionRateSettlement()))
                     // ======== FIELD 50 (SETTLEMENT CURRENCY CODE) ========
                     .currency(inputObject.getSettlementCurrencyCode())
                     .build();
@@ -1122,7 +1125,87 @@ public class ISO8583To20022Mapper {
         }
     }
 
-    private static Double conversionRateValidation(String value) {
+
+    public static void main(String[] args) {
+        //String valorOriginal="72802343";
+        //String valorOriginal="61000000";
+        String valorOriginal="60010000";
+
+        String res="0.2802343"; //72802343 y no esto 70280234
+        System.out.println("Valor original : " +valorOriginal);
+        BigDecimal resultado = conversionRateValidation(valorOriginal);
+        System.out.println("Valor convertido : " +resultado);
+        System.out.println("Valor experado : " + valorOriginal + " reconversion : " + getOriginalConversionRate(resultado));
+
+    }
+
+    public static String getOriginalConversionRate(BigDecimal resultado) {
+        if (resultado == null) return null;
+        String str = resultado.toPlainString();
+        int index = str.indexOf(".");
+        int precision = (index < 0) ? 0 : str.length() - index - 1;
+        String digits = str.replace(".", "");
+        // Si empieza con '0' y la precisión es 7, reemplaza el primer dígito por la precisión
+        if (str.startsWith("0.") && precision == 7) {
+            digits = precision + digits.substring(1);
+            return digits;
+        }
+        /*if (str.startsWith("0.") && precision >= 1 && precision <= 7) {
+            return precision + digits.substring(1);
+        }*/
+        return precision + digits;
+    }
+
+    public static String getOriginalConversionRate3(BigDecimal resultado) {
+        if (resultado == null) return null;
+        String str = resultado.toString();
+        int index = str.indexOf(".");
+        int precision = (index < 0) ? 0 : str.length() - index - 1;
+        String sinPunto = str.replace(".", "");
+        return precision + sinPunto;
+    }
+
+    private static BigDecimal conversionRateValidation(String value) {
+        if (value == null || value.length() < 2) {
+            throw new ParserException("El valor de la tasa de conversión es nulo o demasiado corto: " + value);
+        }
+
+        int precision = Character.getNumericValue(value.charAt(0));
+        String digits = value.substring(1);
+
+        if (precision < 0 || precision > 7 || precision > digits.length()) {
+            throw new ParserException("Precisión inválida en la tasa de conversión: " + value);
+        }
+
+        StringBuilder sb = new StringBuilder(digits);
+        sb.insert(sb.length() - precision, '.');
+        try {
+            return new BigDecimal(sb.toString());
+        } catch (NumberFormatException e) {
+            throw new ParserException("Error al parsear la tasa de conversión: " + value);
+        }
+    }
+
+
+    private static BigDecimal conversionRateValidation3(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder conversionRate = new StringBuilder(value);
+        int precision = Integer.parseInt(conversionRate.substring(0, 1));
+
+        if (precision > 7 || precision < 0) {
+            throw new ParserException("Error parsing exchange rate value: " + value);
+        }
+
+        conversionRate.deleteCharAt(0);
+        conversionRate.insert(conversionRate.length() - precision, ".");
+        return new BigDecimal(conversionRate.toString());
+    }
+
+
+    private static Double conversionRateValidation2(String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }

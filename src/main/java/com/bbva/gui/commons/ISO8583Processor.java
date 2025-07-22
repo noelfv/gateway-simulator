@@ -1,12 +1,11 @@
 package com.bbva.gui.commons;
 
-import com.bbva.orchestrator.ParserException;
+import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
 import com.bbva.orchestrator.parser.common.ISOField;
 import com.bbva.orchestrator.parser.common.ISOUtil;
+import com.bbva.orchlib.parser.ParserException;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -15,12 +14,6 @@ import static com.bbva.orchestrator.parser.common.ISODataType.BINARY_STRING;
 import static com.bbva.orchestrator.parser.common.ISODataType.NUMERIC_DECIMAL;
 
 public class ISO8583Processor {
-
-
-    public static Map<String, String> mapFields(String iso) {
-        return  ISOStringMapper.mapFields(iso);
-    }
-
 
     public static Map<String, String> createMapFieldsISO8583(String iso) {
 
@@ -50,18 +43,18 @@ public class ISO8583Processor {
                     ISOField field = ISOFieldMastercard.getById(i);
 
                     if (field == null) {
-                        throw new ParserException(createMessageError(i, "There is no mapping available"));
+                        throw new ParserLocalException(createMessageError(i, "There is no mapping available"));
                     }
 
                     position = processNextFieldTramaClaro(field,isoMessage, position, valuesMap, valuesMapInt);
                 }
             }
-        } catch (Exception e) {
-            throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
+        } catch (ParserException e) {
+            //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
+            throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
         }
         return valuesMap;
     }
-
 
     private static int processNextFieldTramaClaro(ISOField isoField, StringBuilder isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
 
@@ -81,7 +74,7 @@ public class ISO8583Processor {
             return position;
 
         } catch (Exception e) {
-            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
+            throw new ParserLocalException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
         }
     }
 

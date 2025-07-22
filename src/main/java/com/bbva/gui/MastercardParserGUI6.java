@@ -1,13 +1,13 @@
 package com.bbva.gui;
 
+import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.gui.commons.InternalFrameActionListener;
 import com.bbva.gui.components.SwingUtils;
 import com.bbva.gui.components.viewers.*;
 import com.bbva.gui.temp.LoadConfigDialog;
 import com.bbva.gui.temp.Y;
-import com.bbva.gui.temp.Z;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -20,7 +20,6 @@ import java.util.List;
 public class MastercardParserGUI6 extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(MastercardParserGUI6.class);
-    private final String SAMPLE_MESSAGE = "F0F1F0F0FEFF640188E1E10A0000000000000040F1F6F5F5F3F6F5F0F9F9F9F9F9F9F9F9F9F9F0F0F0F0F0F0F0F0F0F0F0F0F0F2F2F9F9F0F0F0F0F0F0F0F0F0F6F3F5F6F0F0F0F0F0F0F0F2F2F9F9F0F0F6F1F6F0F7F2F7F2F4F7F2F7F6F4F6F8F0F6F1F0F0F0F0F0F0F8F9F8F7F1F6F0F3F2F7F2F4F0F6F1F6F2F9F0F5F0F6F1F6F0F6F1F5F5F8F1F8F8F4F0F1F0F0F0F6F0F0F3F2F8F6F0F6F0F0F3F2F8F6F5F1F6F7F5F4F8F9F8F7F1F6F0F0F4F0F0F2F1F6F4F0F0F2F1F6F0F0F0F1F0F8F7F7F8C1D7D7D3C54BC3D6D461C2C9D3D3404040404040404040F8F6F660F7F1F260F7F7F5F34040E4E2C1F1F1F8E3F3F7F1F5F0F5F1F1F0F0F0F0F0F9F9F9F9F9F7F4F2F0F7F0F1F0F3F2F1F0F2F2F0F8F0F5F0F4D4F1F0F3F6F1F0F5F0F0F0F0F1F5F6F1F8C1D8E5F1F1F6C1D8E2F6F0F9C1D8C6F1F1F6F7F5F3F2F0F1F0F3F8F8F0F0F2F0F2F1F4F0F3F0F3F8F8F0F0F4F0F2F1F4F0F5F0F2F0F0F7F1F0F4F1F8C340F6F0F4F8F4F0F6F0F4F0F3F7F0F1F3F3F0F1F2F9F5F0F0F1F9F3C8D2D8C9E6C5E8E5C9E2C5F7E4D2E3D8D2F8E8D1F5C3F0F0F2F6F0F0F0F4F1F0F0F0F0F0F6F0F0F8F4F0F9F5F0F1F44040404040F0F0F9D4C2D2C3C7F4F6F2C6F1F0F1F0F0F1F0F9F5F0F0F1F0F1F8D6D5C540C1D7D7D3C540D7C1D9D240E6C1E8F0F0F2F0F0F3C3C140F0F0F3F0F1F3C1D7D7D3C54BC3D6D440C2C9D3F0F0F4F0F1F0F8F6F6F7F1F2F7F7F5F3F0F0F7F0F2F1F8F4F2F8F0F5F8F2F24040404040404040404040E8";
     private JMenuBar menuBar;
     private JMenu parseMenu;
     private JMenu conversionMenu;
@@ -126,6 +125,7 @@ public class MastercardParserGUI6 extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    //muy pronto el logo
     private JPanel createImagePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         // Asegúrate de que la ruta sea correcta y la imagen esté en resources
@@ -139,30 +139,112 @@ public class MastercardParserGUI6 extends JFrame {
 
         // Configurar los listeners para los menús
         parseMenuItem.addActionListener(new ActionListener() {
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                SwingUtils.mostrarEnInternalFrame(desktopPane, new ParseViewerPanel(), "Parser Principal");
+               if (internalFrame == null || internalFrame.isClosed()) {
+                    internalFrame = SwingUtils.mostrarEnInternalFrame2(desktopPane, new ParseViewerPanel(), "Parsear mensaje");
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } else {
+                    try {
+                        internalFrame.setIcon(false);
+                        internalFrame.setSelected(true);
+                        internalFrame.toFront();
+                        desktopPane.revalidate();
+                        desktopPane.repaint();
+                    } catch (Exception ex) {
+                        LogsTraces.writeWarning(ex.getMessage());
+                        // Manejo de excepción
+                    }
+                }
             }
         });
+
+
+/*
+        parseMenuItem.addActionListener(
+                new InternalFrameActionListener(
+                        (JDesktopPane) getContentPane(),
+                        new ParseViewerPanel(),
+                        "Parser Principal"
+                )
+        );*/
+
 
         convertirTramaMenuItem.addActionListener(new ActionListener() {
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                SwingUtils.mostrarEnInternalFrame(desktopPane, new ConverterTramaViewerPanel(), "Convertir trama");
+                if (internalFrame == null || internalFrame.isClosed()) {
+                    internalFrame = SwingUtils.mostrarEnInternalFrame2(desktopPane, new ConverterTramaViewerPanel(), "Convertir trama");
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } else {
+                    try {
+                        internalFrame.setIcon(false);
+                        internalFrame.setSelected(true);
+                        internalFrame.toFront();
+                        desktopPane.revalidate();
+                        desktopPane.repaint();
+                    } catch (Exception ex) {
+                        LogsTraces.writeWarning(ex.getMessage());
+                        // Manejo de excepción
+                    }
+                }
             }
         });
+
+        /*
+        convertirTramaMenuItem.addActionListener(
+                new InternalFrameActionListener(
+                        (JDesktopPane) getContentPane(),
+                        new ConverterTramaViewerPanel(),
+                        "Convertir trama"
+                )
+        );
+
+         */
 
         convertirIso20022MenuItem.addActionListener(new ActionListener() {
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                SwingUtils.mostrarEnInternalFrame(desktopPane, new ConverterIso20022ViewerPanel(), "Convertir Objeto");
+                if (internalFrame == null || internalFrame.isClosed()) {
+                    internalFrame = SwingUtils.mostrarEnInternalFrame2(desktopPane, new ConverterIso20022ViewerPanel(), "Convertir Objeto");
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } else {
+                    try {
+                        internalFrame.setIcon(false);
+                        internalFrame.setSelected(true);
+                        internalFrame.toFront();
+                        desktopPane.revalidate();
+                        desktopPane.repaint();
+                    } catch (Exception ex) {
+                        LogsTraces.writeWarning(ex.getMessage());
+                        // Manejo de excepción
+                    }
+                }
             }
         });
 
+
+/*
+        convertirIso20022MenuItem.addActionListener(
+                new InternalFrameActionListener(
+                        (JDesktopPane) getContentPane(),
+                        new ConverterTramaViewerPanel(),
+                        "Convertir Objeto"
+                )
+        );
+  */
+
         generarTramaMenuItem.addActionListener(new ActionListener() {
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();
@@ -173,6 +255,7 @@ public class MastercardParserGUI6 extends JFrame {
         });
 
         tramasExampleMenuItem.addActionListener(new ActionListener() {
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 getContentPane().removeAll();

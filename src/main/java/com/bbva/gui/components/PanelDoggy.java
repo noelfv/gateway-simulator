@@ -11,6 +11,14 @@ public class PanelDoggy {
 
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JTree resultTree,JPanel outputPanel) {
+
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
+        splitPane.setResizeWeight(0.5); // 50% para cada panel
+        splitPane.setDividerLocation(0.5); // Inicialmente mitad y mitad
+
+        //mainPanel.add(splitPane, BorderLayout.CENTER);
+
         MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
         // El main principal me lo pasan por parametro
         //JPanel mainPanel = createMainPanel();

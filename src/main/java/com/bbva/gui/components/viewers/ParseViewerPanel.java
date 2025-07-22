@@ -58,7 +58,6 @@ public class ParseViewerPanel extends JPanel {
     private void initializeComponents() {
 
         setLayout(new BorderLayout());
-        //add(new JLabel("Panel de Parseo de Trama"), BorderLayout.CENTER);
         inputTextArea = new JTextArea(8, 60);
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
@@ -81,38 +80,18 @@ public class ParseViewerPanel extends JPanel {
         resultTree = new JTree(treeModel);
         //resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
-
-
     }
-
-    private void setupMyDoggy() {
-        MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
-        // Panel principal con entrada y botones
-        JPanel mainPanel = createMainPanel();
-        // Crear un panel contenedor para combinar radio buttons y panel principal
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(mainPanel, BorderLayout.CENTER);
-        // Agregar el panel contenedor como contenido central
-        toolWindowManager.getContentManager().addContent("main", "Parser Principal", null, contentPanel);
-
-        // Tool Window para el árbol jerárquico
-        ToolWindow treeToolWindow = toolWindowManager.registerToolWindow("Parser",
-                "Estructura Jerárquica", null, new JScrollPane(resultTree), ToolWindowAnchor.LEFT);
-        treeToolWindow.setAvailable(true);
-        treeToolWindow.setVisible(true);
-
-        // Tool Window para ISO20022
-        ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("ISO 20022",
-                "Resultado", null, createOutputPanel(), ToolWindowAnchor.BOTTOM);
-        outputToolWindow.setAvailable(true);
-        outputToolWindow.setVisible(true);
-
-        add(toolWindowManager, BorderLayout.CENTER);
-    }
-
 
     private void createPanelsLayout() {
-        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+/*
+        JPanel mainPanel = createMainPanel();
+        JPanel outputPanel = createOutputPanel();
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
+        splitPane.setResizeWeight(0.5); // Proporción inicial 50% arriba y 50% abajo
+        splitPane.setDividerLocation(0.5); // Ubicación inicial del divisor
+        add(splitPane, BorderLayout.CENTER);
+        */
+        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel() ,resultTree, createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }
 
@@ -122,6 +101,7 @@ public class ParseViewerPanel extends JPanel {
         // Panel de entrada
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Mensaje de entrada"));
+        //inputPanel.setSize(new Dimension(500,300));
         inputPanel.add(new JScrollPane(inputTextArea), BorderLayout.CENTER);
 
         // Panel de botones
@@ -177,14 +157,9 @@ public class ParseViewerPanel extends JPanel {
                 outputTextArea.requestFocusInWindow();
                 outputTextArea.selectAll();
 
-                SwingUtils.crearMenuContextual(outputTextArea);
+                SwingUtils.mostrarTooltipTemporal(copiarRespuestaButton, "¡Texto copiado!", 1000);
                 // Mostrar ventana emergente
-                /*JOptionPane.showMessageDialog(
-                        copiarRespuestaButton,
-                        "Texto copiado al portapapeles",
-                        "Copiado",
-                        JOptionPane.INFORMATION_MESSAGE
-                );*/
+                //SwingUtils.crearMenuContextual(outputTextArea);
             }
         });
 

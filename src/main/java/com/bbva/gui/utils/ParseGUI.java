@@ -86,7 +86,7 @@ public class ParseGUI {
     }
 
 
-    public static ParseResult process(Map<String,String> mapValues) throws Exception {
+    public static ParseResult process(Map<String,String> mapValues)  {
 
         Map<String, String> fieldsById = new HashMap<>();
 

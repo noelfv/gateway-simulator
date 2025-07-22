@@ -4,6 +4,8 @@ import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchlib.parser.ParserException;
 import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
 import java.time.format.DateTimeFormatter;
@@ -69,17 +71,19 @@ public class ISO20022To8583Mapper {
                     .conversionRate(
                             /*mapping of conversionRate REVISAR
                              * transaction.transactionAmounts.cardholderBillingAmount.EffectiveExchangeRate
+                             * // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
                              */
                             StringUtils.defaultIfEmpty(
-                                    getConversionRate(
-                                            inputISO20022.getTransaction().getTransactionAmounts().getCardholderBillingAmount().getEffectiveExchangeRate(),
-                                            8), "")
+                                    getOriginalConversionRate(
+                                            inputISO20022.getTransaction().getTransactionAmounts().getCardholderBillingAmount().getEffectiveExchangeRate()
+                                            ), "")
                     )
                     .conversionRateSettlement(
+                            // ======== FIELD 9 (CARDHOLDER BILLING EXCHANGE RATE) ========
                             StringUtils.defaultIfEmpty(
-                                    convertDoubleToString(
-                                            inputISO20022.getTransaction().getTransactionAmounts().getReconciliationAmount().getEffectiveExchangeRate(),
-                                            8), "")
+                                    getOriginalConversionRate(
+                                            inputISO20022.getTransaction().getTransactionAmounts().getReconciliationAmount().getEffectiveExchangeRate()
+                                            ), "")
 
                     )
                     .systemTraceAuditNumber(
@@ -659,6 +663,32 @@ public class ISO20022To8583Mapper {
         String format = "%0" + (padding + 1) + ".2f";
         return (value == null) ? "" : String.format(format, value);
     }
+
+        public static String getOriginalConversionRate(BigDecimal resultado) {
+                if (resultado == null) return null;
+                String str = resultado.toPlainString();
+                int index = str.indexOf(".");
+                int precision = (index < 0) ? 0 : str.length() - index - 1;
+                String digits = str.replace(".", "");
+                // Si empieza con '0' y la precisión es 7, reemplaza el primer dígito por la precisión
+                if (str.startsWith("0.") && precision == 7) {
+                        digits = precision + digits.substring(1);
+                        return digits;
+                }
+        /*if (str.startsWith("0.") && precision >= 1 && precision <= 7) {
+            return precision + digits.substring(1);
+        }*/
+                return precision + digits;
+        }
+
+        public static String getOriginalConversionRate3(BigDecimal resultado) {
+                if (resultado == null) return null;
+                String str = resultado.toString();
+                int index = str.indexOf(".");
+                int precision = (index < 0) ? 0 : str.length() - index - 1;
+                String sinPunto = str.replace(".", "");
+                return precision + sinPunto;
+        }
 
     private static String getConversionRate(Double value, int padding) {
         if (value == null) {

@@ -24,7 +24,7 @@ public enum ISOFieldMastercard implements ISOField {
     CARD_HOLDER_BILLING_AMOUNT(6, "cardHolderBillingAmount", ISODataType.NUMERIC_DECIMAL, false, 12),
     TRANSMISSION_DATE_TIME(7, "transmissionDateTime", ISODataType.NUMERIC, false, 10),
     AMOUNT_CARD_HOLDER_BILLING_FEE(8, "amountCardholderBillingFee", ISODataType.NUMERIC_DECIMAL, false, 8),
-    CONVERSION_RATE_SETTLEMENT(9,"conversionRateSettlement",ISODataType.NUMERIC_DECIMAL,false,8),
+    CONVERSION_RATE_SETTLEMENT(9,"conversionRateSettlement",ISODataType.NUMERIC,false,8),
     CONVERSION_RATE(10, "conversionRate", ISODataType.NUMERIC, false, 8),
     SYSTEM_TRACE_AUDIT_NUMBER(11, "systemTraceAuditNumber", ISODataType.NUMERIC, false, 6),
     LOCAL_TRANSACTION_TIME(12, "localTransactionTime", ISODataType.NUMERIC, false, 6),

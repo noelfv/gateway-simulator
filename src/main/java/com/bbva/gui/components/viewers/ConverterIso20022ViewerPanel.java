@@ -9,6 +9,7 @@ import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.parser.common.ISO8583SubFieldsParser;
+import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import com.bbva.orchestrator.parser.factory.MessageParser;
 import com.bbva.orchestrator.parser.factory.impl.MCMessageParserImpl;
 import com.bbva.orchestrator.parser.iso20022.ISO20022To8583Mapper;
@@ -86,7 +87,7 @@ public class ConverterIso20022ViewerPanel extends JPanel {
        outputTextArea.setWrapStyleWord(true);
        outputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
-       convertirTramaButton = new JButton("Convertir Trama");
+       convertirTramaButton = new JButton("Unparser");
        limpiarButton = new JButton("Limpiar");
        copiarRespuestaButton = new JButton("Copiar respuesta");
 
@@ -188,6 +189,9 @@ public class ConverterIso20022ViewerPanel extends JPanel {
     }
 
     private void convertMessage() {
+
+        ParseResult result;
+
         try {
             String jsonString = inputTextArea.getText().trim();
             if (!jsonString.startsWith("{")) {
@@ -214,11 +218,23 @@ public class ConverterIso20022ViewerPanel extends JPanel {
             LOGGER.info("Trama generada: [{}]", trama);
             outputTextArea.setText(trama );
 
-            ParseResult result = ParseGUI.process(ISO8583Processor.createMapFieldsISO8583(trama));
+            result = ParseGUI.process(ISO8583Processor.createMapFieldsISO8583(trama));
             ParseGUI.updateTreeView(treeModel, resultTree, result);
 
-        } catch (Exception ex) {
+        } catch (ParserLocalException ex) {
+           /* UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            outputTextArea.setText("Error: " + ex.getMessage());*/
+
             UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            result = ParseGUI.process(ex.getValuesMap());
+            ParseGUI.updateTreeView(treeModel, resultTree, result);
+            outputTextArea.setText("Error: " + ex.getMessage());
+        }catch (Exception ex) {
+           /* UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            outputTextArea.setText("Error: " + ex.getMessage());*/
+            UtilGUI.showErrorDialog("Error al parsear el mensaje: " + ex.getMessage());
+            //result = ParseGUI.process(ex.getValuesMap());
+            //ParseGUI.updateTreeView(treeModel, resultTree, result);
             outputTextArea.setText("Error: " + ex.getMessage());
         }
     }
