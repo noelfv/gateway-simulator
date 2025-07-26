@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Map;
+
 @Builder
 @Getter
 @ToString
@@ -129,5 +131,6 @@ public class ISO8583 {
     private String issuerTraceId;
     private String privateData;
     private String messageAuthenticationCode2;
+    private Map<String,String> mapValuesFields;
 
 }

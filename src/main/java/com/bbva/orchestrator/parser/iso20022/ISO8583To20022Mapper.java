@@ -187,7 +187,7 @@ public class ISO8583To20022Mapper {
                     .amount(parseDouble(inputObject.getSettlementAmount()))
                     // ======== FIELD 9 (RECONCILIATION EXCHANGE RATE) ========
                    // .effectiveExchangeRate(parseDouble(inputObject.getConversionRateSettlement()))
-                    .effectiveExchangeRate(conversionRateValidation(inputObject.getConversionRateSettlement()))
+                    .effectiveExchangeRate(inputObject.getConversionRateSettlement()!=null?conversionRateValidation(inputObject.getConversionRateSettlement()):null)
                     // ======== FIELD 50 (SETTLEMENT CURRENCY CODE) ========
                     .currency(inputObject.getSettlementCurrencyCode())
                     .build();
@@ -196,7 +196,7 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 6 (CARDHOLDER BILLING AMOUNT) ========
                     .amount(parseDouble(inputObject.getCardHolderBillingAmount()))
                     // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
-                    .effectiveExchangeRate(conversionRateValidation(inputObject.getConversionRate()))
+                    .effectiveExchangeRate(inputObject.getConversionRate()!=null?conversionRateValidation(inputObject.getConversionRate()):null)
                     // ======== FIELD 51 (CARDHOLDER BILLING CURRENCY CODE) ========
                     .currency(inputObject.getCardholderBillingCurrencyCode())
                     .build();
@@ -948,21 +948,26 @@ public class ISO8583To20022Mapper {
             * SECURITY TRAILER SECTION
             ----------------------------------------*/
 
-            String secControlInformation = inputObject.getSecurityControlInformation();
+            MacDataDTO macData=null;
+            SecurityTrailerDTO securityTrailer = null;
+            if(inputObject.getSecurityControlInformation()!=null) {
+                String secControlInformation = inputObject.getSecurityControlInformation();
 
-            // ======== FIELD 53 (SECURITY RELATED CONTROL INFORMATION) ========
-            MacDataDTO macData = MacDataDTO.builder()
-                    // 53.1 (SECURITY FORMAT CODE / SECURITY TYPE CODE)
-                    .keyProtection(isNullOrEmptySubstring(secControlInformation, 0, 2))
-                    // 53.2 (PIN ENCRYPTION CODE)
-                    .algorithm(isNullOrEmptySubstring(secControlInformation, 2, 4))
-                    // 53.3 (PIN BLOCK FORMAT CODE)
-                    .derivedInformation(isNullOrEmptySubstring(secControlInformation, 4, 6))
-                    // 53.4 (KEY INDEX NUMBER)
-                    .keyIndex(isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
-                    .build();
+                // ======== FIELD 53 (SECURITY RELATED CONTROL INFORMATION) ========
+                macData = MacDataDTO.builder()
+                        // 53.1 (SECURITY FORMAT CODE / SECURITY TYPE CODE)
+                        .keyProtection(isNullOrEmptySubstring(secControlInformation, 0, 2))
+                        // 53.2 (PIN ENCRYPTION CODE)
+                        .algorithm(isNullOrEmptySubstring(secControlInformation, 2, 4))
+                        // 53.3 (PIN BLOCK FORMAT CODE)
+                        .derivedInformation(isNullOrEmptySubstring(secControlInformation, 4, 6))
+                        // 53.4 (KEY INDEX NUMBER)
+                        .keyIndex(isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
+                        .build();
 
-            SecurityTrailerDTO securityTrailer = SecurityTrailerDTO.builder()
+            }
+
+            securityTrailer = SecurityTrailerDTO.builder()
                     .macData(macData)
                     .build();
 
@@ -1129,13 +1134,18 @@ public class ISO8583To20022Mapper {
     public static void main(String[] args) {
         //String valorOriginal="72802343";
         //String valorOriginal="61000000";
-        String valorOriginal="60010000";
+        String valorOriginal="60000100";
 
         String res="0.2802343"; //72802343 y no esto 70280234
         System.out.println("Valor original : " +valorOriginal);
+        Double resultadoDouble = conversionRateValidationOrigin(valorOriginal);
         BigDecimal resultado = conversionRateValidation(valorOriginal);
-        System.out.println("Valor convertido : " +resultado);
-        System.out.println("Valor experado : " + valorOriginal + " reconversion : " + getOriginalConversionRate(resultado));
+        System.out.println("Valor convertido double : " +resultadoDouble);
+        System.out.println("Valor experado : " + valorOriginal + " reconversionDouble : " + getConversionRate(resultadoDouble,8));
+        System.out.println("-------------------------------------------");
+        System.out.println("Valor convertido bigdecimal : " +resultado);
+        System.out.println("Valor experado : " + valorOriginal + " reconversionBigdecimal : " + getOriginalConversionRate(resultado));
+
 
     }
 
@@ -1163,6 +1173,23 @@ public class ISO8583To20022Mapper {
         int precision = (index < 0) ? 0 : str.length() - index - 1;
         String sinPunto = str.replace(".", "");
         return precision + sinPunto;
+    }
+
+    private static String getConversionRate(Double value, int padding) {
+        if (value == null) {
+            return "";
+        }
+
+        StringBuilder conversionRate = new StringBuilder(value.toString());
+        while (conversionRate.length() < padding) {
+            conversionRate.append("0");
+        }
+
+        int dotPosition = conversionRate.indexOf(".");
+        int precision = conversionRate.length() - (dotPosition + 1);
+        conversionRate.deleteCharAt(dotPosition);
+        conversionRate.insert(0, precision);
+        return conversionRate.toString();
     }
 
     private static BigDecimal conversionRateValidation(String value) {
@@ -1205,7 +1232,7 @@ public class ISO8583To20022Mapper {
     }
 
 
-    private static Double conversionRateValidation2(String value) {
+    private static Double conversionRateValidationOrigin(String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }

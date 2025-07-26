@@ -8,8 +8,11 @@ import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
 import com.bbva.orchestrator.parser.common.ISO8583SubFieldsParser;
+import com.bbva.orchestrator.parser.iso8583.ISO8583Builder;
 
 import java.util.Map;
+
+import static com.bbva.orchestrator.parser.iso8583.ISO8583Builder.buildISO8583;
 
 public class MCMessageParserImpl implements MessageParser {
 
@@ -19,6 +22,16 @@ public class MCMessageParserImpl implements MessageParser {
     @Override
     public Map<String, String> parser(String originalMessage) {
         return ISOStringMapper.mapFields(originalMessage);
+    }
+
+    @Override
+    public ISO8583 parseIso8583Frame(String originalMessage) {
+        //Aca se debe de controlar excepcion de parseo de trama ISO8583
+        Map<String, String> mappedFields = ISOStringMapper.mapFields(originalMessage);
+        //Aca se puede agregar un bloque de try carch para personalizar la excepcion del parseo de trama ISO8583
+        //Tambien se le puede adicionar una logica a los campos mapeados, por ejemplo, si el campo 2 es obligatorio y no se encuentra en la trama original, lanzar una excepcion personalizada
+        //Adicionalmente, se le puede aplicar las conversiones especificas de los datos, por ejemplo los amounts, fechas, conversionRate.
+        return ISO8583Builder.buildISO8583(originalMessage, mappedFields);
     }
 
     @Override

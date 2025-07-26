@@ -16,6 +16,5 @@ public class CardholderBillingAmountDTO implements Serializable {
 	private static final long serialVersionUID = 3499965191409678444L;
 	private Double amount;
 	private String currency;
-	//private Double effectiveExchangeRate;
 	private BigDecimal effectiveExchangeRate;
 }

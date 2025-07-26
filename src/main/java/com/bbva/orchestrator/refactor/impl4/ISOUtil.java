@@ -1,7 +1,7 @@
-package com.bbva.orchestrator.parser.common;
-
+package com.bbva.orchestrator.refactor.impl4;
 
 import com.bbva.orchlib.parser.ParserException;
+
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;
@@ -12,6 +12,7 @@ public class ISOUtil {
     }
 
     public static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
+    public static final Charset ASCII_CHARSET = Charset.forName("US-ASCII"); // O StandardCharsets.US_ASCII
     private static final HexFormat FORMATTER = HexFormat.of().withUpperCase();
 
 
@@ -58,6 +59,7 @@ public class ISOUtil {
             Map.entry("1111", 'F')
     );
 
+    // --- Métodos de Conversión EBCDIC Hex a String (ASCII) ---
     public static String convertHEXtoEBCDIC(String valueHex) {
         byte[] ebcdic = hexStringToByteArray(valueHex);
         return new String(ebcdic, EBCDIC_CHARSET);
@@ -66,6 +68,7 @@ public class ISOUtil {
         return HexFormat.of().parseHex(s);
     }
 
+    // --- Métodos de Conversión de Bitmap ---
     public static String convertHEXtoBITMAP(String valueHex) {
         StringBuilder binaryBitMap = new StringBuilder();
         for (char c : valueHex.toCharArray()) {
@@ -74,15 +77,30 @@ public class ISOUtil {
             }
             binaryBitMap.append(hexChart.get(c));
         }
-
         return String.valueOf(binaryBitMap);
-
+    }
+    public static String convertBITMAPtoHEX(String binaryBitmap) {
+        StringBuilder hexBitmap = new StringBuilder();
+        for (int i = 0; i < binaryBitmap.length(); i += 4) {
+            String binary = binaryBitmap.substring(i, i + 4);
+            hexBitmap.append(binChart.get(binary));
+        }
+        return hexBitmap.toString();
     }
 
-    public static String ebcdicToString(String message) {
-        return new String(FORMATTER.parseHex(message), EBCDIC_CHARSET);
+    // --- Métodos de Conversión EBCDIC Hex a String (Numérico) ---
+    public static String ebcdicToString(String messageHexEbcdic) {
+        // Asume que 'messageHexEbcdic' es una cadena HEX EBCDIC
+        return new String(FORMATTER.parseHex(messageHexEbcdic), EBCDIC_CHARSET);
     }
 
+    // --- Métodos de Conversión String (ASCII) a EBCDIC Hex ---
+    public static String stringToEBCDICHex(String inputAscii) {
+        byte[] ebcdicBytes = inputAscii.getBytes(EBCDIC_CHARSET);
+        return HexFormat.of().withUpperCase().formatHex(ebcdicBytes);
+    }
+
+    // --- Métodos Específicos para Montos ---
     public static String validAmount(String amount) {
         if (amount == null || amount.isEmpty()) {
             return null;
@@ -91,96 +109,120 @@ public class ISOUtil {
         String amountCents = amount.substring(amount.length() - 2);
         return amountGeneral + "." + amountCents;
     }
-
-    public static String convertToNumericString(int value, int radix, int length) {
-        String numeroHex = Integer.toString(value, radix);
-        String format = "%" + length + "s";
-        String txtFormat = String.format(format, numeroHex).replace(' ', '0');
-
-        return txtFormat.toUpperCase();
-    }
-
     public static String revertValidAmount(String amount) {
         String revertedAmount = amount;
         if (amount.contains(",") || amount.contains(".")) {
             revertedAmount = amount.replace(",", "").trim();
             revertedAmount = revertedAmount.replace(".", "").trim();
         }
-
         return revertedAmount;
-
     }
 
-    public static String convertBITMAPtoHEX(String binaryBitmap) {
-        StringBuilder hexBitmap = new StringBuilder();
-        for (int i = 0; i < binaryBitmap.length(); i += 4) {
-            String binary = binaryBitmap.substring(i, i + 4);
-            hexBitmap.append(binChart.get(binary));
+    // --- Métodos de Conversión Numérica (no directamente EBCDIC/ASCII, sino base) ---
+    public static String convertToNumericString(int value, int radix, int length) {
+        String numeroHex = Integer.toString(value, radix);
+        String format = "%" + length + "s";
+        String txtFormat = String.format(format, numeroHex).replace(' ', '0');
+        return txtFormat.toUpperCase();
+    }
+
+    // --- Métodos de Conversión Hexadecimal <-> Decimal ---
+    public static String hexToDecimal(String hex) {
+        if (hex == null || hex.isEmpty()) {
+            return "0";
         }
-
-        return hexBitmap.toString();
+        try {
+            return String.valueOf(Long.parseLong(hex, 16));
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid hexadecimal string: " + hex + " - " + e.getMessage());
+        }
+    }
+    public static String decimalToHex(String decimal) {
+        if (decimal == null || decimal.isEmpty()) {
+            return "0";
+        }
+        try {
+            return Long.toHexString(Long.parseLong(decimal)).toUpperCase();
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid decimal string: " + decimal + " - " + e.getMessage());
+        }
     }
 
+    // --- Métodos de Conversión de Trama (utilizados en el parser) ---
     public static String convertToHexFormat(String value) {
+        // Convierte una cadena (asumida ASCII/UTF-8) a su representación HEX EBCDIC.
+        // Esto es útil para construir la trama a partir de valores en claro.
         return HexFormat.of().withUpperCase().formatHex(value.getBytes(EBCDIC_CHARSET));
     }
-
     public static String convertToCharacter(String value) {
+        // Asume que 'value' es una cadena HEX EBCDIC y la convierte a String (ASCII).
         return new String (HexFormat.of().parseHex(value),EBCDIC_CHARSET);
     }
-
     public static String convertEBCDICtoHEX(String valueEBCDIC) {
+        // Asume que 'valueEBCDIC' es una cadena de caracteres EBCDIC (ej. '0', 'A')
+        // y la convierte a su representación HEX EBCDIC.
         byte[] bytes = valueEBCDIC.getBytes(EBCDIC_CHARSET);
         return HexFormat.of().withUpperCase().formatHex(bytes);
     }
 
-    public static String stringToEBCDICHex(String input) {
-        byte[] ebcdicBytes = input.getBytes(EBCDIC_CHARSET);
-        return HexFormat.of().withUpperCase().formatHex(ebcdicBytes);
-    }
-
+    // --- Métodos para manejar errores de trama ---
     public static String processError(String messageIso, boolean containsSecondaryBitmap) {
         if(!containsSecondaryBitmap){
             return replaceWithF0(messageIso,28,24);
         }
         return replaceWithF0(messageIso,44,24);
     }
-
-    /**
-     * Reemplaza una sección de una trama con caracteres F0 a partir de una posición específica.
-     * @param originalString La trama original
-     * @param startPosition Posición de inicio (base 0)
-     * @param charsToReplace Cantidad de caracteres a reemplazar
-     * @return La trama con los caracteres reemplazados
-     */
     public static String replaceWithF0(String originalString, int startPosition, int charsToReplace) {
         if (originalString == null || originalString.isEmpty()) {
             return originalString;
         }
-
         if (startPosition >= originalString.length()) {
             return originalString;
         }
-
-        // Asegurar que no excedamos la longitud del string
         int endPosition = Math.min(startPosition + charsToReplace, originalString.length());
-
-        // Construir el string de reemplazo con F0
         StringBuilder replacement = new StringBuilder();
-        for (int i = 0; i < (endPosition - startPosition) / 2; i++) {
+        for (int i = 0; i < charsToReplace / 2; i++) {
             replacement.append("F0");
         }
-
-        // Si la cantidad de caracteres a reemplazar es impar, añadimos un F0 adicional
-        if ((endPosition - startPosition) % 2 != 0) {
+        if (charsToReplace % 2 != 0) {
             replacement.append("F");
         }
-
-        // Construir el string resultante
         return originalString.substring(0, startPosition) +
                 replacement.toString() +
                 originalString.substring(endPosition);
     }
 
-}
+    // --- Nuevos métodos para manejar ASCII plano directamente ---
+    /**
+     * Extrae una subcadena de una trama ASCII plana.
+     * @param rawDataSegment La porción de la trama ASCII plana.
+     * @param length La longitud en caracteres ASCII a extraer.
+     * @return La subcadena ASCII extraída.
+     */
+    public static String extractAsciiString(String rawDataSegment, int length) {
+        if (rawDataSegment.length() < length) {
+            throw new ParserException("Trama ASCII demasiado corta. Esperado: " + length + ", Disponible: " + rawDataSegment.length());
+        }
+        return rawDataSegment.substring(0, length);
+    }
 
+    /**
+     * Rellena una cadena ASCII a una longitud específica con espacios a la derecha.
+     * @param value La cadena ASCII original.
+     * @param length La longitud deseada.
+     * @return La cadena ASCII rellena.
+     */
+    public static String padAsciiRight(String value, int length) {
+        return String.format("%-" + length + "s", value).substring(0, length);
+    }
+
+    /**
+     * Rellena una cadena ASCII a una longitud específica con ceros a la izquierda.
+     * @param value La cadena ASCII original.
+     * @param length La longitud deseada.
+     * @return La cadena ASCII rellena.
+     */
+    public static String padAsciiLeft(String value, int length) {
+        return String.format("%" + length + "s", value).replace(' ', '0').substring(0, length);
+    }
+}

@@ -4,13 +4,14 @@ import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.ParseGUI;
-import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringConverterMastercard;
 import com.bbva.orchestrator.network.mastercard.processor.ISOStringMapper;
+import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import lombok.Setter;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -72,7 +73,8 @@ public class ConverterTramaViewerPanel extends JPanel {
     }
 
     private void createPanelsLayout() {
-        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        //MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }
 

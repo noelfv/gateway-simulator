@@ -18,5 +18,11 @@ public class LogsTraces {
     }
 
 
+    public static void writeError(String message) {
+        LOGGER.error("ERROR: {}", message);
+    }
 
+    public static void writeError(String message, Exception e) {
+        LOGGER.error("ERROR: {}", message, e);
+    }
 }

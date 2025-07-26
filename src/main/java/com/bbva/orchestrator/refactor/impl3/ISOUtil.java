@@ -1,7 +1,8 @@
-package com.bbva.orchestrator.parser.common;
+package com.bbva.orchestrator.refactor.impl3;
 
 
 import com.bbva.orchlib.parser.ParserException;
+
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;
@@ -14,11 +15,6 @@ public class ISOUtil {
     public static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
     private static final HexFormat FORMATTER = HexFormat.of().withUpperCase();
 
-
-    public static String getEnvVariableOrDefault(String name, String defaultValue) {
-        String value = System.getenv(name);
-        return (value != null) ? value : defaultValue;
-    }
 
     public static final Map<Character, String> hexChart = Map.ofEntries(
             Map.entry('0', "0000"),
@@ -167,9 +163,7 @@ public class ISOUtil {
 
         // Construir el string de reemplazo con F0
         StringBuilder replacement = new StringBuilder();
-        for (int i = 0; i < (endPosition - startPosition) / 2; i++) {
-            replacement.append("F0");
-        }
+        replacement.append("F0".repeat(Math.max(0, (endPosition - startPosition) / 2)));
 
         // Si la cantidad de caracteres a reemplazar es impar, añadimos un F0 adicional
         if ((endPosition - startPosition) % 2 != 0) {

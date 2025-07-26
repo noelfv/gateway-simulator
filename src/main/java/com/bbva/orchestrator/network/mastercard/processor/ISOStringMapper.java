@@ -67,7 +67,6 @@ public class ISOStringMapper {
                 String header = isoMessage.substring(position, position + fieldLength);
                 position += fieldLength;
                 fieldLength = Integer.parseInt(ISOUtil.ebcdicToString(header), 10);
-
                 fieldLength = fieldLength * 2;
             }
 
