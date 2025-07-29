@@ -1,11 +1,12 @@
-package com.bbva.orchestrator.refactor.impl4;
+package com.bbva.orchestrator.refactor.impl4.subfields;
 
+import com.bbva.orchestrator.refactor.impl4.FieldParserStrategy;
 import com.bbva.orchestrator.refactor.impl4.commons.IFieldDefinition;
 import com.bbva.orchestrator.refactor.impl4.commons.ISOUtil;
 import com.bbva.orchestrator.refactor.impl4.commons.ParsedFieldResult;
 import com.bbva.orchlib.parser.ParserException;
 
-public class  NumericFieldParser implements FieldParserStrategy {
+public class NumericSubFieldParser implements FieldParserStrategy {
     @Override
     public ParsedFieldResult parse(String rawDataSegment, int expectedHexLength, IFieldDefinition fieldDefinition) {
         if (rawDataSegment.length() < expectedHexLength) {

@@ -1,7 +1,7 @@
-package com.bbva.orchestrator.refactor.impl4;
+package com.bbva.orchestrator.refactor.impl4.subfields;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.refactor.impl4.subfields.ISOSubFieldDefinitionsMastercard;
+import com.bbva.orchestrator.refactor.impl4.ISOFieldMastercard;
 import com.bbva.orchlib.parser.ParserException;
 
 import java.util.LinkedHashMap;
@@ -39,7 +39,7 @@ public class ISO8583Processor {
             // Le pasamos "48" para que sepa qué definiciones de subcampos buscar.
             // Ahora, el CompositeSubFieldParser se inicializa de forma segura.
             // CORRECCIÓN: Obtener las definiciones de subcampos del Campo 48 a través de la nueva clase de definiciones
-            CompositeSubFieldParser field48Parser = new CompositeSubFieldParser("48", ISOSubFieldDefinitionsMastercard.getDirectSubFieldDefinitionsForField48());
+            CompositeSubFieldParser field48Parser = new CompositeSubFieldParser("48", ISOMastercardFieldDefinitions.getDirectSubFieldDefinitionsForField48());
 
             // 3. Parsear la data hexadecimal cruda del Campo 48 usando parseToMap
             // Necesitamos pasarle la definición del campo 48 para que el parseToMap tenga acceso a ella.

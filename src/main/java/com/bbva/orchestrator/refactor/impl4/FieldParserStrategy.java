@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.refactor.impl4;
 
-import com.bbva.orchestrator.refactor.impl4.subfields.IFieldDefinition;
+import com.bbva.orchestrator.refactor.impl4.commons.IFieldDefinition;
+import com.bbva.orchestrator.refactor.impl4.commons.ParsedFieldResult;
 import com.bbva.orchlib.parser.ParserException;
 
 public interface FieldParserStrategy {

@@ -1,7 +1,7 @@
 package com.bbva.orchestrator.refactor.impl4;
 
 import com.bbva.orchestrator.parser.common.ISODataType;
-import com.bbva.orchestrator.refactor.impl4.subfields.ISOField;
+import com.bbva.orchestrator.refactor.impl4.commons.ISOField;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +78,7 @@ public enum ISOFieldMastercard implements ISOField {
     POSTAL_CODE(62, "postalCode", ISODataType.ALPHA_NUMERIC, true, 3,new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     NETWORK_DATA(63, "networkData", ISODataType.ALPHA_NUMERIC, true, 3,new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     MESSAGE_AUTHENTICATION_CODE(64, "messageAuthenticationCode", ISODataType.HEXADECIMAL, false, 8,new HexadecimalFieldParser()),
-    ADDITIONAL_RECORD_DATA(122,"additionalRecordData",ISODataType.ALPHA_NUMERIC,true,3,new LlvarLengthPrefixParser(new AlphaNumericFieldParser()));
+    ADDITIONAL_DATA_122(122,"additionalRecordData",ISODataType.ALPHA_NUMERIC,true,3,new LlvarLengthPrefixParser(new AlphaNumericFieldParser()));
 
     private final int id;
     private final String name;

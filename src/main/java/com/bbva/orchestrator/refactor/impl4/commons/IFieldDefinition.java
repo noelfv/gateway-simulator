@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.refactor.impl4.subfields;
+package com.bbva.orchestrator.refactor.impl4.commons;
 
 import com.bbva.orchestrator.parser.common.ISODataType;
 import com.bbva.orchestrator.refactor.impl4.FieldParserStrategy;

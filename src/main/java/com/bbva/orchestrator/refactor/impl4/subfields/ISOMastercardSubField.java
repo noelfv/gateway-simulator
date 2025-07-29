@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public  enum ISOSubFieldMastercard implements ISOSubField {
+public  enum ISOMastercardSubField implements ISOSubField {
 
     // Subcampos del Campo 48 (additionalDataRetailerSubFields)
     // k: id, v: length in characters (del SubfieldsUtil original)
@@ -54,10 +54,12 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
     SF_48_49("49", "AdditionalDataRetailer.49", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
    // SF_48_51("51", "AdditionalDataRetailer.51", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_53("53", "AdditionalDataRetailer.53", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, null),
+   // SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, new AlphaNumericFieldParser()),
+    //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, new CompositeSubFieldParser(ISOMastercardSubFieldDefinitions.getSubSubFieldsForParent("56"))),// Inicializado a null
     SF_48_57("57", "AdditionalDataRetailer.57", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_58("58", "AdditionalDataRetailer.58", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_64("64", "AdditionalDataRetailer.64", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_65("65", "AdditionalDataRetailer.65", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
    // SF_48_71("71", "AdditionalDataRetailer.71", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
@@ -67,11 +69,11 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
     SF_48_93("93", "AdditionalDataRetailer.93", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
 
     // Sub-subcampos de Campo 48.11 (internalSubFields48.get("11"))
-    SF_48_11_01("11.01", "KeyExchangeBlockData.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_02("11.02", "KeyExchangeBlockData.02", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_03("11.03", "KeyExchangeBlockData.03", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_04("11.04", "KeyExchangeBlockData.04", ISODataType.ALPHA_NUMERIC, false, 32, new AlphaNumericFieldParser()),
-    SF_48_11_05("11.05", "KeyExchangeBlockData.05", ISODataType.ALPHA_NUMERIC, false, 16, new AlphaNumericFieldParser()),
+    SF_48_11_01("11.01", "48.11.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
+    SF_48_11_02("11.02", "48.11.02", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
+    SF_48_11_03("11.03", "48.11.03", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
+    SF_48_11_04("11.04", "48.11.04", ISODataType.ALPHA_NUMERIC, false, 32, new AlphaNumericFieldParser()),
+    SF_48_11_05("11.05", "48.11.05", ISODataType.ALPHA_NUMERIC, false, 16, new AlphaNumericFieldParser()),
 
     // Sub-subcampos de Campo 48.13 (internalSubFields48.get("13"))
     SF_48_13_01("13.01", "MastercardHostedMobilePhoneTopUpRequestData.01", ISODataType.ALPHA_NUMERIC, false, 17, new AlphaNumericFieldParser()),
@@ -106,8 +108,8 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
     SF_48_53_01("53.01", "EIDRequestCode.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.56 (internalSubFields48.get("56"))
-    SF_48_56_01("56.01", "Subfield56.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
-    SF_48_56_02("56.02", "Subfield56.02", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
+    SF_48_56_01("56.01", "48.56.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
+    SF_48_56_02("56.02", "48.56.02", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.57 (internalSubFields48.get("57"))
     SF_48_57_01("57.01", "Subfield57.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
@@ -124,9 +126,9 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
     SF_48_58_08("58.08", "Subfield58.08", ISODataType.NUMERIC, false, 4, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.61 (internalSubFields48.get("61"))
-    SF_48_61_01("61.01", "Subfield61.01", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_61_02("61.02", "Subfield61.02", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_61_03("61.03", "Subfield61.03", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_61_01("61.01", "48.61.01", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_61_02("61.02", "48.61.02", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_61_03("61.03", "48.61.03", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.64 (internalSubFields48.get("64"))
     SF_48_64_01("64.01", "Subfield64.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
@@ -173,7 +175,7 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
     // CORRECCIÓN: parserStrategy ya no es final
     private FieldParserStrategy parserStrategy;
 
-    ISOSubFieldMastercard(String id, String name, ISODataType typeData, boolean isVariable, int length, FieldParserStrategy parserStrategy) {
+    ISOMastercardSubField(String id, String name, ISODataType typeData, boolean isVariable, int length, FieldParserStrategy parserStrategy) {
         this.id = id;
         this.name = name;
         this.typeData = typeData;
@@ -205,25 +207,25 @@ public  enum ISOSubFieldMastercard implements ISOSubField {
 
     // Mapas estáticos para búsqueda eficiente por ID
     // CORRECCIÓN: Estos mapas ahora se inicializan y gestionan en ISOMastercardFieldDefinitions
-    private static final Map<String, ISOSubFieldMastercard> BY_ID = new HashMap<>();
-    private static final Map<String, Map<String, ISOSubFieldMastercard>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
+    private static final Map<String, ISOMastercardSubField> BY_ID = new HashMap<>();
+    private static final Map<String, Map<String, ISOMastercardSubField>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
 
     // CORRECCIÓN: Eliminar el bloque static de inicialización de mapas aquí
     // La inicialización de los parsers compuestos se hará en ISOMastercardFieldDefinitions
 
-    public static ISOSubFieldMastercard getById(String id) {
+    public static ISOMastercardSubField getById(String id) {
         // Delegar a la clase de definiciones
-        return ISOSubFieldDefinitionsMastercard.getById(id);
+        return ISOMastercardFieldDefinitions.getById(id);
     }
 
-    public static Map<String, ISOSubFieldMastercard> getSubSubFieldsForParent(String parentSubFieldId) {
+    public static Map<String, ISOMastercardSubField> getSubSubFieldsForParent(String parentSubFieldId) {
         // Delegar a la clase de definiciones
-        return ISOSubFieldDefinitionsMastercard.getSubSubFieldsForParent(parentSubFieldId);
+        return ISOMastercardFieldDefinitions.getSubSubFieldsForParent(parentSubFieldId);
     }
 
-    public static Map<String, ISOSubFieldMastercard> getDirectSubFieldDefinitionsForField48() {
+    public static Map<String, ISOMastercardSubField> getDirectSubFieldDefinitionsForField48() {
         // Delegar a la clase de definiciones
-        return ISOSubFieldDefinitionsMastercard.getDirectSubFieldDefinitionsForField48();
+        return ISOMastercardFieldDefinitions.getDirectSubFieldDefinitionsForField48();
     }
 
     // CORRECCIÓN: Nuevo método para establecer el parserStrategy después de la inicialización

@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.refactor.impl4;
+package com.bbva.orchestrator.refactor.impl4.commons;
 
 import com.bbva.orchlib.parser.ParserException;
 

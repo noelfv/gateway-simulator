@@ -1,21 +1,21 @@
 package com.bbva.orchestrator.refactor.impl4;
 
 
-import com.bbva.orchestrator.refactor.impl4.subfields.IFieldDefinition;
+import com.bbva.orchestrator.refactor.impl4.commons.IFieldDefinition;
+import com.bbva.orchestrator.refactor.impl4.commons.ISOUtil;
+import com.bbva.orchestrator.refactor.impl4.commons.ParsedFieldResult;
 import com.bbva.orchlib.parser.ParserException;
+import lombok.Getter;
 
+@Getter
 public class  LlvarLengthPrefixParser implements FieldParserStrategy {
+    // NUEVO MÉTODO: Getter para actualValueParser
     private final FieldParserStrategy actualValueParser;
 
     public LlvarLengthPrefixParser(FieldParserStrategy actualValueParser) {
         this.actualValueParser = actualValueParser;
     }
 
-
-    // NUEVO MÉTODO: Getter para actualValueParser
-    public FieldParserStrategy getActualValueParser() {
-        return actualValueParser;
-    }
 
     @Override
     public ParsedFieldResult parse(String rawDataSegment, int ignoredExpectedLength, IFieldDefinition fieldDefinition) {
