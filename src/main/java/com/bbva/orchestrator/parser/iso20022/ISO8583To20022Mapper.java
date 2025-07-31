@@ -11,7 +11,6 @@ import com.bbva.orchestrator.validations.FieldLocalCodeMapper;
 import com.bbva.orchlib.parser.ParserException;
 import com.bbva.orchestrator.processes.ProcessMonitoring;
 import com.bbva.orchestrator.processes.ProcessingResult;
-
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.ArrayList;
@@ -186,7 +185,7 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 5 (RECONCILIATION AMOUNT) ========
                     .amount(parseDouble(inputObject.getSettlementAmount()))
                     // ======== FIELD 9 (RECONCILIATION EXCHANGE RATE) ========
-                   // .effectiveExchangeRate(parseDouble(inputObject.getConversionRateSettlement()))
+                    //.effectiveExchangeRate(parseDouble(inputObject.getConversionRateSettlement()))
                     .effectiveExchangeRate(inputObject.getConversionRateSettlement()!=null?conversionRateValidation(inputObject.getConversionRateSettlement()):null)
                     // ======== FIELD 50 (SETTLEMENT CURRENCY CODE) ========
                     .currency(inputObject.getSettlementCurrencyCode())
@@ -196,7 +195,8 @@ public class ISO8583To20022Mapper {
                     // ======== FIELD 6 (CARDHOLDER BILLING AMOUNT) ========
                     .amount(parseDouble(inputObject.getCardHolderBillingAmount()))
                     // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
-                    .effectiveExchangeRate(inputObject.getConversionRate()!=null?conversionRateValidation(inputObject.getConversionRate()):null)
+                    //.effectiveExchangeRate(inputObject.getConversionRate()!=null? parseDouble(inputObject.getConversionRate()):null)
+                    .effectiveExchangeRate(inputObject.getConversionRate()!=null? conversionRateValidation(inputObject.getConversionRate()):null)
                     // ======== FIELD 51 (CARDHOLDER BILLING CURRENCY CODE) ========
                     .currency(inputObject.getCardholderBillingCurrencyCode())
                     .build();
@@ -264,8 +264,8 @@ public class ISO8583To20022Mapper {
                     .amount(
                             AmountDTO.builder()
                                     .amount(subFields.containsKey(ADDITIONAL_AMOUNT_DOUBLE)
-                                                    ? parseDouble(subFields.get(ADDITIONAL_AMOUNT_DOUBLE))
-                                                    : null)
+                                            ? parseDouble(subFields.get(ADDITIONAL_AMOUNT_DOUBLE))
+                                            : null)
                                     .build()
                     )
                     .build();
@@ -984,9 +984,9 @@ public class ISO8583To20022Mapper {
 
 
             AdditionalDataDTO iso8583AdditionalData = AdditionalDataDTO.builder()
-                        .key("ISO8583")
-                        .value(ISO8583Context.getISO8583(GrpcHeadersInfo.getTraceId()))
-                        .build();
+                    .key("ISO8583")
+                    .value(ISO8583Context.getISO8583(GrpcHeadersInfo.getTraceId()))
+                    .build();
 
 
 
@@ -1282,5 +1282,8 @@ public class ISO8583To20022Mapper {
             return null;
         }
     }
+
+
+
 
 }

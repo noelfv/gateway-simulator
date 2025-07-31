@@ -4,12 +4,14 @@ import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
 import com.bbva.orchestrator.network.mastercard.subfields.ISOMastercardSubfieldsUtil;
 import com.bbva.orchestrator.network.visa.ISOFieldVisa;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import static com.bbva.orchestrator.network.visa.subfields.ISOVisaSubfieldsUtil.networkDataSubFields;
 import static com.bbva.orchestrator.network.visa.subfields.ISOVisaSubfieldsUtil.pointServiceEntryMode;
 import static com.bbva.orchestrator.network.visa.subfields.ISOVisaSubfieldsUtil.posTerminalDataSubFields;

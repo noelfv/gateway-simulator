@@ -1,41 +1,14 @@
 package com.bbva.orchestrator.parser.iso8583;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 public class ISO8583Builder {
-
-    private static final Map<String, BiConsumer<ISO8583.ISO8583Builder, String>> FIELD_SETTERS =
-            ImmutableMap.<String, BiConsumer<ISO8583.ISO8583Builder, String>>builder()
-                    .put("header", ISO8583.ISO8583Builder::header)
-                    .put("messageType", ISO8583.ISO8583Builder::messageType)
-                    .put("primaryAccountNumber", ISO8583.ISO8583Builder::primaryAccountNumber)
-                    // ... otros campos
-                    .build();
-
 
     private ISO8583Builder() {
     }
 
     public static ISO8583 buildISO8583(String originalMessage, Map<String, String> mapValues) {
-        ISO8583.ISO8583Builder builder = ISO8583.builder()
-                .originalMessage(originalMessage);
-
-        mapValues.entrySet().stream()
-                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
-                .forEach(entry -> Optional.ofNullable(FIELD_SETTERS.get(entry.getKey()))
-                        .ifPresent(setter -> setter.accept(builder, entry.getValue())));
-
-        return builder.build();
-    }
-
-    public static ISO8583 buildISO8583Origin(String originalMessage, Map<String, String> mapValues) {
 
         return ISO8583.builder()
                 .originalMessage(originalMessage)
@@ -162,51 +135,6 @@ public class ISO8583Builder {
                 .build();
     }
 
-    public static ISO8583 buildISO8583reflection(String originalMessage, Map<String, String> mapValues) {
-        ISO8583.ISO8583Builder builder = ISO8583.builder()
-                .originalMessage(originalMessage);
-
-        mapValues.entrySet().stream()
-                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
-                .forEach(entry -> {
-                    try {
-                        Method builderMethod = ISO8583.ISO8583Builder.class.getMethod(
-                                entry.getKey(), String.class);
-                        builderMethod.invoke(builder, entry.getValue());
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                        // Manejo silencioso - si el campo no existe en el builder lo ignoramos
-                    }
-                });
-
-        return builder.build();
-    }
-
-    public static ISO8583 buildISO85832(String originalMessage, Map<String, String> mapValues) {
-        ISO8583.ISO8583Builder builder = ISO8583.builder()
-                .originalMessage(originalMessage);
-
-        mapValues.forEach((key, value) -> {
-            if (value != null && !value.isEmpty()) {
-                switch (key) {
-                    case "header":
-                        builder.header(value);
-                        break;
-                    case "messageType":
-                        builder.messageType(value);
-                        break;
-                    case "primaryAccountNumber":
-                        builder.primaryAccountNumber(value);
-                        break;
-                    case "processingCode":
-                        builder.processingCode(value);
-                        break;
-                    // ... otros casos según necesites
-                }
-            }
-        });
-
-        return builder.build();
-    }
 
     public static Map<String, String> buildMapISO8583(ISO8583 iso8583) {
         Map<String, String> mapValues = new HashMap<>();
@@ -327,7 +255,7 @@ public class ISO8583Builder {
         mapValues.put("additionalRecordData", iso8583.getAdditionalRecordData());
         mapValues.put("cryptographicServiceMessage", iso8583.getCryptographicServiceMessage());
         mapValues.put("infoText", iso8583.getInfoText());
-        mapValues.put("settlementData", iso8583.getSettlementData());
+        mapValues.put("settlementData", iso8583.getSettlementAmount());
         mapValues.put("issuerTraceId", iso8583.getIssuerTraceId());
         mapValues.put("privateData", iso8583.getPrivateData());
         mapValues.put("messageAuthenticationCode2", iso8583.getMessageAuthenticationCode2());

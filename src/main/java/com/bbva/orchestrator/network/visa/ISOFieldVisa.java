@@ -47,7 +47,7 @@ public enum ISOFieldVisa implements ISOField {
     CARD_ACCEPTOR_NAME_LOCATION(43, "cardAcceptorNameLocation", ISODataType.ALPHA_NUMERIC, false, 40),
     ADDITIONAL_RESPONSE_DATA(44, "additionalResponseData", ISODataType.ALPHA_NUMERIC, true, 2),
     TRACK_ONE_DATA(45, "trackOneData", ISODataType.ALPHA_NUMERIC, true, 2),
-    ADDITIONAL_DATA_RETAILER(48, "additionalDataRetailer", ISODataType.ALPHA_NUMERIC, true, 2),
+    ADDITIONAL_DATA_RETAILER(48, "additionalDataRetailer", ISODataType.HEXADECIMAL, true, 2),
     TRANSACTION_CURRENCY_CODE(49, "transactionCurrencyCode", ISODataType.NUMERIC, false, 3),
     SETTLEMENT_CURRENCY_CODE(50, "settlementCurrencyCode", ISODataType.NUMERIC, false, 3),
     CARD_HOLDER_BILLING_CURRENCY_CODE(51, "cardholderBillingCurrencyCode", ISODataType.NUMERIC, false, 3),

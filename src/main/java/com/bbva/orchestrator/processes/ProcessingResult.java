@@ -1,11 +1,10 @@
 package com.bbva.orchestrator.processes;
 
-
-
 import com.bbva.gateway.dto.iso20022.ActionDTO;
 import com.bbva.gateway.dto.iso20022.AdditionalInformationDTO;
 import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
 import com.bbva.gateway.dto.iso20022.ResultDataDTO;
+import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class ProcessingResult {
 
         if (MTI_OUTPUT.contains(inputObject.getMessageType())) {
             result = ProcessMonitoring.resultDataValue(inputObject.getMessageType());
-            otherResult = ProcessMonitoring.labelOperationDes(inputObject.getResponseCode(), inputObject.getMessageType(), "PEER02");
+            otherResult = ProcessMonitoring.labelOperationDes(inputObject.getResponseCode(), inputObject.getMessageType(), GrpcHeadersInfo.getNetwork());
             additionalValue = ProcessMonitoring.additionalInfoValue(inputObject.getResponseCode());
         }
 

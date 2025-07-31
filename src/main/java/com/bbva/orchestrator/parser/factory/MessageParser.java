@@ -17,8 +17,6 @@ public interface MessageParser {
      */
     Map<String, String> parser(String originalMessage);
 
-    ISO8583 parseIso8583Frame(String originalMessage);
-
     default Map<String, String> mapSubFields(Map<String, String> values) {
         return new HashMap<>();
     }

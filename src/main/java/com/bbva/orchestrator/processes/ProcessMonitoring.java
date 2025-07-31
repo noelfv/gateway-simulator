@@ -1,12 +1,17 @@
 package com.bbva.orchestrator.processes;
 
-import com.bbva.orchestrator.configuration.monitoring.FieldDto;
 import com.bbva.gateway.dto.iso20022.MonitoringDTO;
+import com.bbva.gateway.interceptors.GrpcHeadersInfo;
+import com.bbva.orchestrator.configuration.monitoring.FieldDto;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.validations.FieldLocalCodeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -183,20 +188,20 @@ public class ProcessMonitoring {
     public static String operationTypeValue(String messageType, String transactionType){
 
         return messageType.startsWith(CODE_08) ? ""
-                : FieldLocalCodeMapper.getCode(OPERATION_FILTER, "in", transactionType, "PEER02");
+                : FieldLocalCodeMapper.getCode(OPERATION_FILTER, "in", transactionType, GrpcHeadersInfo.getNetwork());
     }
 
     public static String channelValue(String messageType, Boolean eCommerceIndicatorString, String terminalKey){
 
         return messageType.startsWith(CODE_08) ? ""
-                : channelFilterDescription(eCommerceIndicatorString, terminalKey, "PEER02");
+                : channelFilterDescription(eCommerceIndicatorString, terminalKey, GrpcHeadersInfo.getNetwork());
 
     }
 
     public static String resultDataValue(String messageType){
 
         return messageType.startsWith(CODE_08) ? ""
-                : FieldLocalCodeMapper.getCode(RESULT_DATA, "in", messageType, "PEER02");
+                : FieldLocalCodeMapper.getCode(RESULT_DATA, "in", messageType, GrpcHeadersInfo.getNetwork());
 
     }
 }

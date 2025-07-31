@@ -1,10 +1,10 @@
 package com.bbva.orchestrator.validations;
 
-
-import lombok.Setter;
+import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.model.In;
 import com.bbva.orchestrator.configuration.model.LocalCodes;
 import com.bbva.orchestrator.configuration.model.Out;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,7 +28,7 @@ public class FieldLocalCodeMapper {
                 .filter(result -> !KEY_NOT_FOUND.equals(result))
                 .findFirst()
                 .orElseGet(() -> {
-                    System.out.println("The provided key: " + fieldValue + " was not found in the configuration: " + fieldName );
+                    LogsTraces.writeWarning("The provided key: " + fieldValue + " was not found in the configuration: " + fieldName );
                     return fieldValue;
                 });
     }

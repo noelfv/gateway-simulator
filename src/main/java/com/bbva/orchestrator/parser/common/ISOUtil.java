@@ -2,6 +2,7 @@ package com.bbva.orchestrator.parser.common;
 
 
 import com.bbva.orchlib.parser.ParserException;
+
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;
@@ -14,6 +15,8 @@ public class ISOUtil {
     public static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
     private static final HexFormat FORMATTER = HexFormat.of().withUpperCase();
 
+    public static final String ENABLE_TRACING_PREVIOUS_ENVIRONMENTS =
+            getEnvVariableOrDefault("ENABLE_TRACING_PREVIOUS_ENVIRONMENTS", "false");
 
     public static String getEnvVariableOrDefault(String name, String defaultValue) {
         String value = System.getenv(name);

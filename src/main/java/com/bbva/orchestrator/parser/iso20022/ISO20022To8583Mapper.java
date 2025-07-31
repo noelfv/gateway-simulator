@@ -71,19 +71,15 @@ public class ISO20022To8583Mapper {
                     .conversionRate(
                             /*mapping of conversionRate REVISAR
                              * transaction.transactionAmounts.cardholderBillingAmount.EffectiveExchangeRate
-                             * // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
                              */
                             StringUtils.defaultIfEmpty(
                                     getOriginalConversionRate(
-                                            inputISO20022.getTransaction().getTransactionAmounts().getCardholderBillingAmount().getEffectiveExchangeRate()
-                                            ), "")
+                                            inputISO20022.getTransaction().getTransactionAmounts().getCardholderBillingAmount().getEffectiveExchangeRate()), "")
                     )
                     .conversionRateSettlement(
-                            // ======== FIELD 9 (CARDHOLDER BILLING EXCHANGE RATE) ========
                             StringUtils.defaultIfEmpty(
                                     getOriginalConversionRate(
-                                            inputISO20022.getTransaction().getTransactionAmounts().getReconciliationAmount().getEffectiveExchangeRate()
-                                            ), "")
+                                            inputISO20022.getTransaction().getTransactionAmounts().getReconciliationAmount().getEffectiveExchangeRate()), "")
 
                     )
                     .systemTraceAuditNumber(
@@ -195,9 +191,11 @@ public class ISO20022To8583Mapper {
                                     inputISO20022.getEnvironment().getSender().getId(), "")
                     )
                     .trackTwoData(
-                            inputISO20022.getEnvironment().getCard().getTrack2() != null
-                                    ? StringUtils.defaultIfEmpty(inputISO20022.getEnvironment().getCard().getTrack2().getTextValue(), "")
-                                    : ""
+                            /*mapping of trackTwoData
+                             * environment.card.track2
+                             */
+                            StringUtils.defaultIfEmpty(
+                                    inputISO20022.getEnvironment().getCard().getTrack2().getTextValue(), "")
                     )
                     .retrievalReferenceNumber(
                             /*mapping of retrievalReferenceNumber
@@ -637,10 +635,6 @@ public class ISO20022To8583Mapper {
                             StringUtils.defaultIfEmpty(
                                     getSupplementaryData(inputISO20022.getSupplementaryData(), "messageAuthenticationCode2"), "")
                     )
-                    .additionalRecordData(
-                            StringUtils.defaultIfEmpty(
-                                    getSupplementaryData(inputISO20022.getSupplementaryData(), "additionalRecordData"), "")
-                    )
                     .header(
                             StringUtils.defaultIfEmpty(
                                     getTraceDataValue(inputISO20022.getTraceData(), "header"), "")
@@ -664,6 +658,7 @@ public class ISO20022To8583Mapper {
         return (value == null) ? "" : String.format(format, value);
     }
 
+
         public static String getOriginalConversionRate(BigDecimal resultado) {
                 if (resultado == null) return null;
                 String str = resultado.toPlainString();
@@ -675,19 +670,8 @@ public class ISO20022To8583Mapper {
                         digits = precision + digits.substring(1);
                         return digits;
                 }
-        /*if (str.startsWith("0.") && precision >= 1 && precision <= 7) {
-            return precision + digits.substring(1);
-        }*/
-                return precision + digits;
-        }
 
-        public static String getOriginalConversionRate3(BigDecimal resultado) {
-                if (resultado == null) return null;
-                String str = resultado.toString();
-                int index = str.indexOf(".");
-                int precision = (index < 0) ? 0 : str.length() - index - 1;
-                String sinPunto = str.replace(".", "");
-                return precision + sinPunto;
+                return precision + digits;
         }
 
     private static String getConversionRate(Double value, int padding) {
@@ -758,7 +742,7 @@ public class ISO20022To8583Mapper {
                 + data.getSenderIdentification();
     }
 
-    private static String findPinData2(ISO20022 iso20022) {
+    private static String findPinData(ISO20022 iso20022) {
         VerificationDTO verification = iso20022.getContext().getVerification().get(0);
         if (verification == null) {
             return "";
@@ -770,25 +754,6 @@ public class ISO20022To8583Mapper {
         String pinData = verificationInformation.getValue().getPinData().getEncryptedPINBlock();
         return (pinData == null) ? "" : pinData;
     }
-
-        private static String findPinData(ISO20022 iso20022) {
-                List<VerificationDTO> verificationList = iso20022.getContext().getVerification();
-                if (verificationList == null || verificationList.isEmpty() || verificationList.get(0) == null) {
-                        return "";
-                }
-                List<VerificationInformationDTO> infoList = verificationList.get(0).getVerificationInformation();
-                if (infoList == null || infoList.isEmpty() || infoList.get(0) == null) {
-                        return "";
-                }
-                VerificationInformationDTO verificationInformation = infoList.get(0);
-                if (verificationInformation.getValue() == null || verificationInformation.getValue().getPinData() == null) {
-                        return "";
-                }
-                String pinData = verificationInformation.getValue().getPinData().getEncryptedPINBlock();
-                return (pinData == null) ? "" : pinData;
-        }
-
-
 
     private static String findKeyIdValue(ISO20022 iso20022) {
         ProtectedDataDTO protectedDataDTO = iso20022.getProtectedData().get(0);

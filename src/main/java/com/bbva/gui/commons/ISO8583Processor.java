@@ -1,14 +1,12 @@
 package com.bbva.gui.commons;
 
-import com.bbva.orchestrator.parser.exception.ParserLocalException;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
 import com.bbva.orchestrator.parser.common.ISOField;
 import com.bbva.orchestrator.parser.common.ISOUtil;
+import com.bbva.orchestrator.parser.refactor.exception.ParserLocalException;
 import com.bbva.orchlib.parser.ParserException;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import static com.bbva.orchestrator.network.mastercard.ISOFieldMastercard.*;
 import static com.bbva.orchestrator.parser.common.ISODataType.BINARY_STRING;
 import static com.bbva.orchestrator.parser.common.ISODataType.NUMERIC_DECIMAL;
@@ -43,7 +41,7 @@ public class ISO8583Processor {
                     ISOField field = ISOFieldMastercard.getById(i);
 
                     if (field == null) {
-                        throw new ParserLocalException(createMessageError(i, "There is no mapping available"));
+                        throw new ParserException(createMessageError(i, "There is no mapping available"));
                     }
 
                     position = processNextFieldTramaClaro(field,isoMessage, position, valuesMap, valuesMapInt);
@@ -74,7 +72,7 @@ public class ISO8583Processor {
             return position;
 
         } catch (Exception e) {
-            throw new ParserLocalException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
+            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
         }
     }
 
