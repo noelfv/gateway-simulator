@@ -12,14 +12,14 @@ import java.util.Map;
 // Su bloque estático se ejecutará una única vez cuando se acceda por primera vez a un método estático.
 public class ISOMastercardFieldDefinitions {
 
-    private static final Map<String, ISOMastercardSubField> BY_ID = new HashMap<>();
-    private static final Map<String, Map<String, ISOMastercardSubField>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
-    private static final Map<String, ISOMastercardSubField> DIRECT_FIELD_48_DEFS = new LinkedHashMap<>();
+    private static final Map<String, ISOSubField48Mastercard> BY_ID = new HashMap<>();
+    private static final Map<String, Map<String, ISOSubField48Mastercard>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
+    private static final Map<String, ISOSubField48Mastercard> DIRECT_FIELD_48_DEFS = new LinkedHashMap<>();
 
     static {
         // Fase 1: Llenar BY_ID y SUB_SUBFIELD_MAP con todas las constantes de ISOMastercardSubField
         // En esta fase, los parserStrategy de los campos compuestos son null.
-        for (ISOMastercardSubField subField : ISOMastercardSubField.values()) {
+        for (ISOSubField48Mastercard subField : ISOSubField48Mastercard.values()) {
             BY_ID.put(subField.getId(), subField); // Usar getId() para la clave
             if (subField.getId().contains(".")) {
                 String[] parts = subField.getId().split("\\.");
@@ -33,9 +33,9 @@ public class ISOMastercardFieldDefinitions {
         // Fase 2: Después de que todos los mapas estén poblados,
         // inicializar los CompositeSubFieldParser para los campos compuestos.
         // Ahora, los CompositeSubFieldParser pueden acceder a los mapas de forma segura.
-        for (ISOMastercardSubField subField : ISOMastercardSubField.values()) {
+        for (ISOSubField48Mastercard subField : ISOSubField48Mastercard.values()) {
             if (subField.isVariable() && subField.getParserStrategy() == null) { // Identificar los compuestos que aún no tienen parser
-                Map<String, ISOMastercardSubField> definitionsForThisComposite;
+                Map<String, ISOSubField48Mastercard> definitionsForThisComposite;
                 if ("48".equals(subField.getId())) {
                     // Para el campo principal 48, obtener sus definiciones de subcampos directos
                     definitionsForThisComposite = getDirectSubFieldDefinitionsForField48();
@@ -56,7 +56,7 @@ public class ISOMastercardFieldDefinitions {
                 "62", "64", "65", "66", "67", "68", "71","72", "74", "75", "78", "79", "93"
         };
         for (String subFieldId : direct48SubfieldOrder) {
-            ISOMastercardSubField subField = BY_ID.get(subFieldId);
+            ISOSubField48Mastercard subField = BY_ID.get(subFieldId);
             if (subField != null && !subField.getId().contains(".")) {
                 DIRECT_FIELD_48_DEFS.put(subFieldId, subField);
             }
@@ -67,24 +67,24 @@ public class ISOMastercardFieldDefinitions {
     // Constructor privado para evitar instanciación
     private ISOMastercardFieldDefinitions() {}
 
-    public static ISOMastercardSubField getById(String id) {
+    public static ISOSubField48Mastercard getById(String id) {
         // Asegurarse de que el bloque estático se ha ejecutado
         ensureInitialized();
         return BY_ID.get(id);
     }
 
-    public static Map<String, ISOMastercardSubField> getSubSubFieldsForParent(String parentSubFieldId) {
+    public static Map<String, ISOSubField48Mastercard> getSubSubFieldsForParent(String parentSubFieldId) {
         ensureInitialized();
         return SUB_SUBFIELD_MAP.getOrDefault(parentSubFieldId, Collections.emptyMap());
     }
 
-    public static Map<String, ISOMastercardSubField> getDirectSubFieldDefinitionsForField48() {
+    public static Map<String, ISOSubField48Mastercard> getDirectSubFieldDefinitionsForField48() {
         ensureInitialized();
         return DIRECT_FIELD_48_DEFS;
     }
 
     // Método para obtener las definiciones de subcampos para un CompositeFieldParser específico
-    public static Map<String, ISOMastercardSubField> getSubFieldDefinitionsForComposite(String compositeFieldId) {
+    public static Map<String, ISOSubField48Mastercard> getSubFieldDefinitionsForComposite(String compositeFieldId) {
         ensureInitialized();
         if ("48".equals(compositeFieldId)) {
             return DIRECT_FIELD_48_DEFS;

@@ -1,15 +1,12 @@
 package com.bbva.orchestrator.refactor.impl4.commons;
 
-import lombok.Getter;
 
-@Getter
-public class ParsedFieldResult {
-    private final String value;
-    private final int consumedLengthInChars; // Longitud de los caracteres HEX consumidos de la trama
-
-    public ParsedFieldResult(String value, int consumedLengthInChars) {
-        this.value = value;
-        this.consumedLengthInChars = consumedLengthInChars;
-    }
+/**
+ * Represents the result of parsing a field, containing the parsed value and the number of characters consumed.
+ * This is used to track how many characters were processed during the parsing operation.
+ * * @param value The parsed value of the field.
+ * * @param consumedLengthInChars The number of characters consumed during parsing.
+ */
+public record ParsedFieldResult(String value, int consumedLengthInChars) {
 
 }

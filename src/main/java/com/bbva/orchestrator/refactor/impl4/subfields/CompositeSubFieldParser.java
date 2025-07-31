@@ -7,13 +7,12 @@ import com.bbva.orchestrator.refactor.impl4.commons.ISOUtil;
 import com.bbva.orchestrator.refactor.impl4.commons.ParsedFieldResult;
 import com.bbva.orchlib.parser.ParserException;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CompositeSubFieldParser implements FieldParserStrategy {
 
-    private final Map<String, ISOMastercardSubField> subFieldDefinitions;
+    private final Map<String, ISOSubField48Mastercard> subFieldDefinitions;
     private final String compositeFieldId;
     private final Map<String, String> parsedSubFieldsMap=new LinkedHashMap<>();
     // Constructor existente (para uso cuando las definiciones se obtienen a demanda, ej. en ISO8583Processor)
@@ -29,7 +28,7 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
 
     // Constructor para uso cuando las definiciones se pasan directamente (ej. desde ISOMastercardSubField enum)
     // Este constructor será llamado por el LlvarLengthPrefixParser en el enum.
-    public CompositeSubFieldParser(String compositeFieldId, Map<String, ISOMastercardSubField> subFieldDefinitions) {
+    public CompositeSubFieldParser(String compositeFieldId, Map<String, ISOSubField48Mastercard> subFieldDefinitions) {
         this.compositeFieldId = compositeFieldId;
         this.subFieldDefinitions = subFieldDefinitions;
         if (this.subFieldDefinitions == null || this.subFieldDefinitions.isEmpty()) {
@@ -62,7 +61,7 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
         // Asumimos que el primer subcampo 48.01 es fijo y siempre presente en la especificación
         // y que los demás subcampos directos del 48 son TLV.
         if ("48".equals(compositeFieldId)) {
-            ISOMastercardSubField sf01Def = this.subFieldDefinitions.get("01");
+            ISOSubField48Mastercard sf01Def = this.subFieldDefinitions.get("01");
             if (sf01Def != null) {
                 int sf01HexLength = sf01Def.getLength() * 2;
                 if (rawDataSegment.length() < currentOffset + sf01HexLength) {
@@ -70,8 +69,8 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
                 } else {
                     String sf01Hex = rawDataSegment.substring(currentOffset, currentOffset + sf01HexLength);
                     ParsedFieldResult sf01Result = sf01Def.getParserStrategy().parse(sf01Hex, sf01HexLength, sf01Def);
-                    parsedSubFieldsMap.put(fieldDefinition.getIdentifier() + ".01", sf01Result.getValue());
-                    currentOffset += sf01Result.getConsumedLengthInChars();
+                    parsedSubFieldsMap.put(fieldDefinition.getIdentifier() + ".01", sf01Result.value());
+                    currentOffset += sf01Result.consumedLengthInChars();
                 }
             } else {
                 LogsTraces.writeWarning("Definición para subcampo 48.01 no encontrada en el mapa de definiciones.");
@@ -90,7 +89,7 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
             String subFieldTagId = ISOUtil.ebcdicToString(subFieldTagHex); // Decodifica el Tag (ej. "75")
             currentOffset += subFieldTagHexLength;
 
-            ISOMastercardSubField subFieldDef = subFieldDefinitions.get(subFieldTagId);
+            ISOSubField48Mastercard subFieldDef = subFieldDefinitions.get(subFieldTagId);
             if (subFieldDef == null) {
                 LogsTraces.writeWarning("Subcampo " + compositeFieldId + "." + subFieldTagId + " no definido. Saltando o error.");
                 throw new ParserException("Subcampo " + compositeFieldId + "." + subFieldTagId + " no definido en ISOMastercardSubField.");
@@ -119,9 +118,9 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
                 // Ahora, delegar el parsing del VALOR a la estrategia del subFieldDef.
                 // La estrategia espera la data HEX cruda del valor y su longitud HEX.
                 ParsedFieldResult subFieldResult = subFieldDef.getParserStrategy().parse(subFieldValueHex, subFieldValueHexLength, subFieldDef);
-                parsedSubFieldsMap.put(compositeFieldId + "." + subFieldTagId, subFieldResult.getValue());
+                parsedSubFieldsMap.put(compositeFieldId + "." + subFieldTagId, subFieldResult.value());
 
-                currentOffset += subFieldResult.getConsumedLengthInChars();
+                currentOffset += subFieldResult.consumedLengthInChars();
             }
             // currentOffset ya fue avanzado por el Tag y el Prefijo de Longitud.
             // No necesitamos añadir subFieldResult.getConsumedLengthInChars() aquí,
@@ -155,9 +154,9 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
     }
 
 
-    private int getSubFieldResult(ISOMastercardSubField subFieldDef, int subCurrentOffset, String rawDataSegment) {
+    private int getSubFieldResult(ISOSubField48Mastercard subFieldDef, int subCurrentOffset, String rawDataSegment) {
         System.out.println("Subfield " + compositeFieldId + "." + subFieldDef.getId());
-        Map<String, ISOMastercardSubField> subSubFields = ISOMastercardFieldDefinitions.getSubSubFieldsForParent(subFieldDef.getId());
+        Map<String, ISOSubField48Mastercard> subSubFields = ISOMastercardFieldDefinitions.getSubSubFieldsForParent(subFieldDef.getId());
 
         if (subSubFields == null || subSubFields.isEmpty()) {
             LogsTraces.writeWarning("No se encontraron sub-subcampos para el subcampo " + compositeFieldId + "." + subFieldDef.getId());
@@ -166,9 +165,9 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
 
         int currentPosition = subCurrentOffset; // Usar una posición actual que se actualiza con el offset
 
-        for (Map.Entry<String, ISOMastercardSubField> entry : subSubFields.entrySet()) {
+        for (Map.Entry<String, ISOSubField48Mastercard> entry : subSubFields.entrySet()) {
             String subSubFieldId = entry.getKey();
-            ISOMastercardSubField subSubFieldDef = entry.getValue();
+            ISOSubField48Mastercard subSubFieldDef = entry.getValue();
             System.out.println("Sub-subcampo encontrado: " + subSubFieldId + " con definición: " + subSubFieldDef);
 
             int subSubFieldLengthHex = subSubFieldDef.getLength() * 2; // Longitud en caracteres hexadecimales
@@ -180,7 +179,7 @@ public class CompositeSubFieldParser implements FieldParserStrategy {
 
             String subSubFieldValueHex = rawDataSegment.substring(currentPosition, currentPosition + subSubFieldLengthHex);
             ParsedFieldResult subFieldResult = subSubFieldDef.getParserStrategy().parse(subSubFieldValueHex, subSubFieldLengthHex, subFieldDef);
-            parsedSubFieldsMap.put(subSubFieldDef.getName(), subFieldResult.getValue());
+            parsedSubFieldsMap.put(subSubFieldDef.getName(), subFieldResult.value());
 
             currentPosition += subSubFieldLengthHex; // Avanzar la posición actual
         }

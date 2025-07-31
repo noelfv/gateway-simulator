@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public  enum ISOMastercardSubField implements ISOSubField {
+public  enum ISOSubField48Mastercard implements ISOSubField {
 
     // Subcampos del Campo 48 (additionalDataRetailerSubFields)
     // k: id, v: length in characters (del SubfieldsUtil original)
@@ -59,7 +59,8 @@ public  enum ISOMastercardSubField implements ISOSubField {
     //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, new CompositeSubFieldParser(ISOMastercardSubFieldDefinitions.getSubSubFieldsForParent("56"))),// Inicializado a null
     SF_48_57("57", "AdditionalDataRetailer.57", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_58("58", "AdditionalDataRetailer.58", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
+   // SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
+    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, false, 1, new NumericFieldParser()), // Inicializado a null
     SF_48_64("64", "AdditionalDataRetailer.64", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_65("65", "AdditionalDataRetailer.65", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
    // SF_48_71("71", "AdditionalDataRetailer.71", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
@@ -175,7 +176,7 @@ public  enum ISOMastercardSubField implements ISOSubField {
     // CORRECCIÓN: parserStrategy ya no es final
     private FieldParserStrategy parserStrategy;
 
-    ISOMastercardSubField(String id, String name, ISODataType typeData, boolean isVariable, int length, FieldParserStrategy parserStrategy) {
+    ISOSubField48Mastercard(String id, String name, ISODataType typeData, boolean isVariable, int length, FieldParserStrategy parserStrategy) {
         this.id = id;
         this.name = name;
         this.typeData = typeData;
@@ -207,26 +208,26 @@ public  enum ISOMastercardSubField implements ISOSubField {
 
     // Mapas estáticos para búsqueda eficiente por ID
     // CORRECCIÓN: Estos mapas ahora se inicializan y gestionan en ISOMastercardFieldDefinitions
-    private static final Map<String, ISOMastercardSubField> BY_ID = new HashMap<>();
-    private static final Map<String, Map<String, ISOMastercardSubField>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
+  /*  private static final Map<String, ISOSubField48Mastercard> BY_ID = new HashMap<>();
+    private static final Map<String, Map<String, ISOSubField48Mastercard>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
 
     // CORRECCIÓN: Eliminar el bloque static de inicialización de mapas aquí
     // La inicialización de los parsers compuestos se hará en ISOMastercardFieldDefinitions
 
-    public static ISOMastercardSubField getById(String id) {
+    public static ISOSubField48Mastercard getById(String id) {
         // Delegar a la clase de definiciones
         return ISOMastercardFieldDefinitions.getById(id);
     }
 
-    public static Map<String, ISOMastercardSubField> getSubSubFieldsForParent(String parentSubFieldId) {
+    public static Map<String, ISOSubField48Mastercard> getSubSubFieldsForParent(String parentSubFieldId) {
         // Delegar a la clase de definiciones
         return ISOMastercardFieldDefinitions.getSubSubFieldsForParent(parentSubFieldId);
     }
 
-    public static Map<String, ISOMastercardSubField> getDirectSubFieldDefinitionsForField48() {
+    public static Map<String, ISOSubField48Mastercard> getDirectSubFieldDefinitionsForField48() {
         // Delegar a la clase de definiciones
         return ISOMastercardFieldDefinitions.getDirectSubFieldDefinitionsForField48();
-    }
+    }*/
 
     // CORRECCIÓN: Nuevo método para establecer el parserStrategy después de la inicialización
     // Este método será llamado por ISOMastercardFieldDefinitions

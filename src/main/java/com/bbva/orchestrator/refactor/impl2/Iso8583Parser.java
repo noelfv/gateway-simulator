@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.refactor.impl2;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.refactor.utilsXXXX;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +63,7 @@ public class Iso8583Parser {
             throw e; // Relanzar ParserException directamente
         } catch (Exception e) {
             // Capturar otras excepciones y envolverlas en ParserException
-            throw new ParserException("No se puede parsear el mensaje ISO: " + e.getMessage() + "|" + utilsXXXX.ISOUtil.processError(iso, containsSecondaryBitmap), e);
+            throw new ParserException("No se puede parsear el mensaje ISO: " + e.getMessage() + "|" + ISOUtil.processError(iso, containsSecondaryBitmap), e);
         }
         return valuesMap;
     }

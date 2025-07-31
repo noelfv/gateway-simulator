@@ -41,7 +41,7 @@ public class  LlvarLengthPrefixParser implements FieldParserStrategy {
         String actualFieldDataHex = rawDataSegment.substring(prefixLengthInChars, prefixLengthInChars + actualValueHexLength);
 
         ParsedFieldResult actualValueResult = actualValueParser.parse(actualFieldDataHex, actualValueHexLength, fieldDefinition);
-        String parsedValue = actualValueResult.getValue();
+        String parsedValue = actualValueResult.value();
 
         int totalConsumedLength = prefixLengthInChars + actualValueHexLength;
         return new ParsedFieldResult(parsedValue, totalConsumedLength);
