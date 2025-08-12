@@ -7,8 +7,6 @@ import com.bbva.gui.temp.LoadConfigDialog;
 import com.bbva.gui.temp.Y;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -42,8 +40,6 @@ public class MastercardParserGUI6 extends JFrame {
 
     private List<String> processCodeOptions = new ArrayList<>(); // Lista para almacenar las opciones cargadas
 
-    @Autowired
-    private ParseViewerPanel parseViewerPanel;
 
     public MastercardParserGUI6() {
         logger.info("Iniciando construcción de la ventana");
@@ -390,7 +386,7 @@ public class MastercardParserGUI6 extends JFrame {
          */
     }
 
-
+/*
     public static void main(String[] args) {
         // Establece el Look and Feel ANTES de crear cualquier componente Swing
         //FlatLightLaf.setup(); // O el tema que prefieras
@@ -416,4 +412,5 @@ public class MastercardParserGUI6 extends JFrame {
             }
         });
     }
+    */
 }
