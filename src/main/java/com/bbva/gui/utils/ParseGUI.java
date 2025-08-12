@@ -1,5 +1,6 @@
 package com.bbva.gui.utils;
 
+import com.bbva.gui.components.TreeNodeData;
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
@@ -121,7 +122,6 @@ public class ParseGUI {
 
     public static void showNodeDetails(DefaultMutableTreeNode node, int x, int y) {
         String nodeText = node.getUserObject().toString();
-
         // Extraer información del nodo
         String title = "Detalle del campo";
         String message = nodeText;
@@ -135,6 +135,7 @@ public class ParseGUI {
                     fieldId = fieldId.substring(1);
                 }
 
+                String data = nodeText.substring(6).trim();
                 // Buscar información adicional del campo
                 ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
 
@@ -153,6 +154,16 @@ public class ParseGUI {
                 contentPanel.add(new JLabel("Tipo dato: " + dataType.getTypeData()));
                 contentPanel.add(new JLabel("Caracteristicas: " + dataType.getCaracteristicaDato()));
                 contentPanel.add(new JLabel("Longitud: " + dataType.getLength()));
+                JTextField valueField = new JTextField(data);
+                valueField.setEditable(false);
+                valueField.setBorder(null);
+                valueField.setBackground(panel.getBackground());
+                valueField.setFont(panel.getFont());
+                valueField.setSelectionStart(0);
+                valueField.setSelectionEnd(data.length());
+
+                contentPanel.add(new JLabel("Data:"));
+                contentPanel.add(valueField);
 
                 panel.add(contentPanel, BorderLayout.CENTER);
 
@@ -161,6 +172,7 @@ public class ParseGUI {
                 return;
             } catch (Exception e) {
                 // Si hay algún error, mostrar el mensaje simple
+                throw e;
             }
         }
         // Si no es un campo especial o hubo error, mostrar mensaje simple

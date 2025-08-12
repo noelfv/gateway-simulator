@@ -1,0 +1,57 @@
+server:
+  port: 8088
+spring:
+  profiles:
+    group:
+      gw: global, local, data, datalocal, validations, sensitivedata
+grpc:
+  server:
+    address: ${GRPC_SERVER_ADDRESS}
+    port: ${GRPC_SERVER_PORT}
+    enable-keep-alive: ${GRPC_SERVER_KEEP_ALIVE_ENABLE}
+    permit-keep-alive-without-calls: ${GRPC_SERVER_KEEP_ALIVE_WITHOUT_CALLS}
+    keep-alive-time: ${GRPC_SERVER_KEEP_ALIVE_TIME}
+    keep-alive-timeout: ${GRPC_SERVER_KEEP_ALIVE_TIMEOUT}
+    permit-keep-alive-time: ${GRPC_SERVER_KEEP_ALIVE_PERMIT_TIME}
+  client:
+    GLOBAL:
+      enable-keep-alive: ${GRPC_CLIENT_KEEP_ALIVE_ENABLE}
+      permit-keep-alive-without-calls: ${GRPC_CLIENT_KEEP_ALIVE_WITHOUT_CALLS}
+      keep-alive-time: ${GRPC_CLIENT_KEEP_ALIVE_TIME}
+      keep-alive-timeout: ${GRPC_CLIENT_KEEP_ALIVE_TIMEOUT}
+      permit-keep-alive-time: ${GRPC_CLIENT_KEEP_ALIVE_PERMIT_TIME}
+      services:
+        flowhandler:
+          channel-server: ${ORCHESTRATION_FLOWHANDLER_ADDRESS}
+          channel-port: ${ORCHESTRATION_FLOWHANDLER_PORT}
+        monitor:
+          channel-server: ${ORCHESTRATION_MONITOR_ADDRESS}
+          channel-port: ${ORCHESTRATION_MONITOR_PORT}
+        dialog:
+          channel-server: ${ORCHESTRATION_DIALOG_ADDRESS}
+          channel-port: ${ORCHESTRATION_DIALOG_PORT}
+        dummyprocessor:
+          channel-server: ${ORCHESTRATION_DUMMYPROCESSOR_ADDRESS}
+          channel-port: ${ORCHESTRATION_DUMMYPROCESSOR_PORT}
+        fraud:
+          channel-server: ${ORCHESTRATION_FRAUD_ADDRESS}
+          channel-port: ${ORCHESTRATION_FRAUD_PORT}
+        crypto:
+          channel-server: ${ORCHESTRATION_CRYPTO_ADDRESS}
+          channel-port: ${ORCHESTRATION_CRYPTO_PORT}
+        proxy:
+          - channel-server: ${ORCHESTRATION_PROXYPROCESSOR_PEER01_ADDRESS}
+            channel-port: ${ORCHESTRATION_PROXYPROCESSOR_PEER01_PORT}
+          - channel-server: ${ORCHESTRATION_PROXYHOST_PEER01_ADDRESS}
+            channel-port: ${ORCHESTRATION_PROXYHOST_PEER01_PORT}
+          - channel-server: ${ORCHESTRATION_PROXYPROCESSOR_PEER02_ADDRESS}
+            channel-port: ${ORCHESTRATION_PROXYPROCESSOR_PEER02_PORT}
+          - channel-server: ${ORCHESTRATION_PROXYHOST_PEER02_ADDRESS}
+            channel-port: ${ORCHESTRATION_PROXYHOST_PEER02_PORT}
+
+logging:
+  pattern:
+    console: "%m%n"
+
+lombok:
+  addLombokGeneratedAnnotation: true

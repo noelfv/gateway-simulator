@@ -1,15 +1,13 @@
 package com.bbva.orchestrator.parser;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
-import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.parser.common.ISO8583Context;
 import com.bbva.orchestrator.parser.factory.FactoryParser;
 import com.bbva.orchestrator.parser.factory.MessageParser;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.parser.iso8583.ISO8583Builder;
 import com.bbva.orchestrator.parser.iso20022.ISO20022To8583Mapper;
-import com.bbva.orchestrator.parser.iso20022.ISO8583To20022Mapper;
-import com.bbva.orchestrator.parser.refactor.iso20022.ISO20022Builder;
+import com.bbva.orchestrator.parser.refactor.mapper.ISO20022Mapper;
 import com.bbva.orchestrator.validations.PassThroughValidator;
 import com.bbva.orchlib.parser.IParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,7 @@ import java.util.Map;
 public class Parser implements IParser {
 
     @Autowired
-    private ISO20022Builder iso20022Builder;
+    private ISO20022Mapper iso20022Mapper;
 
     @Override
     public ISO20022 convert8583to20022(String originalMessage) {
@@ -31,7 +29,7 @@ public class Parser implements IParser {
         ISO8583 iso8583 = ISO8583Builder.buildISO8583(originalMessage, values);
         ISO8583Context.storeISO8583(iso8583,values,messageParser);
         //ISO20022 iso20022 = ISO8583To20022Mapper.translateToISO20022(iso8583, subFields);
-        ISO20022 iso20022 = iso20022Builder.process(iso8583,subFields, "PEER02");
+        ISO20022 iso20022 = iso20022Mapper.build(iso8583,subFields);
         iso20022 = messageParser.reMap(iso8583, iso20022);
 
         return iso20022;

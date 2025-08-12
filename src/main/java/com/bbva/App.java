@@ -1,13 +1,13 @@
 package com.bbva;
 
-import com.bbva.gui.MastercardParserGUI5;
+import com.bbva.gui.components.views.MastercardParserGUI5;
 import javax.swing.*;
 
 /**
  * Hello world!
  *
  */
-public class App 
+public class App
 {
     public static void main(String[] args) {
         // Establece el Look and Feel ANTES de crear cualquier componente Swing

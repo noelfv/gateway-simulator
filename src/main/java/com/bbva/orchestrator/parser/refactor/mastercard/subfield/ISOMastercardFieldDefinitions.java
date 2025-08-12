@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.parser.refactor.mastercard.subfield;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.parser.refactor.field.strategy.impl.LlvarLengthPrefixParser;
 import com.bbva.orchestrator.parser.refactor.mastercard.ISOSubField48Mastercard;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class ISOMastercardFieldDefinitions {
         // Fase 2: Después de que todos los mapas estén poblados,
         // inicializar los CompositeSubFieldParser para los campos compuestos.
         // Ahora, los CompositeSubFieldParser pueden acceder a los mapas de forma segura.
-        for (ISOSubField48Mastercard subField : ISOSubField48Mastercard.values()) {
+        /*for (ISOSubField48Mastercard subField : ISOSubField48Mastercard.values()) {
             if (subField.isVariable() && subField.getParserStrategy() == null) { // Identificar los compuestos que aún no tienen parser
                 Map<String, ISOSubField48Mastercard> definitionsForThisComposite;
                 if ("48".equals(subField.getId())) {
@@ -47,7 +46,17 @@ public class ISOMastercardFieldDefinitions {
                 // Crear la instancia de CompositeSubFieldParser y asignarla
                 subField.setParserStrategy(new LlvarLengthPrefixParser(new CompositeSubFieldParser(subField.getId(), definitionsForThisComposite)));
             }
+        }*/
+        for (ISOSubField48Mastercard subField : ISOSubField48Mastercard.values()) {
+            if (subField.isVariable() && subField.getParserStrategy() == null) {
+                Map<String, ISOSubField48Mastercard> defs = "48".equals(subField.getId()) ?
+                        getDirectSubFieldDefinitionsForField48() :
+                        SUB_SUBFIELD_MAP.getOrDefault(subField.getId(), Collections.emptyMap());
+                subField.setParserStrategy(new CompositeSubFieldParser(subField.getId(), defs));
+            }
         }
+
+
 
         // Fase 3: Llenar el mapa de definiciones directas del Campo 48
         // Esto se hace una vez aquí para que getDirectSubFieldDefinitionsForField48() sea eficiente

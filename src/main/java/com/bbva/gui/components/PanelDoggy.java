@@ -1,6 +1,5 @@
 package com.bbva.gui.components;
 
-import com.bbva.gui.components.viewers.ParseViewerPanel;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;

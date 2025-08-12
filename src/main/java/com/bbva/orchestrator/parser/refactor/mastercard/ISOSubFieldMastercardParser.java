@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.parser.refactor.mastercard;
 
 import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.parser.refactor.mastercard.subfield.CompositeSubFieldParser;
 import com.bbva.orchestrator.parser.refactor.mastercard.subfield.ISOMastercardFieldDefinitions;
 import com.bbva.orchlib.parser.ParserException;
@@ -11,6 +12,41 @@ public class ISOSubFieldMastercardParser {
 
     private ISOSubFieldMastercardParser() {
         // Constructor privado para clase de utilidad
+    }
+
+
+    public static Map<String, String> parseSubfields(ISO8583 iso8583){
+        Map<String, String> allParsedSubfields = new LinkedHashMap<>();
+
+        // 1. Obtener la data hexadecimal cruda del Campo 48
+        String field48RawHex = iso8583.getAdditionalDataRetailer();
+
+        if (field48RawHex == null || field48RawHex.isEmpty()) {
+            LogsTraces.writeInfo("Campo 48 (additionalDataRetailer) no presente en la trama principal o está vacío. No se parsearán subcampos.");
+            return allParsedSubfields;
+        }
+
+        try {
+            // 2. Instanciar el CompositeSubFieldParser para el Campo 48
+            // Le pasamos "48" para que sepa qué definiciones de subcampos buscar.
+            // Ahora, el CompositeSubFieldParser se inicializa de forma segura.
+            // CORRECCIÓN: Obtener las definiciones de subcampos del Campo 48 a través de la nueva clase de definiciones
+            CompositeSubFieldParser field48Parser = new CompositeSubFieldParser("48", ISOMastercardFieldDefinitions.getDirectSubFieldDefinitionsForField48());
+
+            // 3. Parsear la data hexadecimal cruda del Campo 48 usando parseToMap
+            // Necesitamos pasarle la definición del campo 48 para que el parseToMap tenga acceso a ella.
+            Map<String, String> parsedInternalSubfields = field48Parser.parseToMap(field48RawHex, ISOFieldMastercard.ADDITIONAL_DATA_48);
+
+            // 4. Combinar los subcampos parseados con el mapa principal
+            allParsedSubfields.putAll(parsedInternalSubfields);
+
+        } catch (Exception e) {
+            LogsTraces.writeError("Error al parsear subcampos del Campo 48: " + e.getMessage());
+            // throw new ParserException("Error al procesar subcampos del Campo 48", e);
+            throw new ParserException("Error al procesar subcampos del Campo 48");
+        }
+
+        return allParsedSubfields;
     }
 
     /**

@@ -1,9 +1,9 @@
 package com.bbva.orchestrator.parser.refactor.mastercard;
 
 import com.bbva.orchestrator.parser.common.ISODataType;
-import com.bbva.orchestrator.parser.refactor.field.strategy.FieldParserStrategy;
-import com.bbva.orchestrator.parser.refactor.field.ISOField;
-import com.bbva.orchestrator.parser.refactor.field.strategy.impl.*;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.definitions.ISOField;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.impl.*;
 
 import java.util.HashMap;
 import java.util.Map;

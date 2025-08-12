@@ -3,7 +3,7 @@ package com.bbva.gui.commons;
 import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
 import com.bbva.orchestrator.parser.common.ISOField;
 import com.bbva.orchestrator.parser.common.ISOUtil;
-import com.bbva.orchestrator.parser.refactor.exception.ParserLocalException;
+import com.bbva.orchestrator.parser.refactor.parser.exception.ParserLocalException;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.LinkedHashMap;
 import java.util.Map;

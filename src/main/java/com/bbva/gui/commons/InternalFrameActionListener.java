@@ -1,6 +1,6 @@
 package com.bbva.gui.commons;
 
-import com.bbva.gui.components.SwingUtils;
+import com.bbva.gui.components.panels.SwingUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;

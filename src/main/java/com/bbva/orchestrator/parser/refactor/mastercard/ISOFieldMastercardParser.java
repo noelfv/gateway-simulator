@@ -1,7 +1,7 @@
 package com.bbva.orchestrator.parser.refactor.mastercard;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.parser.refactor.field.ParsedFieldResult;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.parser.refactor.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.HashMap;

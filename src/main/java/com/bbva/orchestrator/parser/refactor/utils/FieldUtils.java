@@ -28,8 +28,7 @@ public class FieldUtils {
         }
     }
 
-
-    public static BigDecimal conversionRateValidation(String value) {
+    public static BigDecimal conversionRateValidationBig(String value) {
         if (value == null || value.length() < 2) {
             throw new ParserException("El valor de la tasa de conversión es nulo o demasiado corto: " + value);
         }
@@ -84,10 +83,10 @@ public class FieldUtils {
     /**
      * Valida tasa de conversión: si es 000000, devuelve null.
      */
-   /* public static Double conversionRateValidation(String rate) {
+    public static Double conversionRateValidation(String rate) {
         Double value = parseDouble(rate);
         return (value != null && value == 0.0) ? null : value;
-    }*/
+    }
 
     /**
      * Formatea fecha de expiración MMyy → MMyy

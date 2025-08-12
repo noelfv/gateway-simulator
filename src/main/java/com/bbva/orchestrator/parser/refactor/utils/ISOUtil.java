@@ -14,6 +14,7 @@ public class ISOUtil {
     public static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
     public static final Charset ASCII_CHARSET = Charset.forName("US-ASCII"); // O StandardCharsets.US_ASCII
     private static final HexFormat FORMATTER = HexFormat.of().withUpperCase();
+    //public static final Charset EBCDIC_CHARSET = Charset.forName("IBM1047"); // Más estándar
 
     public static final Map<Character, String> hexChart = Map.ofEntries(
             Map.entry('0', "0000"),

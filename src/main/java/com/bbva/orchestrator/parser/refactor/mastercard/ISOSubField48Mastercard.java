@@ -1,28 +1,42 @@
 package com.bbva.orchestrator.parser.refactor.mastercard;
 
 import com.bbva.orchestrator.parser.common.ISODataType;
-import com.bbva.orchestrator.parser.refactor.field.ISOSubField;
-import com.bbva.orchestrator.parser.refactor.field.strategy.FieldParserStrategy;
-import com.bbva.orchestrator.parser.refactor.field.strategy.impl.*;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.definitions.ISOSubField;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.impl.AlphaNumericFieldParser;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.impl.HexadecimalFieldParser;
+import com.bbva.orchestrator.parser.refactor.parser.iso8583.strategy.impl.NumericFieldParser;
 
 public  enum ISOSubField48Mastercard implements ISOSubField {
 
-    // Subcampos del Campo 48 (additionalDataRetailerSubFields)
-    // k: id, v: length in characters (del SubfieldsUtil original)
+    // Subcampos del Campo 48 (additionalDataRetailer)
+    // k: id, v: length in characters
 
     // Subcampos de longitud fija (longitud en bytes, se multiplica por 2 para chars HEX)
     SF_48_01("01", "AdditionalDataRetailer.01", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()), // Asumiendo que 48.01 es ALPHANUMERIC
-    SF_48_03("03", "AdditionalDataRetailer.03", ISODataType.NUMERIC, false, 1, new NumericFieldParser()), // AÑADIDO: Definición para subcampo 48.03
-    SF_48_05("05", "AdditionalDataRetailer.05", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_09("09", "AdditionalDataRetailer.09", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_18("18", "AdditionalDataRetailer.18", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_05("05", "AdditionalDataRetailer.05", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_09("09", "AdditionalDataRetailer.09", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_10("10", "AdditionalDataRetailer.10", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_11("11", "AdditionalDataRetailer.11", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_12("12", "AdditionalDataRetailer.12", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_13("13", "AdditionalDataRetailer.13", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_14("14", "AdditionalDataRetailer.14", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()), // Inicializado a null
+    SF_48_15("15", "AdditionalDataRetailer.15", ISODataType.NUMERIC, false, 1, new NumericFieldParser()), // Inicializado a null
+    SF_48_16("16", "AdditionalDataRetailer.16", ISODataType.NUMERIC, false, 1, new NumericFieldParser()), // Inicializado a null
+    SF_48_17("17", "AdditionalDataRetailer.17", ISODataType.NUMERIC, false, 1, new NumericFieldParser()), // Inicializado a null
+    SF_48_18("18", "AdditionalDataRetailer.18", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_20("20", "AdditionalDataRetailer.20", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_21("21", "AdditionalDataRetailer.21", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_22("22", "AdditionalDataRetailer.22", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_24("24", "AdditionalDataRetailer.24", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_25("25", "AdditionalDataRetailer.25", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_27("27", "AdditionalDataRetailer.27", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_22("22", "AdditionalDataRetailer.22", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_23("23", "AdditionalDataRetailer.23", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_24("24", "AdditionalDataRetailer.24", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_25("25", "AdditionalDataRetailer.25", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_26("26", "AdditionalDataRetailer.26", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_27("27", "AdditionalDataRetailer.27", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_28("28", "AdditionalDataRetailer.28", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_29("29", "AdditionalDataRetailer.29", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_30("30", "AdditionalDataRetailer.30", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_32("32", "AdditionalDataRetailer.32", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_33("33", "AdditionalDataRetailer.33", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_36("36", "AdditionalDataRetailer.36", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_37("37", "AdditionalDataRetailer.37", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_40("40", "AdditionalDataRetailer.40", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
@@ -33,7 +47,9 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
     SF_48_50("50", "AdditionalDataRetailer.50", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_51("51", "AdditionalDataRetailer.51", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_55("55", "AdditionalDataRetailer.55", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_60("60", "AdditionalDataRetailer.60", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_62("62", "AdditionalDataRetailer.62", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_66("66", "AdditionalDataRetailer.66", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_67("67", "AdditionalDataRetailer.67", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
@@ -42,56 +58,33 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
     SF_48_72("72", "AdditionalDataRetailer.72", ISODataType.HEXADECIMAL, false, 1, new HexadecimalFieldParser()),
     SF_48_75("75", "AdditionalDataRetailer.75", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
 
-    // Subcampos compuestos (con -1 en SubfieldsUtil, que tienen sub-subcampos)
-    SF_48_11("11", "AdditionalDataRetailer.11", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_13("13", "AdditionalDataRetailer.13", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_15("15", "AdditionalDataRetailer.15", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_23("23", "AdditionalDataRetailer.23", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_26("26", "AdditionalDataRetailer.26", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_34("34", "AdditionalDataRetailer.34", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_49("49", "AdditionalDataRetailer.49", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-   // SF_48_51("51", "AdditionalDataRetailer.51", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
+    // Subcampos compuestos (con isVariable = true, que tienen sub-subcampos)
+    //SF_48_33("33", "AdditionalDataRetailer.33", ISODataType.NUMERIC, true, 0, new CompositeSubFieldParser("48.33")),
+    SF_48_33("33", "AdditionalDataRetailer.33", ISODataType.NUMERIC, true, 0, null),
+
+    // Sub-subcampos de Campo 48.33 (internalSubFields48.get("33"))
+    SF_48_33_01("33.01", "48.33.01", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_33_02("33.02", "48.33.02", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_33_03("33.03", "48.33.03", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_33_05("33.05", "48.33.05", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_33_06("33.06", "48.33.06", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_33_08("33.08", "48.33.08", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+
+
+    // Subcampos de longitud variable (con isVariable = true, que tienen sub-subcampos)
     SF_48_53("53", "AdditionalDataRetailer.53", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
-    //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, null),
-    SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, false, 2, new AlphaNumericFieldParser()),
-    //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, new CompositeSubFieldParser(ISOMastercardSubFieldDefinitions.getSubSubFieldsForParent("56"))),// Inicializado a null
+    //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, null),// Inicializado a null
     SF_48_57("57", "AdditionalDataRetailer.57", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_58("58", "AdditionalDataRetailer.58", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-   // SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, false, 1, new NumericFieldParser()), // Inicializado a null
+    // SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_64("64", "AdditionalDataRetailer.64", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_65("65", "AdditionalDataRetailer.65", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-   // SF_48_71("71", "AdditionalDataRetailer.71", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_74("74", "AdditionalDataRetailer.74", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_78("78", "AdditionalDataRetailer.78", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_79("79", "AdditionalDataRetailer.79", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_93("93", "AdditionalDataRetailer.93", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
+    //
 
-    // Sub-subcampos de Campo 48.11 (internalSubFields48.get("11"))
-    SF_48_11_01("11.01", "48.11.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_02("11.02", "48.11.02", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_03("11.03", "48.11.03", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-    SF_48_11_04("11.04", "48.11.04", ISODataType.ALPHA_NUMERIC, false, 32, new AlphaNumericFieldParser()),
-    SF_48_11_05("11.05", "48.11.05", ISODataType.ALPHA_NUMERIC, false, 16, new AlphaNumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.13 (internalSubFields48.get("13"))
-    SF_48_13_01("13.01", "MastercardHostedMobilePhoneTopUpRequestData.01", ISODataType.ALPHA_NUMERIC, false, 17, new AlphaNumericFieldParser()),
-    SF_48_13_02("13.02", "MastercardHostedMobilePhoneTopUpRequestData.02", ISODataType.ALPHA_NUMERIC, false, 30, new AlphaNumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.15 (internalSubFields48.get("15"))
-    SF_48_15_01("15.01", "AuthorizationSystemAdviceDateAndTime.01", ISODataType.NUMERIC, false, 4, new NumericFieldParser()),
-    SF_48_15_02("15.02", "AuthorizationSystemAdviceDateAndTime.02", ISODataType.NUMERIC, false, 6, new NumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.23 (internalSubFields48.get("23"))
-    SF_48_23_01("23.01", "PaymentInitiationChannel.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.26 (internalSubFields48.get("26"))
-    SF_48_26_01("26.01", "WalletProgramData.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.34 (internalSubFields48.get("34"))
-    SF_48_34_01("34.01", "ATCInformation.01", ISODataType.NUMERIC, false, 5, new NumericFieldParser()),
-    SF_48_34_02("34.02", "ATCInformation.02", ISODataType.NUMERIC, false, 5, new NumericFieldParser()),
-    SF_48_34_03("34.03", "ATCInformation.03", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.49 (internalSubFields48.get("49"))
     SF_48_49_01("49.01", "TimeValidationInformation.01", ISODataType.NUMERIC, false, 8, new NumericFieldParser()),
@@ -107,8 +100,9 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
     SF_48_53_01("53.01", "EIDRequestCode.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.56 (internalSubFields48.get("56"))
-    SF_48_56_01("56.01", "48.56.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
-    SF_48_56_02("56.02", "48.56.02", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
+    SF_48_56_01("56.01", "48.56.01", ISODataType.ALPHA_NUMERIC, false, 6, new AlphaNumericFieldParser()),
+    SF_48_56_02("56.02", "48.56.02", ISODataType.ALPHA_NUMERIC, false, 6, new AlphaNumericFieldParser()),
+    SF_48_56_03("56.03", "48.56.03", ISODataType.ALPHA_NUMERIC, false, 6, new AlphaNumericFieldParser()),
 
     // Sub-subcampos de Campo 48.57 (internalSubFields48.get("57"))
     SF_48_57_01("57.01", "Subfield57.01", ISODataType.NUMERIC, false, 3, new NumericFieldParser()),
@@ -123,11 +117,6 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
     SF_48_58_06("58.06", "Subfield58.06", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
     SF_48_58_07("58.07", "Subfield58.07", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_58_08("58.08", "Subfield58.08", ISODataType.NUMERIC, false, 4, new NumericFieldParser()),
-
-    // Sub-subcampos de Campo 48.61 (internalSubFields48.get("61"))
-    SF_48_61_01("61.01", "48.61.01", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_61_02("61.02", "48.61.02", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
-    SF_48_61_03("61.03", "48.61.03", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
 
     // Sub-subcampos de Campo 48.64 (internalSubFields48.get("64"))
     SF_48_64_01("64.01", "Subfield64.01", ISODataType.NUMERIC, false, 2, new NumericFieldParser()),
@@ -174,6 +163,7 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
     // CORRECCIÓN: parserStrategy ya no es final
     private FieldParserStrategy parserStrategy;
 
+
     ISOSubField48Mastercard(String id, String name, ISODataType typeData, boolean isVariable, int length, FieldParserStrategy parserStrategy) {
         this.id = id;
         this.name = name;
@@ -204,8 +194,8 @@ public  enum ISOSubField48Mastercard implements ISOSubField {
 
     // Mapas estáticos para búsqueda eficiente por ID
     // CORRECCIÓN: Estos mapas ahora se inicializan y gestionan en ISOMastercardFieldDefinitions
-   // private static final Map<String, ISOMastercardSubField48> BY_ID = new HashMap<>();
-   // private static final Map<String, Map<String, ISOMastercardSubField48>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
+    // private static final Map<String, ISOMastercardSubField48> BY_ID = new HashMap<>();
+    // private static final Map<String, Map<String, ISOMastercardSubField48>> SUB_SUBFIELD_MAP = new LinkedHashMap<>();
 
     // CORRECCIÓN: Eliminar el bloque static de inicialización de mapas aquí
     // La inicialización de los parsers compuestos se hará en ISOMastercardFieldDefinitions
