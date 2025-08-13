@@ -8,7 +8,7 @@ echo "===================================="
 APP_NAME="gateway-simulator"
 JAR_FILE="${APP_NAME}-1.0-SNAPSHOT.jar"
 LOG_CONFIG="config/log4j2.xml"
-JAVA_OPTS="-Xmx2g -Xms512m"
+JAVA_OPTS="-Xmx2g -Xms512m -Dspring.profiles.active=gw -Djava.awt.headless=false"
 
 # Verificar que existe Java
 if ! command -v java &> /dev/null; then

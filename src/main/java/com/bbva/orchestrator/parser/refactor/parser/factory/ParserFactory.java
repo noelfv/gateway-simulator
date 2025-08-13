@@ -8,11 +8,16 @@ import java.util.stream.Collectors;
 @Component
 public class ParserFactory {
 
+    private final Map<String, ISO8583DelegateParser> parsers;
+    /**
+     * Mapa que relaciona peerId con el nombre de la red correspondiente
+     * Ejemplo: "peer01" → "visa", "peer02" → "mastercard"
+     */
     private static final Map<String, String> PEER_TO_NETWORK = Map.of(
             "peer01", "visa",
             "peer02", "mastercard"
     );
-    private final Map<String, ISO8583DelegateParser> parsers;
+
 
     /**
      * Inyección automática de todos los beans que implementan ISO8583DelegateParser

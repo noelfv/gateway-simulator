@@ -10,7 +10,11 @@ import com.bbva.orchestrator.parser.iso20022.ISO20022To8583Mapper;
 import com.bbva.orchestrator.parser.iso20022.ISO8583To20022Mapper;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.parser.iso8583.ISO8583Builder;
-import com.bbva.orchestrator.parser.refactor.parser.ISO8583Parser;
+import com.bbva.orchestrator.parser.refactor.mapper.ISO20022Mapper;
+import com.bbva.orchestrator.parser.refactor.mapper.factory.ISO20022DelegateMapper;
+import com.bbva.orchestrator.parser.refactor.mapper.factory.MapperFactory;
+import com.bbva.orchestrator.parser.refactor.parser.factory.ISO8583DelegateParser;
+import com.bbva.orchestrator.parser.refactor.parser.factory.ParserFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.utils.ParseGUI;
@@ -41,7 +45,10 @@ public class ParseViewerPanel extends JPanel {
     @Setter
     private JInternalFrame parentFrame;
     private final MessageParser messageParser;
-    private ISO8583Parser iso8583Parser;
+    private ParserFactory parserFactory;
+    private MapperFactory mapperFactory;
+    private ISO8583DelegateParser delegateParser;
+    private ISO20022DelegateMapper iso20022DelegateMapper;
 
     final String SAMPLE_MESSAGE = "F0F1F0F0FEFF640188E1E10A0000000000000040F1F6F5F5F3F6F5F0F9F9F9F9F9F9F9F9F9F9F0F0F0F0F0F0F0F0F0F0F0F0F0F2F2F9F9F0F0F0F0F0F0F0F0F0F6F3F5F6F0F0F0F0F0F0F0F2F2F9F9F0F0F6F1F6F0F7F2F7F2F4F7F2F7F6F4F6F8F0F6F1F0F0F0F0F0F0F8F9F8F7F1F6F0F3F2F7F2F4F0F6F1F6F2F9F0F5F0F6F1F6F0F6F1F5F5F8F1F8F8F4F0F1F0F0F0F6F0F0F3F2F8F6F0F6F0F0F3F2F8F6F5F1F6F7F5F4F8F9F8F7F1F6F0F0F4F0F0F2F1F6F4F0F0F2F1F6F0F0F0F1F0F8F7F7F8C1D7D7D3C54BC3D6D461C2C9D3D3404040404040404040F8F6F660F7F1F260F7F7F5F34040E4E2C1F1F1F8E3F3F7F1F5F0F5F1F1F0F0F0F0F0F9F9F9F9F9F7F4F2F0F7F0F1F0F3F2F1F0F2F2F0F8F0F5F0F4D4F1F0F3F6F1F0F5F0F0F0F0F1F5F6F1F8C1D8E5F1F1F6C1D8E2F6F0F9C1D8C6F1F1F6F7F5F3F2F0F1F0F3F8F8F0F0F2F0F2F1F4F0F3F0F3F8F8F0F0F4F0F2F1F4F0F5F0F2F0F0F7F1F0F4F1F8C340F6F0F4F8F4F0F6F0F4F0F3F7F0F1F3F3F0F1F2F9F5F0F0F1F9F3C8D2D8C9E6C5E8E5C9E2C5F7E4D2E3D8D2F8E8D1F5C3F0F0F2F6F0F0F0F4F1F0F0F0F0F0F6F0F0F8F4F0F9F5F0F1F44040404040F0F0F9D4C2D2C3C7F4F6F2C6F1F0F1F0F0F1F0F9F5F0F0F1F0F1F8D6D5C540C1D7D7D3C540D7C1D9D240E6C1E8F0F0F2F0F0F3C3C140F0F0F3F0F1F3C1D7D7D3C54BC3D6D440C2C9D3F0F0F4F0F1F0F8F6F6F7F1F2F7F7F5F3F0F0F7F0F2F1F8F4F2F8F0F5F8F2F24040404040404040404040E8";
 
@@ -125,10 +132,13 @@ public class ParseViewerPanel extends JPanel {
 
     private void setupEventHandlers() {
 
-        if (iso8583Parser == null) {
-            iso8583Parser = ApplicationContextProvider.getBean(ISO8583Parser.class);
+        if (parserFactory == null) {
+            parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
+            delegateParser=parserFactory.getDelegateParser("PEER02");
+            iso20022DelegateMapper= ApplicationContextProvider.getBean(MapperFactory.class).getDelegateMapper("PEER02");
         }
-        System.out.println("ISO8583Parser bean: " + iso8583Parser);
+        System.out.println("DelegateParser bean: " + delegateParser);
+        System.out.println("DelegateMapper bean: " + iso20022DelegateMapper);
 
         parseButton.addActionListener(new ActionListener() {
             @Override
@@ -195,30 +205,22 @@ public class ParseViewerPanel extends JPanel {
             Map<String,String> mapValues;
             if(inputMessage.startsWith("F0")){
                 LogsTraces.writeInfo("Mensaje en formato EBCDIC");
-                mapValues=messageParser.parser(inputMessage);
-                //mapValues=ISO8583Processor.mapFields(inputMessage);
+               // mapValues=messageParser.parser(inputMessage);
+                mapValues=delegateParser.parser(inputMessage);
             }else {
                 LogsTraces.writeInfo("Mensaje en formato ASCII");
                 mapValues=ISO8583Processor.createMapFieldsISO8583(inputMessage);
             }
             //
             ParseResult result = ParseGUI.process(mapValues);
-            //Map<String, String> currentMappedFieldsByDescription = result.fieldsByDescription();
-            //
-
-            //Map<String, String> subFields =  ISO8583SubFieldsParser.mapSubFieldsMastercard(currentMappedFieldsByDescription);
-            Map<String, String> subFields =  messageParser.mapSubFields(mapValues);
-            //ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, currentMappedFieldsByDescription);
+            Map<String, String> subFields =  delegateParser.mapSubFields(mapValues);
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, mapValues);
-            ISO8583Context.storeISO8583(iso8583,mapValues,messageParser);
-            ISO20022 iso20022 = ISO8583To20022Mapper.translateToISO20022(iso8583, subFields,true);
+            ISO20022 iso20022 = iso20022DelegateMapper.translate(iso8583, subFields);
             String tramaGen= ISO20022To8583Mapper.getOriginalIsoMessage(iso20022);
             System.out.println("Trama generada: [" + tramaGen+"]");
 
             //updateTreeView();
             ParseGUI.updateTreeView(treeModel, resultTree, result);
-
-
             ObjectMapper objectMapper = new ObjectMapper();
             outputTextArea.setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022) );
 

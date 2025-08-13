@@ -18,7 +18,6 @@ public class GuiStarter implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         // 🔥 Desactivar modo headless ANTES de cualquier operación gráfica
         System.setProperty("java.awt.headless", "false");
-
         // ✅ Guardar el contexto para uso futuro
         ApplicationContextProvider.setContext(context);
 

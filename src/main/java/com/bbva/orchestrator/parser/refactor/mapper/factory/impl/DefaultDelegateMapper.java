@@ -3,6 +3,7 @@ package com.bbva.orchestrator.parser.refactor.mapper.factory.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.gui.dto.Metadata;
 import com.bbva.orchestrator.parser.common.ISO8583Context;
 import com.bbva.orchestrator.parser.iso8583.ISO8583;
 import com.bbva.orchestrator.parser.refactor.mapper.factory.ISO20022DelegateMapper;
@@ -79,6 +80,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
             if (isResponseMessageType(input.getMessageType())) {
                 iso20022Builder.processingResult(ProcessingResult.createProcessingResult(input));
             }
+            iso20022Builder.mappingMetadata(Metadata.createMetadata(input));
 
             return iso20022Builder.build();
 

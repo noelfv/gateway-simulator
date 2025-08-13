@@ -1,28 +1,33 @@
 package com.bbva.orchestrator.parser.refactor.mapper.factory;
 
-
 import org.springframework.stereotype.Component;
-
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 public class MapperFactory {
 
     private final Map<String, ISO20022DelegateMapper> mappers;
+    /**
+     * Mapa que relaciona peerId con el nombre de la red correspondiente
+     * Ejemplo: "PEER01" → "Visa", "PEER02" → "Mastercard"
+     */
     private static final Map<String, String> PEER_TO_NETWORK = Map.of(
-            "PEER01", "Visa",
-            "PEER02", "Mastercard"
+            "peer01", "visa",
+            "peer02", "mastercard"
     );
 
-    public MapperFactory(Map<String, ISO20022DelegateMapper> mapperMap) {
-        this.mappers = new ConcurrentHashMap<>();
-        mapperMap.forEach((beanName, mapper) -> {
-            String simpleName = mapper.getClass().getSimpleName();
-            // Extrae el nombre limpio: VisaISO8583ToISO20022Mapper → Visa
-            String key = simpleName.replace("ISO20022DelegateMapper", "");
-            mappers.put(key, mapper);
-        });
+    /**
+     * Inyección automática de todos los beans que implementan ISO20022DelegateMapper
+     * Clave: nombre del bean (visaDelegateMapper, mastercardDelegateMapper, etc.)
+     */
+    public MapperFactory(List<ISO20022DelegateMapper> mapperList) {
+        this.mappers = mapperList.stream()
+                .collect(Collectors.toMap(
+                        p -> p.getClass().getSimpleName().replace("DelegateMapper", "").toLowerCase(),
+                        p -> p
+                ));
     }
 
     /**
@@ -35,27 +40,17 @@ public class MapperFactory {
             return getDefaultMapper();
         }
 
-        String network = PEER_TO_NETWORK.get(peerId.trim());
+        String network = PEER_TO_NETWORK.get(peerId.toLowerCase());
         if (network == null) {
             return getDefaultMapper();
         }
 
-        // Normaliza: "Mastercard" → "Mastercard", pero el bean es "MasterCard..."
-        String mapperKey = normalizeNetworkName(network);
-
-        return mappers.getOrDefault(mapperKey, getDefaultMapper());
+        return mappers.getOrDefault(network, getDefaultMapper());
     }
 
-    private String normalizeNetworkName(String network) {
-        return switch (network.trim().toLowerCase()) {
-            case "visa" -> "Visa";
-            case "Mastercard", "mastercard" -> "MasterCard"; // Ajusta según el nombre real del bean
-            default -> network.trim();
-        };
-    }
 
     private ISO20022DelegateMapper getDefaultMapper() {
-        return mappers.getOrDefault("Default",
-                mappers.values().stream().findFirst().orElse(null));
+        return mappers.getOrDefault("default",
+                mappers.values().stream().findFirst().orElseThrow(() -> new IllegalStateException("No hay ningún ISO20022DelegateMapper disponible")));
     }
 }
