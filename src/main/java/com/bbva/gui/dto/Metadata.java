@@ -1,6 +1,7 @@
 package com.bbva.gui.dto;
 
-import com.bbva.orchestrator.parser.iso8583.ISO8583;
+
+import com.bbva.orchestrator.core.builders.ISO8583;
 
 public class Metadata {
 

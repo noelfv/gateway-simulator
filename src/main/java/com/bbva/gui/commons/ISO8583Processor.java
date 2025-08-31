@@ -1,15 +1,16 @@
 package com.bbva.gui.commons;
 
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.parser.common.ISOField;
-import com.bbva.orchestrator.parser.common.ISOUtil;
-import com.bbva.orchestrator.parser.refactor.parser.exception.ParserLocalException;
+
+import com.bbva.orchestrator.core.commons.ISOUtil;
+import com.bbva.orchestrator.core.exception.ParserLocalException;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import static com.bbva.orchestrator.network.mastercard.ISOFieldMastercard.*;
-import static com.bbva.orchestrator.parser.common.ISODataType.BINARY_STRING;
-import static com.bbva.orchestrator.parser.common.ISODataType.NUMERIC_DECIMAL;
+import static com.bbva.orchestrator.core.fields.MastercardISOField.*;
+import static com.bbva.orchestrator.core.fields.definitions.ISODataType.*;
+
 
 public class ISO8583Processor {
 
@@ -38,7 +39,7 @@ public class ISO8583Processor {
             for (int i = 2; i <= binaryBitMap.length(); i++) {
                 //Se le resta 1, ya que .charAt toma el 0 como la posición inicial
                 if (binaryBitMap.charAt(i-1) == '1') {
-                    ISOField field = ISOFieldMastercard.getById(i);
+                    ISOField field = MastercardISOField.getById(i);
 
                     if (field == null) {
                         throw new ParserException(createMessageError(i, "There is no mapping available"));
@@ -49,7 +50,8 @@ public class ISO8583Processor {
             }
         } catch (ParserException e) {
             //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
-            throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
+            //throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
+            throw new ParserLocalException("Cannot parse iso message: " + e.getMessage());
         }
         return valuesMap;
     }

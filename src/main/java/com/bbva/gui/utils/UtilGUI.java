@@ -1,7 +1,8 @@
 package com.bbva.gui.utils;
 
 
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+
 import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -45,10 +46,10 @@ public class UtilGUI {
         int fieldId = extractFieldIdFromLabel(fieldLabel);
 
         // Buscar información del campo en ISOFieldMastercard
-        Optional<ISOFieldMastercard> fieldInfo = ISOFieldMastercard.findById(fieldId);
+        Optional<MastercardISOField> fieldInfo = MastercardISOField.findById(fieldId);
 
         if (fieldInfo.isPresent()) {
-            ISOFieldMastercard field = fieldInfo.get();
+            MastercardISOField field = fieldInfo.get();
 
             // Validar según el tipo de campo
             switch (fieldId) {
@@ -107,10 +108,10 @@ public class UtilGUI {
         }
 
         int fieldId = extractFieldIdFromLabel(fieldLabel);
-        Optional<ISOFieldMastercard> fieldInfo = ISOFieldMastercard.findById(fieldId);
+        Optional<MastercardISOField> fieldInfo = MastercardISOField.findById(fieldId);
 
         if (fieldInfo.isPresent()) {
-            ISOFieldMastercard field = fieldInfo.get();
+            MastercardISOField field = fieldInfo.get();
 
             switch (fieldId) {
                 case 2:

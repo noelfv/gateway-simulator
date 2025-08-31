@@ -11,15 +11,20 @@ import com.bbva.gui.components.NoIconTreeCellRenderer;
 import com.bbva.gui.components.TextFieldTreeCellEditor;
 import com.bbva.gui.components.TextFieldTreeCellRenderer;
 import com.bbva.gui.components.TreeNodeData;
+import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.gui.dto.ISOFieldInfo;
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.parser.factory.impl.MCMessageParserImpl;
-import com.bbva.orchestrator.parser.iso8583.ISO8583;
+import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.mapper.factory.impl.MastercardDelegateMapper;
+import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
+import com.bbva.orchestrator.core.parser.factory.ParserFactory;
+import com.bbva.orchestrator.core.parser.factory.impl.MastercardDelegateParser;
 import lombok.Setter;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +39,6 @@ public class GenerarTramaViewerPanel extends JPanel {
     private DefaultTreeModel treeModel;
     private MyDoggyToolWindowManager toolWindowManager;
     private ISO8583 iso8583;
-    private MCMessageParserImpl messageParser;
     private Map<String, String> currentMappedFieldsByDescription;
     private DefaultMutableTreeNode currentEditingNode;
     private TreeNodeData currentEditingData;
@@ -42,8 +46,10 @@ public class GenerarTramaViewerPanel extends JPanel {
     @Setter
     private JInternalFrame parentFrame;
 
+    private ParserFactory parserFactory;
+    private ISO8583DelegateParser delegateParser;
+
     public GenerarTramaViewerPanel() {
-        messageParser = new MCMessageParserImpl();
         initializeComponents();
         setupEventHandlers();
         setupMyDoggy();
@@ -66,7 +72,10 @@ public class GenerarTramaViewerPanel extends JPanel {
         resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
         processarButton = new JButton("Procesar");
-
+        if (parserFactory == null) {
+            parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
+            delegateParser = parserFactory.getDelegateParser("PEER02");
+        }
     }
 
 
@@ -203,7 +212,7 @@ public class GenerarTramaViewerPanel extends JPanel {
             Map<String, String> mapData = new HashMap<>();
             if (value != null && !value.isBlank()) {
 
-                ISOFieldMastercard.findById(fieldId).ifPresent(field -> {
+                MastercardISOField.findById(fieldId).ifPresent(field -> {
                     ISOFieldInfo fieldInfo = new ISOFieldInfo(
                             field.getName(),
                             data.getValue()
@@ -243,7 +252,7 @@ public class GenerarTramaViewerPanel extends JPanel {
             if (value != null && !value.isBlank()) {
                 int fieldId = UtilGUI.extractFieldIdFromLabel(label);
 
-                ISOFieldMastercard.findById(fieldId).ifPresent(field -> {
+                MastercardISOField.findById(fieldId).ifPresent(field -> {
                     mapData.put(field.getName(), value);
                     System.out.println("Map actualizado: " + mapData);
                 });
@@ -271,7 +280,7 @@ public class GenerarTramaViewerPanel extends JPanel {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) resultTree.getModel().getRoot();
         collectTreeData(root, output, "", isoDataMap);
         isoDataMap.put("messageType", "0100");
-        String trama=messageParser.unParser(isoDataMap, true);
+        String trama=delegateParser.unParser(isoDataMap);
         outputTextArea.setText(trama);
         ISO8583 iso = mapToISO8583(isoDataMap);
         System.out.println(iso.getProcessingCode());

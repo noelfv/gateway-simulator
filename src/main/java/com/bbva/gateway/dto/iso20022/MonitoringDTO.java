@@ -28,4 +28,5 @@ public class MonitoringDTO implements Serializable {
     private String p2pType;
     private String originBankCode;
     private String originBankDescription;
+    private String countryDate;
 }

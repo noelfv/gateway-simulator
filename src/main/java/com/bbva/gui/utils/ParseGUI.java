@@ -1,12 +1,10 @@
 package com.bbva.gui.utils;
 
-import com.bbva.gui.components.TreeNodeData;
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.parser.common.ISOField;
-import com.bbva.orchestrator.parser.common.ISOUtil;
-
+import com.bbva.orchestrator.core.commons.ISOUtil;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -110,7 +108,7 @@ public class ParseGUI {
     }
 
     private static  String findFieldIdByName(String fieldName) {
-        for (ISOField field : ISOFieldMastercard.values()) {
+        for (ISOField field : MastercardISOField.values()) {
             if (field.getName().equalsIgnoreCase(fieldName)) {
                 return String.valueOf(field.getId());
             }
@@ -184,7 +182,7 @@ public class ParseGUI {
         try {
             int id = Integer.parseInt(fieldId);
             // Buscar en el enum ISOFieldMastercard por el ID numérico
-            for (ISOFieldMastercard field : ISOFieldMastercard.values()) {
+            for (MastercardISOField field : MastercardISOField.values()) {
                 if (field.getId() == id) {
                     //return field.getDescription();
                     if(!field.isVariable()){

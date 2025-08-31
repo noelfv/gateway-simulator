@@ -36,6 +36,7 @@ public class ISO20022 implements Serializable {
 	private RecipientPartyDTO recipientParty;
 	private Boolean isSimulation;
 	private AddendumDataDTO addendumData;
+	private CustomDataLocalDTO customDataLocal;
 	private MonitoringDTO monitoring;
 	private String socketIp;
 	private MappingMetadata mappingMetadata;
