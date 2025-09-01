@@ -89,6 +89,7 @@ public class SupplementaryDataMappingStrategy implements SectionMappingStrategy<
         addIfNotNull(list, "reservedNationalUse", input.getReservedNationalUse());
         addIfNotNull(list, "reservedNationalUse2", input.getReservedNationalUse2());
         addIfNotNull(list, "privateData", input.getPrivateData());
+        addIfNotNull(list, "additionalRecordData", input.getAdditionalRecordData());
         addIfNotNull(list, "messageAuthenticationCode2", input.getMessageAuthenticationCode2());
 
         return list;

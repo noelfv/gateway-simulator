@@ -1,14 +1,12 @@
 package com.bbva.gui.spring;
 
+import lombok.Setter;
 import org.springframework.context.ConfigurableApplicationContext;
 
 public class ApplicationContextProvider {
 
+    @Setter
     private static ConfigurableApplicationContext context;
-
-    public static void setContext(ConfigurableApplicationContext ctx) {
-        context = ctx;
-    }
 
     public static <T> T getBean(Class<T> beanClass) {
         if (context == null) {

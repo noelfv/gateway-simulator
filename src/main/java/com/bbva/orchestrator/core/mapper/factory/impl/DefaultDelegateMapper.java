@@ -80,7 +80,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                     .addendumData(addendumData)
                     .customDataLocal(customDataLocal)//se deberia eliminar este bloque en el sensitiveData del flowhandler
                     .monitoring(monitoringService.insertMonitoring(input, environment, transaction))
-                    .mappingMetadata(Metadata.createMetadata(input));//Esto se deberia de setear en el mapper de la respuesta
+                    .mappingMetadata(Metadata.createMetadata(input));//Esto se deberia de setear en el mapper de la respuesta;//Esto se deberia de setear en el mapper de la respuesta
 
             if (Objects.nonNull(context)) { // Asumiendo que context es un objeto DTO
                 iso20022Builder.context(context);
@@ -115,17 +115,20 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
     private ISO20022 flowAsynchronousToHost(ISO8583 input, Map<String, String> subFields) {
         //TODO: Validar si es necesario llamar al uncrypto en el flujo HOST
-        //TODO: Construir los objetoo mandatorios del iso200022 segun el catalogo para no tener error de nullPointer
+        //TODO: Construir los objetoo mandatorios del iso200022 segun el catalogo para no tener error de nullPointer(esto
         EnvironmentDTO environment = EnvironmentDTO.builder().build();
         AddendumDataDTO addendumData = addendumDataStrategy.mapper(input, subFields);
+        //TransactionDTO transaction= transactionStrategy.mapper(input, subFields);//Campos mandatorios
+        //ContextDTO context = contextStrategy.mapper(input, subFields);//Campos mandatorios
         ProcessingResultDTO processingResultDTO = ProcessingResult.createProcessingResult(input);
         return ISO20022.builder()
                 .networkName(GrpcHeadersInfo.getNetwork())
+                //.messageFunction(FieldLocalCodeMapper.getCode(FieldUtils.TYPE_MESSAGE, "in", input.getMessageType(), GrpcHeadersInfo.getNetwork()))
                 .environment(environment)
                 .addendumData(addendumData)//Contiene el mensaje de respuesta del host
                 .processingResult(processingResultDTO)
                 .monitoring(monitoringService.updateMonitoring(input))
-                .mappingMetadata(Metadata.createMetadata(input))
+                .mappingMetadata(Metadata.createMetadata(input))//Esto se deberia de setear en el mapper de la respuesta
                 .build();
     }
 

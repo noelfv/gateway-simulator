@@ -14,6 +14,7 @@ import com.bbva.orchestrator.core.parser.factory.ParserFactory;
 import com.bbva.orchlib.parser.IParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -45,6 +46,7 @@ public class OrchestratorFlowProcess implements IParser {
                 Map<String, String> fieldsValuesUnMapper = delegateMapper.unMapper(iso20022);
                 Map<String, String> fieldsValuesResponse=  ISO8583Builder.logicResponse(fieldsValuesUnMapper);
                 String originalMessageTemp= delegateParser.unParser(fieldsValuesResponse);
+                String x=originalMessageTemp;
             }
         }
         return iso20022;

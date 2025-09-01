@@ -17,6 +17,7 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
     @Override
     public List<TraceDataDTO> mapper(ISO8583 input, Map<String, String> subFields) {
 
+        // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
         TraceDataDTO posAdditionalData = TraceDataDTO.builder()
                 .key("posAdditionalData")
                 .value(input.getNetworkData())
@@ -28,7 +29,7 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
                 .value(input.getHeader())
                 .build();
 
-        // ======== TEMPORAL FIELD NOT ASSOCIATED WITH ISO ========
+        // ======== ID PURCHASE ========
         TraceDataDTO traceDataDTO = TraceDataDTO.builder()
                 .key("PAYMENT_ID")
                 .value(GrpcHeadersInfo.getTraceId())
@@ -42,16 +43,31 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
         return traceDataList;
     }
 
+
     @Override
     public Map<String, String> unMapper(List<TraceDataDTO> input) {
         Map<String, String> mapValues = new HashMap<>();
+        // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
+        String posAdditionalData = findValueByKey(input, "posAdditionalData");
+        // ======== HEADER OF ISO VISA ========
+        String header = findValueByKey(input, "header");
 
-        input.stream()
-                .filter(trace -> trace != null && "posAdditionalData".equals(trace.getKey()))
-                .findFirst()
-                .ifPresent(trace -> mapValues.put("networkData", trace.getValue()));
+        mapValues.put("networkData", posAdditionalData);
+        mapValues.put("header", header);
 
         return mapValues;
+    }
+
+
+    private String findValueByKey(List<TraceDataDTO> input, String key) {
+        if (input == null) {
+            return null;
+        }
+        return input.stream()
+                .filter(data -> key.equals(data.getKey()))
+                .map(TraceDataDTO::getValue)
+                .findFirst()
+                .orElse("");
     }
 
 }

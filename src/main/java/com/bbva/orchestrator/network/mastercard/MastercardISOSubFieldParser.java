@@ -47,9 +47,11 @@ public class MastercardISOSubFieldParser {
         }
         //TODO: Agregar mas campos compuestos si es necesario 61, 22, 54
         Map<String, String> mapSubField03 = compositeFieldParser.buildSubFieldsSpecific("03", iso8583.getProcessingCode());
+        Map<String, String> mapSubField54 = compositeFieldParser.buildSubFieldsSpecific("54", iso8583.getAdditionalAmounts());
         Map<String, String> mapSubField48 = processField48(iso8583);
         allParsedSubfields.putAll(mapSubField03);
         allParsedSubfields.putAll(mapSubField48);
+        allParsedSubfields.putAll(mapSubField54);
         return allParsedSubfields;
     }
 

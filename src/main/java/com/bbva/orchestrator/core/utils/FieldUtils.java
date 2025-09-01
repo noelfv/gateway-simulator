@@ -2,10 +2,7 @@ package com.bbva.orchestrator.core.utils;
 
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
@@ -43,20 +40,42 @@ public class FieldUtils {
     /**
      * Convierte fecha-hora de formato MMddHHmmss a yyyyMMddHHmmss
      */
-    public static String convertFormatDateTime(String input) {
-        if (input == null || input.length() != 10) return null;
+    public static String convertFormatDateTime(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
         try {
-            String month = input.substring(0, 2);
-            String day = input.substring(2, 4);
-            String hour = input.substring(4, 6);
-            String minute = input.substring(6, 8);
-            String second = input.substring(8, 10);
-            LocalDateTime dateTime = LocalDateTime.of(2000, Integer.parseInt(month),
-                    Integer.parseInt(day), Integer.parseInt(hour),
-                    Integer.parseInt(minute), Integer.parseInt(second));
-            return dateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            int year = LocalDate.now().getYear(); // year of the system
+            String fullDate = year + value;  // yyyyMMddHHmmss
+
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            LocalDateTime localDateTime = LocalDateTime.parse(fullDate, inputFormatter);
+            Instant instant = localDateTime.atZone(ZoneOffset.UTC).toInstant();
+
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+            return outputFormatter.withZone(ZoneOffset.UTC).format(instant);
         } catch (Exception e) {
-            return input; // fallback
+            return null;
+        }
+    }
+
+    public static String reConvertFormatDateTime(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Parseando la fecha ISO con zona horaria Z (UTC)
+            Instant instant = Instant.parse(value);
+            ZonedDateTime zonedDateTime = instant.atZone(ZoneOffset.UTC);
+
+            // Formateo al patrón MMddHHmmss
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMddHHmmss");
+
+            return zonedDateTime.format(outputFormatter);
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -71,10 +90,35 @@ public class FieldUtils {
     /**
      * Formatea fecha de expiración MMyy → MMyy
      */
-    public static String convertFormatExpiryDate(String expiry) {
-        return expiry != null && expiry.length() == 4 ? expiry : null;
+    public static String convertFormatExpiryDate(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMM");
+            YearMonth yearMonth = YearMonth.parse(value, formatter);
+            return yearMonth.toString();
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
+    public static String reConvertFormatExpiryDate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        try {
+            // Parsear la fecha en formato yyyy-MM
+            YearMonth ym = YearMonth.parse(value);
+
+            // Formatear a yyMM
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMM");
+            return ym.format(formatter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
 
 

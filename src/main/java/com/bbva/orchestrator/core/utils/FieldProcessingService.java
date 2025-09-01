@@ -33,12 +33,20 @@ public class FieldProcessingService {
         return FieldUtils.convertFormatDateTime(input);
     }
 
+    public String reConvertFormatDateTime(String input) {
+        return FieldUtils.reConvertFormatDateTime(input);
+    }
+
     public Double conversionRateValidation(String rate) {
         return FieldUtils.conversionRateValidation(rate);
     }
 
     public String convertFormatExpiryDate(String expiry) {
         return FieldUtils.convertFormatExpiryDate(expiry);
+    }
+
+    public String reConvertFormatExpiryDate(String expiry) {
+        return FieldUtils.reConvertFormatExpiryDate(expiry);
     }
 
     public  String createTransactionReference(ISO8583 inputObject, Map<String, String> subFields, String networkName){
@@ -49,8 +57,9 @@ public class FieldProcessingService {
         String field37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());
         String field41 = isNullOrEmpty(inputObject.getCardAcceptorTerminalIdentification());
         String field42 = isNullOrEmpty(inputObject.getCardAcceptorIdentificationCode());
-        String field63 = isNullOrEmpty(inputObject.getNetworkData());
-        String field63Part1 = subFields.get(FIELD63PART1);
+        String field07 = isNullOrEmpty(inputObject.getTransmissionDateTime());
+        //String field63 = isNullOrEmpty(inputObject.getNetworkData());
+        //String field63Part1 = subFields.get(FIELD63PART1);
 
         if (networkName.equalsIgnoreCase(NETWORK_PEER01)) {
             transactionReference.append(field11)
@@ -58,13 +67,15 @@ public class FieldProcessingService {
                     .append(field37)
                     .append(field41)
                     .append(field42)
-                    .append(field63Part1);
+                    .append(field07);
+                    //.append(field63Part1);
         } else if (networkName.equalsIgnoreCase(NETWORK_PEER02)) {
             transactionReference.append(field11)
                     .append(field32)
                     .append(field37)
                     .append(field41)
-                    .append(field63);
+                    .append(field07);
+                    //.append(field63);
         }
 
         return transactionReference.toString();

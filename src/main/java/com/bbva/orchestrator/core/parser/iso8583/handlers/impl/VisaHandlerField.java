@@ -32,8 +32,6 @@ public class VisaHandlerField implements NetworkHandlerField {
         }
     }
 
-
-
     @Override
     public int decodeLengthField(IFieldDefinition fieldDefinition) {
         int fieldLength = fieldDefinition.getLength();

@@ -5,7 +5,6 @@ import com.bbva.gateway.dto.iso20022.CustomDataLocalDTO;
 import com.bbva.gateway.dto.iso20022.RequestDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.builders.ISO8583;
-import com.bbva.orchestrator.core.commons.ISO8583Context;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.ISO8583ContextService;
 import org.springframework.stereotype.Component;
@@ -44,21 +43,20 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
         // 2. Crear y añadir el segundo par (ISO8583)
         RequestDTO iso8583Request = RequestDTO.builder()
                 .key("ISO8583")
-                //.value(iso8583ContextService.getISO8583(GrpcHeadersInfo.getTraceId()))
-                .value(ISO8583Context.getISO8583(GrpcHeadersInfo.getTraceId()))
+                .value(iso8583ContextService.getISO8583(GrpcHeadersInfo.getTraceId()))
                 .build();
         additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
                 .request(iso8583Request)
                 .build());
 
         // 3. Crear y añadir el tercer par (FLOWTYPE)
-       /* RequestDTO flowTypeRequest = RequestDTO.builder()
+        RequestDTO flowTypeRequest = RequestDTO.builder()
                 .key("FLOWTYPE")
                 .value("ASYNC")
                 .build();
         additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
                 .request(flowTypeRequest)
-                .build());*/
+                .build());
 
         // 4. Construir el DTO final con la lista poblada
         return CustomDataLocalDTO.builder()

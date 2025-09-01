@@ -173,7 +173,7 @@ public class ConverterTramaViewerPanel extends JPanel {
             result = ParseGUI.process(currentMappedFieldsByDescription);
             ParseGUI.updateTreeView(treeModel, resultTree, result);
 
-            String trama= delegateParser.unParser(currentMappedFieldsByDescription);
+            String trama= delegateParser.unParserPlainText(currentMappedFieldsByDescription);
 
             LOGGER.info("Trama generada: [{}]", trama);
             outputTextArea.setText(trama );

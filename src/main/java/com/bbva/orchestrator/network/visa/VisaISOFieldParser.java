@@ -24,6 +24,7 @@ public class VisaISOFieldParser {
 
     private static final int LENGTH_BINARY_PRIMARY_BITMAP = 64;
     private static final int LENGTH_BINARY_SECONDARY_BITMAP = 128;
+    private static final String END_MESSAGE_VISA = "404040";
 
     private final PlainTextFieldParser plainTextFieldParserDecorator;
     private final VisaHandlerField visaFieldDefinition;
@@ -89,6 +90,7 @@ public class VisaISOFieldParser {
         StringBuilder binaryBitmap = new StringBuilder();
         binaryBitmap.append('0'); // Bit 1 del bitmap primario (0 = sin bitmap secundario)
         StringBuilder isoValues = new StringBuilder();
+        String header = mapValues.get(VisaISOField.HEADER.getName());
 
         boolean hasSecondaryBitmap = false;
 
@@ -133,7 +135,7 @@ public class VisaISOFieldParser {
         String messageType = mapValues.get("messageType");
 
         // Construir trama final
-        return messageType + bitmapHex + isoValues;
+        return header + messageType + bitmapHex + isoValues + END_MESSAGE_VISA;
     }
 
     private  int processFieldData(VisaISOField isoField, StringBuilder isoMessage, int currentPosition, Map<String, String> valuesMap) {

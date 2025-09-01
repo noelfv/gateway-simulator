@@ -23,16 +23,36 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
     public EnvironmentDTO mapper(ISO8583 input, Map<String, String> subFields) {
 
         try {
+
+            // ======== FIELD 35 (TRACK 2 DATA) ========
+            Track2DTO track2 = Track2DTO
+                    .builder()
+                    .textValue(input.getTrackTwoData())
+                    .build();
+
             CardDTO card = CardDTO.builder()
-                    .pan(input.getPrimaryAccountNumber())
-                    .expiryDate(fieldService.convertFormatExpiryDate(input.getDateExpiration()))
+                    // ======== FIELD 23 (CARD SEQUENCE NUMBER) ========
                     .cardSequenceNumber(input.getCardSequenceNumber())
+                    // ======== FIELD 14 (EXPIRATION DATE) ========
+                    .expiryDate(fieldService.convertFormatExpiryDate(input.getDateExpiration()))
+                    // ======== FIELD 2 (PAN) ========
+                    .pan(input.getPrimaryAccountNumber())
+                    // ======== FIELD 40 (SERVICE RESTRICTION CODE) ========
+                    .serviceCode(input.getServiceRestrictionCode())
+                    // ======== FIELD 45 (TRACK 1 DATA) ========
                     .track1(input.getTrackOneData())
-                    .track2(Track2DTO.builder().textValue(input.getTrackTwoData()).build())
+                    .track2(track2)
+                    .build();
+
+
+            CapabilitiesDTO capabilities = CapabilitiesDTO.builder()
+                    .approvalCodeLength(null)
                     .build();
 
             TerminalIdDTO terminalId = TerminalIdDTO.builder()
+                    // ======== FIELD 41 (CARD ACCEPTOR TERMINAL IDENTIFICATION) ========
                     .id(input.getCardAcceptorTerminalIdentification())
+                    // ======== FIELD 60 (POS TERMINAL DATA) ========
                     .assigner(input.getPosTerminalData())
                     .build();
 
@@ -40,9 +60,6 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
             String type = ISOSubFieldProcess.channelTPVIndicator(input, subFields, GrpcHeadersInfo.getNetwork());
             String otherType = type != null && type.length() > 4 ? type.substring(4) : null;
             String typeValue = type != null ? type.substring(0, 4) : null;
-
-            //CapabilitiesDTO capabilities = CapabilitiesDTO.builder().build();
-            CapabilitiesDTO capabilities = null;
 
             TerminalDTO terminal = TerminalDTO.builder()
                     .capabilities(capabilities)
@@ -52,13 +69,18 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .otherType(otherType)
                     .build();
 
+            // ======== FIELD 62 (MAPPED AS POSTAL CODE) ========
+            AdditionalIdDTO postalCodeData = AdditionalIdDTO.builder()
+                    .key("postalCode")
+                    .value(input.getPostalCode())
+                    .build();
+
             AcquirerDTO acquirer = AcquirerDTO.builder()
+                    // ======== FIELD 32 (ACQUIRING INSTITUTION IDENTIFICATION CODE) ========
                     .id(input.getAcquiringInstitutionIdentificationCode())
+                    .additionalId(postalCodeData)
+                    // ======== FIELD 19 (ACQUIRING INSTITUTION COUNTRY CODE) ========
                     .country(input.getAcquirerCountryCode())
-                    .additionalId(AdditionalIdDTO.builder()
-                            .key("postalCode")
-                            .value(input.getPostalCode())
-                            .build())
                     .build();
 
 
@@ -114,7 +136,8 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
         // Card Information
         resultMap.put("primaryAccountNumber", fieldService.getFieldValue(card, CardDTO::getPan, DEFAULT_EMPTY_VALUE));
-        resultMap.put("dateExpiration", fieldService.getFieldValue(card, CardDTO::getExpiryDate, DEFAULT_EMPTY_VALUE)); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
+        //resultMap.put("dateExpiration",  fieldService.getFieldValue(card, CardDTO::getExpiryDate, DEFAULT_EMPTY_VALUE)); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
+        resultMap.put("dateExpiration", fieldService.reConvertFormatExpiryDate(card.getExpiryDate())); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
         resultMap.put("cardSequenceNumber", fieldService.getFieldValue(card, CardDTO::getCardSequenceNumber, DEFAULT_EMPTY_VALUE));
         resultMap.put("trackOneData", fieldService.getFieldValue(card, CardDTO::getTrack1, DEFAULT_EMPTY_VALUE));
         resultMap.put("trackTwoData", fieldService.getFieldValue(card.getTrack2(), Track2DTO::getTextValue, DEFAULT_EMPTY_VALUE));

@@ -14,27 +14,24 @@ import static com.bbva.orchestrator.core.fields.definitions.ISODataType.*;
 
 public class ISO8583Processor {
 
-    public static Map<String, String> createMapFieldsISO8583(String iso) {
+    public static Map<String, String> createMapFieldsISO8583(String messageOriginal) {
 
         Map<String, String> valuesMap = new LinkedHashMap<>();
         Map<String, String> valuesMapInt = new  LinkedHashMap<>();
 
-        boolean containsSecondaryBitmap = false;
-
         try {
             int position = 0;
-            StringBuilder isoMessage = new StringBuilder(iso);
 
-            position = processNextFieldTramaClaro(MESSAGE_TYPE, isoMessage, position, valuesMap, valuesMapInt);
-            position = processNextFieldTramaClaro(BITMAP_PRIMARY, isoMessage, position, valuesMap, valuesMapInt);
+            position = processNextFieldTramaClaro(MESSAGE_TYPE, messageOriginal, position, valuesMap, valuesMapInt);
+            position = processNextFieldTramaClaro(BITMAP_PRIMARY, messageOriginal, position, valuesMap, valuesMapInt);
 
             String binaryBitMapPrimary = valuesMap.get(BITMAP_PRIMARY.getName());
             if (binaryBitMapPrimary.charAt(0) == '1') {
-                position = processNextFieldTramaClaro(BITMAP_SECONDARY,isoMessage, position, valuesMap, valuesMapInt);
-                containsSecondaryBitmap = true;
+                position = processNextFieldTramaClaro(BITMAP_SECONDARY,messageOriginal, position, valuesMap, valuesMapInt);
             }
             String binaryBitMap = valuesMap.get(BITMAP_PRIMARY.getName()).concat(valuesMap.getOrDefault(BITMAP_SECONDARY.getName(),""));
 
+            int positionActual=position;
             //Se comienza la iteración desde el campo 2, el campo 1 se salta, ya que es el bitmap secundario
             for (int i = 2; i <= binaryBitMap.length(); i++) {
                 //Se le resta 1, ya que .charAt toma el 0 como la posición inicial
@@ -45,7 +42,9 @@ public class ISO8583Processor {
                         throw new ParserException(createMessageError(i, "There is no mapping available"));
                     }
 
-                    position = processNextFieldTramaClaro(field,isoMessage, position, valuesMap, valuesMapInt);
+                    String rawData=messageOriginal.substring(positionActual);
+                    position = processNextFieldTramaClaro(field,rawData, valuesMap, valuesMapInt);
+                    positionActual+=position;
                 }
             }
         } catch (ParserException e) {
@@ -56,10 +55,29 @@ public class ISO8583Processor {
         return valuesMap;
     }
 
-    private static int processNextFieldTramaClaro(ISOField isoField, StringBuilder isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
+    private static int processNextFieldTramaClaro(ISOField isoField, String isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
 
         try {
+            int fieldLength = isoField.getLength();
 
+            if(isoField.getTypeData().equals(BINARY_STRING)){
+                fieldLength = isoField.getLength()*2;
+            }
+
+            String value = isoMessage.substring(position, position + fieldLength);
+            position += fieldLength;
+            addFieldToMapTramaClaro(isoField, value, mapString,mapInt);
+            return position;
+
+        } catch (Exception e) {
+            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
+        }
+    }
+
+    private static int processNextFieldTramaClaro(ISOField isoField, String isoMessage, Map<String, String> mapString, Map<String, String> mapInt) {
+
+        int position=0;
+        try {
             int fieldLength = isoField.getLength();
 
             if (isoField.isVariable()) {

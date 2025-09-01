@@ -5,7 +5,6 @@ import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.builders.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.FieldProcessingService;
-import com.bbva.orchestrator.core.utils.FieldUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -27,18 +26,24 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
     @Override
     public TransactionDTO mapper(ISO8583 input, Map<String, String> subFields) {
 
-        String processingCodeStr = input.getProcessingCode();
-
+        // ======== FIELD 3 (CODE PROCESS) ========
+        // 03.01 TRANSACTION TYPE
+        String transactionType = subFields.get("03.01");
         // 03.02 ACCOUNT FROM
+        String accountFromType = subFields.get("03.02");
+        // 03.03 ACCOUNT TO
+        String accountToType = subFields.get("03.03");
+
         AccountFromDTO accountFrom = AccountFromDTO.builder()
                 .accountId(input.getAccountIdentification())
-                .accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 2, 4))
+                //.accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 2, 4))
+                .accountType(accountFromType)
                 .build();
 
-        // 03.03 ACCOUNT TO
         AccountToDTO accountTo = AccountToDTO.builder()
                 .accountId(input.getAccountIdentification1())
-                .accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 4, 6))
+                //.accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 4, 6))
+                .accountType(accountToType)
                 .build();
 
         // Transaction Amount
@@ -75,12 +80,11 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .cardholderBillingAmount(cardholderBillingAmount)
                 .build();
 
-        //TODO esto solo aplica para mensajes de reversa y anulacion, en los demas casos va vacio
         // ======== FIELD 90 (ORIGINAL DATA ELEMENTS) ========
         String oriDataElementsStr = input.getOriginalDataElements();
         OriginalDataElementsDTO originalDataElements = null;
         if (oriDataElementsStr != null && !oriDataElementsStr.isEmpty()) {
-             originalDataElements = OriginalDataElementsDTO.builder()
+            originalDataElements = OriginalDataElementsDTO.builder()
                     // 90.1 MESSAGE TYPE
                     .messageFunction(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 0, 4))
                     // 90.2 SYSTEMS TRACE AUDIT NUMBER
@@ -104,6 +108,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .localTime(input.getLocalTransactionTime())
                 // ======== FIELD 37 (RETRIEVAL REFERENCE NUMBER) ========
                 .retrievalReferenceNumber(input.getRetrievalReferenceNumber())
+                // ======== FIELD 90 (ORIGINAL DATA ELEMENTS) ========
                 .originalDataElements(originalDataElements)
                 // ======== FIELD 7 (TRANSMISSION DATE & TIME) ========
                 .transmissionDateTime(fieldService.convertFormatDateTime(input.getTransmissionDateTime()))
@@ -112,17 +117,26 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .build();
 
         // Additional Fees
-        FeeAmountDTO feeAmount = FeeAmountDTO.builder().amount(null).build();
-        FeeReconciliationAmountDTO feeReconciliation = FeeReconciliationAmountDTO.builder().amount(null).build();
+        FeeAmountDTO feeAmount = FeeAmountDTO.builder()
+                .amount(null)
+                .build();
+
+        FeeReconciliationAmountDTO feeReconciliation = FeeReconciliationAmountDTO.builder()
+                .amount(null)
+                .build();
+
         AdditionalFeesDTO additionalFees = AdditionalFeesDTO.builder()
                 .feeAmount(feeAmount)
                 .feeReconciliationAmount(feeReconciliation)
                 .build();
 
-        List<AdditionalFeesDTO> additionalFeesList = List.of(additionalFees);
+
+        List<AdditionalFeesDTO> additionalFeesList = new ArrayList<>();
+        additionalFeesList.add(additionalFees);
 
         // Additional Amounts
         List<AdditionalAmountDTO> additionalAmountList = new ArrayList<>();
+        // ======== FIELD 54 (ADDITIONAL AMOUNTS) ========
         AdditionalAmountDTO additionalAmount = AdditionalAmountDTO.builder()
                 .key("additionalAmounts")
                 .amount(AmountDTO.builder()
@@ -136,7 +150,6 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
         List<AdditionalDataDTO> additionalTransactionDataList = new ArrayList<>();
 
 
-        // Additional processingCode
         // ======== FIELD 3 (CODE PROCESS) ========
         additionalTransactionDataList.add(AdditionalDataDTO.builder()
                 .key("opera")
@@ -157,15 +170,16 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .value(input.getAdditionalResponseData())
                 .build());
 
-        // Subfields from 54 (mapped as AdditionalData)
+
+        // FIELD 54 - Se mapea los 4 primeros subcampos a esta variable AdditionalData temporalmente
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_ACCOUNT_TYPE", "accountType");
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_AMOUNT_TYPE", "amountType");
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_CURRENCY_CODE", "currencyCode");
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_INDICATOR", "indicator");
 
         return TransactionDTO.builder()
-                // 03.01 TRANSACTION TYPE
-                .transactionType(fieldService.isNullOrEmptySubstring(processingCodeStr, 0, 2))
+                //.transactionType(fieldService.isNullOrEmptySubstring(processingCodeStr, 0, 2))
+                .transactionType(transactionType)
                 .accountFrom(accountFrom)
                 .accountTo(accountTo)
                 .transactionAmounts(transactionAmounts)
@@ -232,7 +246,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
         // ======== FIELD 37 (RETRIEVAL REFERENCE NUMBER) ========
         mapValues.put("retrievalReferenceNumber", transId.getRetrievalReferenceNumber());
         // ======== FIELD 7 (TRANSMISSION DATE & TIME) ========
-        mapValues.put("transmissionDateTime", transId.getTransmissionDateTime().substring(4)); // Asumiendo que fieldService convierte a la inversa si es necesario.
+        mapValues.put("transmissionDateTime", fieldService.reConvertFormatDateTime(transId.getTransmissionDateTime())); // Asumiendo que fieldService convierte a la inversa si es necesario.
 
 
         // ======== FIELD 44 (ADDITIONAL RESPONSE DATA) ========

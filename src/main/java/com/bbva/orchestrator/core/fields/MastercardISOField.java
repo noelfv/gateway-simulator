@@ -192,5 +192,4 @@ public enum MastercardISOField implements ISOField {
                 .filter(f -> f.id == id)
                 .findFirst();
     }
-
 }

@@ -12,32 +12,29 @@ public class MastercardHandlerField implements NetworkHandlerField {
 
     @Override
     public int getHeaderFieldVar(IFieldDefinition fieldDefinition) {
-        int actualLengthInBytes = fieldDefinition.getLength() * 2;
-        return actualLengthInBytes;
+        return fieldDefinition.getLength() * 2;
     }
 
     @Override
-    public int decodeHeaderFieldVar(int lengthHeader,String rawDataSegment, IFieldDefinition fieldDefinition) {
+    public int decodeHeaderFieldVar(int lengthHeader, String rawDataSegment, IFieldDefinition fieldDefinition) {
         try {
-        String lengthHeaderEncode = rawDataSegment.substring(0, lengthHeader);
-        int lengthHeaderDecode = Integer.parseInt(ISOUtil.ebcdicToString(lengthHeaderEncode));
-        int actualLengthInBytes = lengthHeaderDecode * 2;
-        return actualLengthInBytes;
+            String lengthHeaderEncode = rawDataSegment.substring(0, lengthHeader);
+            int lengthHeaderDecode = Integer.parseInt(ISOUtil.ebcdicToString(lengthHeaderEncode));
+            return lengthHeaderDecode * 2;
         } catch (RuntimeException e) {
-            throw new ParserLocalException("[PGWP-00141]","Error en decodeHeaderFieldVar lengthHeader=["+lengthHeader+"]  rawData=["+rawDataSegment+"]", e);
+            throw new ParserLocalException("[PGWP-00141]", "Error en decodeHeaderFieldVar lengthHeader=[" + lengthHeader + "]  rawData=[" + rawDataSegment + "]", e);
         }
     }
 
     @Override
     public int decodeLengthField(IFieldDefinition fieldDefinition) {
-        int actualLengthInBytes = fieldDefinition.getLength() * 2;
-        return actualLengthInBytes;
+        return fieldDefinition.getLength() * 2;
     }
 
     @Override
     public String decode(String valueEncode, ISODataType dataType) {
         return switch (dataType) {
-            case NUMERIC, NUMERIC_DECIMAL-> ISOUtil.ebcdicToString(valueEncode);
+            case NUMERIC, NUMERIC_DECIMAL -> ISOUtil.ebcdicToString(valueEncode);
             case ALPHA_NUMERIC -> ISOUtil.convertHEXtoEBCDIC(valueEncode);
             case BINARY_STRING -> ISOUtil.convertHEXtoBITMAP(valueEncode);
             default -> valueEncode;
