@@ -1,11 +1,10 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.SupplementaryDataDTO;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldProcessingService;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +13,10 @@ import java.util.Map;
 @Component
 public class SupplementaryDataMappingStrategy implements SectionMappingStrategy<List<SupplementaryDataDTO>> {
 
-    private final FieldProcessingService fieldService;
+    private final MapperUtil mapperUtil;
 
-    public SupplementaryDataMappingStrategy(FieldProcessingService fieldService) {
-        this.fieldService = fieldService;
+    public SupplementaryDataMappingStrategy(MapperUtil mapperUtil) {
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
@@ -96,13 +95,13 @@ public class SupplementaryDataMappingStrategy implements SectionMappingStrategy<
     }
 
     @Override
-    public Map<String, String> unMapper(List<SupplementaryDataDTO> input) {
+    public Map<String, String> unMapper(String networkName,List<SupplementaryDataDTO> input) {
 
         Map<String, String> mapValues = new HashMap<>();
 
         for (SupplementaryDataDTO dto : input) {
-            String key = fieldService.getFieldValue(dto, SupplementaryDataDTO::getPlaceAndName, DEFAULT_EMPTY_VALUE);
-            String value = fieldService.getFieldValue(dto, SupplementaryDataDTO::getEnvelope, DEFAULT_EMPTY_VALUE);
+            String key = mapperUtil.getFieldValue(dto, SupplementaryDataDTO::getPlaceAndName, DEFAULT_EMPTY_VALUE);
+            String value = mapperUtil.getFieldValue(dto, SupplementaryDataDTO::getEnvelope, DEFAULT_EMPTY_VALUE);
 
             mapValues.put(key, value);
         }

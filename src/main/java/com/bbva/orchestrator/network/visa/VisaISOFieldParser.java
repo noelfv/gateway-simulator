@@ -1,16 +1,16 @@
 package com.bbva.orchestrator.network.visa;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.core.exception.ParserLocalException;
+import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.VisaHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.PlainTextFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
+import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +68,7 @@ public class VisaISOFieldParser {
 
                     if (field == null) {
                         LogsTraces.writeInfo("Campo no permitido: " + i + ". No hay mapeo disponible.");
-                        throw new ParserException(createMessageError(i));
+                        throw new ParserException(ParserUtil.createMessageError(i));
                     }
 
                     position = processFieldData(field, isoMessage, position, valuesMap);
@@ -152,7 +152,7 @@ public class VisaISOFieldParser {
 
             return currentPosition;
 
-        } catch (ParserLocalException e) {
+        } catch (ParserFieldsException e) {
             throw new ParserException(ISOUtil.formatMessageException(e.getCode(),e.getDescription(),e));
         }
     }
@@ -217,9 +217,4 @@ public class VisaISOFieldParser {
 
         return isoMessage.substring(0, length);
     }
-
-    private static String createMessageError(int fieldId) {
-        return "Error en campo " + fieldId + ": " + "No hay mapeo disponible";
-    }
-
 }

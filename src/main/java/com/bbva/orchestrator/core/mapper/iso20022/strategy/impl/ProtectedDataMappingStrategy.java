@@ -1,20 +1,22 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.orchestrator.core.builders.ISO8583;
-import com.bbva.orchestrator.core.exception.MapperLocalException;
+import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldProcessingService;
-import lombok.RequiredArgsConstructor;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 
+
 @Component
-@RequiredArgsConstructor
 public class ProtectedDataMappingStrategy implements SectionMappingStrategy<List<ProtectedDataDTO>> {
 
-    private final FieldProcessingService fieldService;
+    private final MapperUtil mapperUtil;
+
+    public ProtectedDataMappingStrategy(MapperUtil mapperUtil) {
+        this.mapperUtil = mapperUtil;
+    }
 
     @Override
     public List<ProtectedDataDTO> mapper(ISO8583 input, Map<String, String> subFields) {
@@ -53,16 +55,16 @@ public class ProtectedDataMappingStrategy implements SectionMappingStrategy<List
             return protectedDataList;
         } catch (RuntimeException e) {
             // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
-            throw new MapperLocalException("PGWP-00122", "Error al mapear ProtectedDataDTO desde ISO8583", e);
+            throw new MapperFieldsException("PGWP-00122", "Error al mapear ProtectedDataDTO desde ISO8583", e);
         }
     }
 
     @Override
-    public Map<String, String> unMapper(List<ProtectedDataDTO> input) {
+    public Map<String, String> unMapper(String networkName,List<ProtectedDataDTO> input) {
         Map<String, String> mapValues = new HashMap<>();
 
         KEKIdDTO kekIdObject = findFirstKekId(input);
-        mapValues.put("cryptographicServiceMessage", fieldService.getFieldValue(kekIdObject, KEKIdDTO::getKeyId, DEFAULT_EMPTY_VALUE));
+        mapValues.put("cryptographicServiceMessage", mapperUtil.getFieldValue(kekIdObject, KEKIdDTO::getKeyId, DEFAULT_EMPTY_VALUE));
 
         return mapValues;
     }

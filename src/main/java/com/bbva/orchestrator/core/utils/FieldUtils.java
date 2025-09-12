@@ -2,6 +2,8 @@ package com.bbva.orchestrator.core.utils;
 
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -15,16 +17,27 @@ public class FieldUtils {
     /**
      * Parsea un String a Double, devuelve null si es nulo, vacío o inválido.
      */
-    public static Double parseDouble(String value) {
-        if (value == null || value.trim().isEmpty()) {
+    public static Double convertAmountDouble(String amount) {
+        if (amount == null || amount.trim().isEmpty()) {
             return null;
         }
         try {
-            return Double.parseDouble(value.trim());
+            return Double.parseDouble(amount.trim());
         } catch (NumberFormatException e) {
             return null;
         }
     }
+
+    public static String convertAmountString(double amount) {
+        // Usar BigDecimal para evitar problemas de precisión con double
+        BigDecimal amountInCents = BigDecimal.valueOf(amount)
+                .setScale(2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+        // Formatea a 12 dígitos con ceros a la izquierda
+        return String.format("%012d", amountInCents.longValue());
+    }
+
+
 
     /**
      * Extrae un substring seguro. Si el índice está fuera de rango, devuelve null.
@@ -83,7 +96,7 @@ public class FieldUtils {
      * Valida tasa de conversión: si es 000000, devuelve null.
      */
     public static Double conversionRateValidation(String rate) {
-        Double value = parseDouble(rate);
+        Double value = convertAmountDouble(rate);
         return (value != null && value == 0.0) ? null : value;
     }
 
@@ -106,7 +119,7 @@ public class FieldUtils {
 
     public static String reConvertFormatExpiryDate(String value) {
         if (value == null || value.isEmpty()) {
-            return null;
+            return "";
         }
         try {
             // Parsear la fecha en formato yyyy-MM
@@ -171,13 +184,28 @@ public class FieldUtils {
         return (value == null) ? "" : String.format(format, value);
     }
 
-    public static String getConversionRate(String value, int padding) {
+    //TODO REVISAR LA FUNCIONALIDAD
+    public static String convertEffectiveExchangeRate(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder conversionRate = new StringBuilder(value);
+        int precision = Integer.parseInt(conversionRate.substring(0, 1));
+
+        conversionRate.deleteCharAt(0);
+        conversionRate.insert(conversionRate.length() - precision, ".");
+        return conversionRate.toString();
+    }
+
+    //TODO REVISAR LA FUNCIONALIDAD
+    public static String convertConversionRate(String value) {
         if (value == null) {
             return "";
         }
 
         StringBuilder conversionRate = new StringBuilder(value);
-        while (conversionRate.length() < padding) {
+        while (conversionRate.length() < 8) {
             conversionRate.append("0");
         }
 
@@ -187,6 +215,7 @@ public class FieldUtils {
         conversionRate.insert(0, precision);
         return conversionRate.toString();
     }
+
 
     public static String convertFormatDateTime2(String value) {
         if (value == null || value.isEmpty()) {

@@ -2,7 +2,7 @@ package com.bbva.orchestrator.core.mapper;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import lombok.RequiredArgsConstructor;

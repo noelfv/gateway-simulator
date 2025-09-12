@@ -2,10 +2,9 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.TraceDataDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,15 +42,13 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
         return traceDataList;
     }
 
-
     @Override
-    public Map<String, String> unMapper(List<TraceDataDTO> input) {
+    public Map<String, String> unMapper(String networkName,List<TraceDataDTO> input) {
         Map<String, String> mapValues = new HashMap<>();
         // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
         String posAdditionalData = findValueByKey(input, "posAdditionalData");
         // ======== HEADER OF ISO VISA ========
         String header = findValueByKey(input, "header");
-
         mapValues.put("networkData", posAdditionalData);
         mapValues.put("header", header);
 

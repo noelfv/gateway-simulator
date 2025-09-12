@@ -12,7 +12,6 @@ public class ISOUtil {
     }
 
     public static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
-    public static final Charset ASCII_CHARSET = Charset.forName("US-ASCII"); // O StandardCharsets.US_ASCII
     private static final HexFormat FORMATTER = HexFormat.of().withUpperCase();
     //public static final Charset EBCDIC_CHARSET = Charset.forName("IBM1047"); // Más estándar
 
@@ -89,6 +88,12 @@ public class ISOUtil {
         return new String(FORMATTER.parseHex(messageHexEbcdic), EBCDIC_CHARSET);
     }
 
+    //TODO revisar este metodo se parece al stringToEBCDICHex
+    public static String convertToHexFormat(String value) {
+        return HexFormat.of().withUpperCase().formatHex(value.getBytes(EBCDIC_CHARSET));
+    }
+
+
     // --- Métodos de Conversión String (ASCII) a EBCDIC Hex ---
     public static String stringToEBCDICHex(String inputAscii) {
         byte[] ebcdicBytes = inputAscii.getBytes(EBCDIC_CHARSET);
@@ -112,6 +117,8 @@ public class ISOUtil {
         }
         return revertedAmount;
     }
+
+    //TODO revisar el processError
     // --- Métodos para manejar errores de trama ---
     public static String processError(String messageIso,String network, boolean containsSecondaryBitmap) {
         if(!containsSecondaryBitmap){
@@ -119,6 +126,14 @@ public class ISOUtil {
         }
         return replaceWithF0(messageIso,44,24);
     }
+
+    public static String processError(String messageIso, boolean containsSecondaryBitmap) {
+        if(!containsSecondaryBitmap){
+            return replaceWithF0(messageIso,28,24);
+        }
+        return replaceWithF0(messageIso,44,24);
+    }
+
 
     public static String formatMessageException(String code,String description,Throwable cause) {
         return String.format("Error Code: %s, Description: %s, Cause: %s", code, description, cause != null ? cause.getMessage() : "No cause provided");
@@ -177,4 +192,17 @@ public class ISOUtil {
     public static String padAsciiLeft(String value, int length) {
         return String.format("%" + length + "s", value).replace(' ', '0').substring(0, length);
     }
+
+    public static String getEnvVariableOrDefault(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return (value != null) ? value : defaultValue;
+    }
+
+    public static String getValue(String fieldName, Map<String, String> values) {
+        if (values.containsKey(fieldName)) {
+            return values.get(fieldName);
+        }
+        return "";
+    }
+
 }

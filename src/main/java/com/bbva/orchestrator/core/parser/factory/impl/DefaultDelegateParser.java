@@ -1,10 +1,9 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 /**

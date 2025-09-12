@@ -1,10 +1,10 @@
 package com.bbva.gui.commons;
 
 
-import com.bbva.orchestrator.core.commons.ISOUtil;
-import com.bbva.orchestrator.core.exception.ParserLocalException;
+import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class ISO8583Processor {
         } catch (ParserException e) {
             //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
             //throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
-            throw new ParserLocalException("Cannot parse iso message: " + e.getMessage());
+            throw new ParserFieldsException("Cannot parse iso message: " + e.getMessage());
         }
         return valuesMap;
     }

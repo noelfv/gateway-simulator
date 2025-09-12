@@ -1,7 +1,5 @@
 package com.bbva.gateway.interceptors;
 
-import lombok.Data;
-
 
 public class GrpcHeadersInfo {
 

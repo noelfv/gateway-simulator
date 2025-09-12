@@ -1,0 +1,127 @@
+data:
+  #Cuando existe un cero a la izquierda, se debe colocar entre comillas simples
+  currency:
+    - numericCurrencyId: 604
+      decimalCurrencyNumber: PEN
+    - { numericCurrencyId: 840, decimalCurrencyNumber: USD }
+    - { numericCurrencyId: 978, decimalCurrencyNumber: EUR }
+    - { numericCurrencyId: 986, decimalCurrencyNumber: BRL }
+    - { numericCurrencyId: 170, decimalCurrencyNumber: COP }
+    - { numericCurrencyId: 152, decimalCurrencyNumber: CLP }
+    - { numericCurrencyId: '032', decimalCurrencyNumber: XXX }
+    - { numericCurrencyId: 826, decimalCurrencyNumber: 2 }
+    - { numericCurrencyId: 484, decimalCurrencyNumber: 2 }
+    - { numericCurrencyId: 124, decimalCurrencyNumber: 2 }
+    - { numericCurrencyId: 392, decimalCurrencyNumber: 2 }
+  bins:
+    - key: PEER01
+      fields:
+        - name: 455103
+          value: VISA COMPRAS
+        - name: 455170
+          value: MUNDO SUELDO
+        - name: 414791
+          value: VISA SIGNATURE
+        - name: 438168
+          value: VIP ELECTRON
+        - name: 491909
+          value: VISA BFREE
+        - name: 491914
+          value: VISA PLATINUM
+        - name: 414075
+          value: VISA INFINITE
+        - name: 428597
+          value: DEBITO EMPRESARIAL
+        - name: 404293
+          value: VISA CERO BBVA
+        #- name: 414075
+        #  value: VISA SPECIAL EDITION
+        - name: 477113
+          value: VISA PREPAGO
+        - name: 491931
+          value: VISA CUOTA FIJA
+        - name: 491913
+          value: EMPRESARIAL ORO
+        - name: 491947
+          value: CORPORATE ORO
+        - name: 491912
+          value: CAPITAL DE TRABAJO
+        - name: 455170
+          value: VISA MUNDO SUELDO
+        - name: 414089
+          value: VISA SIGNATURE LIFEM
+        - name: 491910
+          value: VISA CLASICA
+        - name: 414068
+          value: VISA PLATINUM LIFEM
+        - name: 491911
+          value: VISA ORO
+        - name: 491947
+          value: CORPORATE PEN
+        - name: 414064
+          value: VISA ORO LIFEMILES
+        - name: 421531
+          value: VISA REGALO
+    - key: PEER02
+      fields:
+        - name: 512409
+          value: MASTERCARD BFREE FPF
+        - name: 553650
+          value: MASTERCARD BLACK
+        - name: 512312
+          value: MASTERCARD CLASICA
+        - name: 519348
+          value: MASTERCARD FPF
+        - name: 511578
+          value: MASTERCARD PLATINUM
+        - name: 455170
+          value: MUNDO SUELDO
+  custom:
+    type_message:
+      - name: '0100'
+        value: AUTQ
+      - name: '0120'
+        value: FAUQ
+      - name: '0400'
+        value: RVRA
+      - name: '0420'
+        value: FRVA
+      - name: '0800'
+        value: CMPV
+      - name: '0190'
+        value: UNKW
+    merchant_type:
+      - name: 6012
+        value: Merchandise and Services
+      - name: 4829
+        value: Money Transfer
+      - name: 6011
+        value: Automated Cash Disbursements
+      - name: 5411
+        value: Grocery Stores, Supermarkets
+      - name: 7372
+        value: Computer Programming, Data Processing, and Integrated Systems Design Services
+      - name: 5812
+        value: Eating Places, Restaurants
+      - name: 5541
+        value: Service Stations
+      - name: 5499
+        value: Miscellaneous Food Stores
+      - name: 5300
+        value: Wholesale Clubs
+      - name: 5462
+        value: Bakeries
+      - name: 5814
+        value: Fast Food Restaurants
+      - name: 5912
+        value: Drug Stores, Pharmacies
+      - name: 5818
+        value: Digital Goods
+      - name: 4784
+        value: Bridge and Road Fees, Tolls
+      - name: 7995
+        value: Gambling Transactions
+      - name: 4899
+        value: Cable, Satellite, and Other Pay Television and Radio Services
+      - name: 4121
+        value: Limousines and Taxicabs

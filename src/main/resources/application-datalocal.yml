@@ -1,0 +1,223 @@
+datalocal:
+  - network: "PEER01"
+    custom:
+      map_fields_response:
+        - name: "0110"
+          value: '{"2":"M", "3":"M", "4":"M", "7":"M", "11":"C"}'
+        - name: "0130"
+          value: '{"5":"M", "6":"M", "7":"M"}'
+    process:
+      -
+        type: "Transaction"
+        data:
+          -
+            name: "00"
+            value: "Compra"
+          -
+            name: "09"
+            value: "Cash advance/Compra con cash back"
+          -
+            name: "16"
+            value: "Consulta de puntos"
+          -
+            name: "17"
+            value: "Dinero Móvil"
+          -
+            name: "18"
+            value: "Compra con puntos"
+          -
+            name: "28"
+            value: "Pago"
+          -
+            name: "40"
+            value: "Transferencia"
+          -
+            name: "41"
+            value: "Retiro en Corresponsale"
+          -
+            name: "42"
+            value: "Retiro en Corresponsal"
+          -
+            name: "50"
+            value: "Multipago"
+          -
+            name: "92"
+            value: "Inicialización de llaves en dispositivo"
+      -
+        type: "Cuenta Origen"
+        data:
+          -
+            name: "00"
+            value: "Cuenta por omisión"
+          -
+            name: "10"
+            value: "Ahorro"
+          -
+            name: "20"
+            value: "Cheques"
+          -
+            name: "28"
+            value: "Cheque"
+          -
+            name: "30"
+            value: "Tarjeta de crédito"
+      -
+        type: "Cuenta Destino"
+        data:
+          -
+            name: "00"
+            value: "Cuenta por omisión"
+          -
+            name: "99"
+            value: "Dinero Móvil"
+          -
+            name: "description"
+            value: "BCMR PROPIA A7"
+          -
+            name: "type"
+            value: "A7"
+    inputLRA:
+      -
+        key: "0700"
+        value: "test"
+      -
+        key: "0800"
+        value: "COMUNICACIONES"
+    outputLRA:
+      -
+        key: "0710"
+        value: "test 2"
+      -
+        key: "COMUNICACIONES"
+        value: "0810"
+
+  - network: "PEER02"
+    custom:
+      map_fields_response:
+        - name: "0110"
+          value: '{"2":"M", "3":"M", "4":"M", "7":"M", "11":"C"}'
+        - name: "0130"
+          value: '{"5":"M", "6":"M", "7":"M"}'
+      response_code:
+        - name: "00"
+          value: "0"
+        - name: "12"
+          value: "system_error"
+        - name: "41"
+          value: "lost_card_retain"
+        - name: "43"
+          value: "stolen_card_retain"
+        - name: "51"
+          value: "not_enough_balance"
+        - name: "54"
+          value: "expired_card"
+        - name: "55"
+          value: "pin_error"
+        - name: "57"
+          value: "card_preventive_block"
+        - name: "61"
+          value: "exceeded_daily_card_limit"
+        - name: "62"
+          value: "bloqued_card"
+        - name: "63"
+          value: "suspect_fraud"
+        - name: "71"
+          value: "pin_change_needed"
+        - name: "75"
+          value: "exceeded_pin_retry"
+        - name: "76"
+          value: "non_existent_account"
+        - name: "88"
+          value: "DCVV_error"
+        - name: "80"
+          value: "system_error"
+        - name: "96"
+          value: "system_error"
+        - name: "03"
+          value: "non_existent_merchant"
+        - name: "04"
+          value: "contract_end"
+        - name: "05"
+          value: "chip_error"
+    process:
+      -
+        type: "Transaction"
+        data:
+          -
+            name: "00"
+            value: "Compra"
+          -
+            name: "09"
+            value: "Cash advance/Compra con cash back"
+          -
+            name: "16"
+            value: "Consulta de puntos"
+          -
+            name: "17"
+            value: "Dinero Móvil"
+          -
+            name: "18"
+            value: "Compra con puntos"
+          -
+            name: "28"
+            value: "Pago"
+          -
+            name: "40"
+            value: "Transferencia"
+          -
+            name: "41"
+            value: "Retiro en Corresponsale"
+          -
+            name: "42"
+            value: "Retiro en Corresponsal"
+          -
+            name: "50"
+            value: "Multipago"
+          -
+            name: "92"
+            value: "Inicialización de llaves en dispositivo"
+      -
+        type: "Cuenta Origen"
+        data:
+          -
+            name: "00"
+            value: "Cuenta por omisión"
+          -
+            name: "10"
+            value: "Ahorro"
+          -
+            name: "20"
+            value: "Cheques"
+          -
+            name: "28"
+            value: "Cheque"
+          -
+            name: "30"
+            value: "Tarjeta de crédito"
+      -
+        type: "Cuenta Destino"
+        data:
+          -
+            name: "00"
+            value: "Cuenta por omisión"
+          -
+            name: "99"
+            value: "Dinero Móvil"
+          -
+            name: "description"
+            value: "BCMR PROPIA A7"
+          -
+            name: "type"
+            value: "A7"
+    inputLRA:
+      - key: "test"
+        value: "0"
+      - key: "test2"
+        value: "hola"
+    outputLRA:
+      -
+        key: "0710"
+        value: "test 2"
+      -
+        key: "COMUNICACIONES"
+        value: "0810"

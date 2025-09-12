@@ -2,14 +2,13 @@ package com.bbva.orchestrator.core.parser.iso8583.strategy.subfields;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
-import com.bbva.orchestrator.core.fields.definitions.subfields.ISOSubFieldDefinitions;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.utils.ISOUtil;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,7 +22,7 @@ public class CompositeTlvFieldParser implements FieldParserStrategy {
 
     public CompositeTlvFieldParser(String compositeFieldId) {
         this.compositeFieldId = compositeFieldId;
-        this.subFieldDefinitions = ISOSubFieldDefinitions.getSubFieldDefinitionsForComposite(compositeFieldId);
+        this.subFieldDefinitions = TLVFieldLoadStructure.getSubFieldDefinitionsForComposite(compositeFieldId);
         if (this.subFieldDefinitions == null || this.subFieldDefinitions.isEmpty()) {
             LogsTraces.writeWarning("CompositeSubFieldParser inicializado con definiciones de subcampo vacías o nulas para: " + compositeFieldId);
         }
@@ -35,24 +34,6 @@ public class CompositeTlvFieldParser implements FieldParserStrategy {
         if (this.subFieldDefinitions == null || this.subFieldDefinitions.isEmpty()) {
             LogsTraces.writeWarning("CompositeSubFieldParser inicializado con definiciones de subcampo vacías o nulas para: " + compositeFieldId);
         }
-    }
-
-
-    public ParsedFieldResult parsexxx(String rawDataSegment, IFieldDefinition fieldDefinition, NetworkHandlerField networkProfile) {
-        Map<String, String> parsedSubFieldsMap = parseToMap(rawDataSegment, fieldDefinition,networkProfile);
-
-        // Convertir el mapa a JSON string
-        StringBuilder resultBuilder = new StringBuilder("{");
-        boolean first = true;
-        for (Map.Entry<String, String> entry : parsedSubFieldsMap.entrySet()) {
-            if (!first) resultBuilder.append(", ");
-            resultBuilder.append("\"").append(entry.getKey()).append("\": \"").append(entry.getValue()).append("\"");
-            first = false;
-        }
-        resultBuilder.append("}");
-
-        // Devolver el JSON como String + longitud consumida
-        return new ParsedFieldResult(resultBuilder.toString(), rawDataSegment.length());
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.bbva.gateway.dto.iso20022;
 
+import com.bbva.gui.dto.MappingMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import com.bbva.gui.dto.MappingMetadata;
 
 import java.io.Serial;
 import java.io.Serializable;

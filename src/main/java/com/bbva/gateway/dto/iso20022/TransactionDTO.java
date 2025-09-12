@@ -32,4 +32,6 @@ public class TransactionDTO implements Serializable {
 	private DetailedRequestedAmountDTO detailedRequestedAmount;
 	private String otherTransactionAttribute;
 	private List<String> alternateMessageReason;
+	private String transactionSubtype;
+	private List<SpecialProgrammeQualificationDTO> specialProgrammeQualification;
 }

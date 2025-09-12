@@ -14,7 +14,7 @@ import com.bbva.gui.components.TreeNodeData;
 import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.gui.dto.ISOFieldInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.mapper.factory.impl.MastercardDelegateMapper;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;

@@ -2,25 +2,20 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldProcessingService;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class TransactionMappingStrategy implements SectionMappingStrategy<TransactionDTO> {
 
-    private final FieldProcessingService fieldService;
+    private final MapperUtil mapperUtil;
 
-    public TransactionMappingStrategy(FieldProcessingService fieldService) {
-        this.fieldService = fieldService;
+    public TransactionMappingStrategy( MapperUtil mapperUtil) {
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
@@ -36,42 +31,42 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
 
         AccountFromDTO accountFrom = AccountFromDTO.builder()
                 .accountId(input.getAccountIdentification())
-                //.accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 2, 4))
+                //.accountType(mapperUtil.isNullOrEmptySubstring(processingCodeStr, 2, 4))
                 .accountType(accountFromType)
                 .build();
 
         AccountToDTO accountTo = AccountToDTO.builder()
                 .accountId(input.getAccountIdentification1())
-                //.accountType(fieldService.isNullOrEmptySubstring(processingCodeStr, 4, 6))
+                //.accountType(mapperUtil.isNullOrEmptySubstring(processingCodeStr, 4, 6))
                 .accountType(accountToType)
                 .build();
 
         // Transaction Amount
         TransactionAmountDTO transactionAmount = TransactionAmountDTO.builder()
                 // ======== FIELD 4 (TRANSACTION AMOUNT) ========
-                .amount(fieldService.parseDouble(input.getTransactionAmount()))
+                .amount(mapperUtil.convertAmountDouble(input.getTransactionAmount()))
                 // ======== FIELD 49 (TRANSACTION CURRENCY CODE) ========
-                .currency(input.getTransactionCurrencyCode())
+                .currency(mapperUtil.convertCurrencyIdToCurrencyCode(input.getTransactionCurrencyCode()))
                 .build();
 
         // Reconciliation Amount
         ReconciliationAmountDTO reconciliationAmount = ReconciliationAmountDTO.builder()
                 // ======== FIELD 5 (RECONCILIATION AMOUNT) ========
-                .amount(fieldService.parseDouble(input.getSettlementAmount()))
+                .amount(mapperUtil.convertAmountDouble(input.getSettlementAmount()))
                 // ======== FIELD 9 (RECONCILIATION EXCHANGE RATE) ========
-                .effectiveExchangeRate(input.getConversionRateSettlement())
+                .effectiveExchangeRate(mapperUtil.convertEffectiveExchangeRate(input.getConversionRateSettlement()))
                 // ======== FIELD 50 (SETTLEMENT CURRENCY CODE) ========
-                .currency(input.getSettlementCurrencyCode())
+                .currency(mapperUtil.convertCurrencyIdToCurrencyCode(input.getSettlementCurrencyCode()))
                 .build();
 
         // Cardholder Billing Amount
         CardholderBillingAmountDTO cardholderBillingAmount = CardholderBillingAmountDTO.builder()
                 // ======== FIELD 6 (CARDHOLDER BILLING AMOUNT) ========
-                .amount(fieldService.parseDouble(input.getCardHolderBillingAmount()))
+                .amount(mapperUtil.convertAmountDouble(input.getCardHolderBillingAmount()))
                 // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
-                .effectiveExchangeRate(input.getConversionRate())
+                .effectiveExchangeRate(mapperUtil.convertEffectiveExchangeRate(input.getConversionRate()))
                 // ======== FIELD 51 (CARDHOLDER BILLING CURRENCY CODE) ========
-                .currency(input.getCardholderBillingCurrencyCode())
+                .currency(mapperUtil.convertCurrencyIdToCurrencyCode(input.getCardholderBillingCurrencyCode()))
                 .build();
 
         TransactionAmountsDTO transactionAmounts = TransactionAmountsDTO.builder()
@@ -86,15 +81,15 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
         if (oriDataElementsStr != null && !oriDataElementsStr.isEmpty()) {
             originalDataElements = OriginalDataElementsDTO.builder()
                     // 90.1 MESSAGE TYPE
-                    .messageFunction(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 0, 4))
+                    .messageFunction(mapperUtil.isNullOrEmptySubstring(oriDataElementsStr, 0, 4))
                     // 90.2 SYSTEMS TRACE AUDIT NUMBER
-                    .systemTraceAuditNumber(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 4, 10))
+                    .systemTraceAuditNumber(mapperUtil.isNullOrEmptySubstring(oriDataElementsStr, 4, 10))
                     // 90.3 TRANSMISSION DATE & TIME
-                    .transmissionDateTime(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 10, 20))
+                    .transmissionDateTime(mapperUtil.isNullOrEmptySubstring(oriDataElementsStr, 10, 20))
                     // 90.4 ACQUIRER INSTITUTION ID
-                    .acquirerId(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 20, 31))
+                    .acquirerId(mapperUtil.isNullOrEmptySubstring(oriDataElementsStr, 20, 31))
                     // 90.5 FORWARDING INSTITUTION ID
-                    .senderIdentification(fieldService.isNullOrEmptySubstring(oriDataElementsStr, 31, 42))
+                    .senderIdentification(mapperUtil.isNullOrEmptySubstring(oriDataElementsStr, 31, 42))
                     .build();
         }
 
@@ -111,9 +106,9 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 // ======== FIELD 90 (ORIGINAL DATA ELEMENTS) ========
                 .originalDataElements(originalDataElements)
                 // ======== FIELD 7 (TRANSMISSION DATE & TIME) ========
-                .transmissionDateTime(fieldService.convertFormatDateTime(input.getTransmissionDateTime()))
+                .transmissionDateTime(mapperUtil.convertFormatDateTime(input.getTransmissionDateTime()))
                 // ======== ID MONITOR ========
-                .transactionReference(fieldService.createTransactionReference(input, subFields,  GrpcHeadersInfo.getNetwork()))
+                .transactionReference(mapperUtil.createTransactionReference(input, subFields,  GrpcHeadersInfo.getNetwork()))
                 .build();
 
         // Additional Fees
@@ -141,7 +136,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .key("additionalAmounts")
                 .amount(AmountDTO.builder()
                         .amount(subFields.containsKey("ADDITIONAL_AMOUNT_DOUBLE") ?
-                                fieldService.parseDouble(subFields.get("ADDITIONAL_AMOUNT_DOUBLE")) : null)
+                                mapperUtil.convertAmountDouble(subFields.get("ADDITIONAL_AMOUNT_DOUBLE")) : null)
                         .build())
                 .build();
         additionalAmountList.add(additionalAmount);
@@ -177,8 +172,25 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_CURRENCY_CODE", "currencyCode");
         addAdditionalData(additionalTransactionDataList, subFields, "ADDITIONAL_INDICATOR", "indicator");
 
+        //FIELD 48
+        addAdditionalData(additionalTransactionDataList, subFields, "48.01", "transaction_category_code");
+        addAdditionalData(additionalTransactionDataList, subFields, "48.42", "electronic_commerce_indicators");
+        addAdditionalData(additionalTransactionDataList, subFields, "48.43", "universal_cardholder_authentication_field");
+        addAdditionalData(additionalTransactionDataList, subFields, "48.51", "merchant_on_behalf_services");
+        addAdditionalData(additionalTransactionDataList, subFields, "48.71", "on_behalf_services");
+        addAdditionalData(additionalTransactionDataList, subFields, "48.72", "issuer_chip_authentication");
+
+        DetailDTO detail = DetailDTO.builder()
+                .name("mastercard_promotion_code")
+                .value(subFields.getOrDefault("48.95",null))
+                .build();
+
+        SpecialProgrammeQualificationDTO specialProgrammeQualification = SpecialProgrammeQualificationDTO.builder()
+                .detail(List.of(detail))
+                .build();
+
         return TransactionDTO.builder()
-                //.transactionType(fieldService.isNullOrEmptySubstring(processingCodeStr, 0, 2))
+                //.transactionType(mapperUtil.isNullOrEmptySubstring(processingCodeStr, 0, 2))
                 .transactionType(transactionType)
                 .accountFrom(accountFrom)
                 .accountTo(accountTo)
@@ -189,11 +201,18 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .additionalFee(additionalFeesList)
                 .additionalAmount(additionalAmountList)
                 .additionalData(additionalTransactionDataList)
+                .otherTransactionAttribute(
+                        CardholderVerificationCapability.mapSubField61_04_cardHolderPresent(
+                                subFields.getOrDefault("61.04",null)
+                        ).getOrDefault("otherTransactionAttribute",null)
+                )
+                .transactionSubtype(subFields.getOrDefault("48.77",null))
+                .specialProgrammeQualification(List.of(specialProgrammeQualification))
                 .build();
     }
 
     @Override
-    public Map<String, String> unMapper(TransactionDTO transaction) {
+    public Map<String, String> unMapper(String networkName,TransactionDTO transaction) {
 
         Map<String, String> mapValues = new HashMap<>();
         String processingCode=getAdditionalData("opera", transaction.getAdditionalData());
@@ -207,32 +226,29 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
 
 
         if (transactionAmount.getAmount() != null) {
-            String amount = formatAmount(transactionAmount.getAmount());
             // ======== FIELD 4 (TRANSACTION AMOUNT) ========
-            mapValues.put("transactionAmount", amount);
+            mapValues.put("transactionAmount", mapperUtil.convertAmountString(transactionAmount.getAmount()));
             // ======== FIELD 49 (TRANSACTION CURRENCY CODE) ========
-            mapValues.put("transactionCurrencyCode",  transactionAmount.getCurrency());//TODO hacer la inversa
+            mapValues.put("transactionCurrencyCode",  mapperUtil.convertCurrencyCodeToCurrencyId(transactionAmount.getCurrency()));//TODO hacer la inversa
         }
 
 
         if (reconciliationAmountDTO.getAmount() != null) {
-            String reconciliationAmount = formatAmount(reconciliationAmountDTO.getAmount());
             // ======== FIELD 5 (RECONCILIATION AMOUNT) ========
-            mapValues.put("settlementAmount", reconciliationAmount);
+            mapValues.put("settlementAmount", mapperUtil.convertAmountString(reconciliationAmountDTO.getAmount()));
             // ======== FIELD 9 (RECONCILIATION EXCHANGE RATE) ========
-            mapValues.put("conversionRateSettlement", fieldService.getFieldValue(reconciliationAmountDTO, ReconciliationAmountDTO::getEffectiveExchangeRate, DEFAULT_EMPTY_VALUE));
+            mapValues.put("conversionRateSettlement", mapperUtil.convertConversionRate(reconciliationAmountDTO.getEffectiveExchangeRate()));
             // ======== FIELD 50 (SETTLEMENT CURRENCY CODE) ========
-            mapValues.put("settlementCurrencyCode", fieldService.getFieldValue(reconciliationAmountDTO, ReconciliationAmountDTO::getCurrency, DEFAULT_EMPTY_VALUE));
+            mapValues.put("settlementCurrencyCode", mapperUtil.convertCurrencyCodeToCurrencyId(reconciliationAmountDTO.getCurrency()));
         }
 
         if (cardholderBillingAmountDTO.getAmount() != null) {
-            String cardholderBillingAmount = formatAmount(cardholderBillingAmountDTO.getAmount());
             // ======== FIELD 6 (CARDHOLDER BILLING AMOUNT) ========
-            mapValues.put("cardHolderBillingAmount", cardholderBillingAmount);
+            mapValues.put("cardHolderBillingAmount", mapperUtil.convertAmountString(cardholderBillingAmountDTO.getAmount()));
             // ======== FIELD 10 (CARDHOLDER BILLING EXCHANGE RATE) ========
-            mapValues.put("conversionRate", fieldService.getFieldValue(cardholderBillingAmountDTO, CardholderBillingAmountDTO::getEffectiveExchangeRate, DEFAULT_EMPTY_VALUE));
+            mapValues.put("conversionRate", mapperUtil.convertConversionRate(cardholderBillingAmountDTO.getEffectiveExchangeRate()));
             // ======== FIELD 51 (CARDHOLDER BILLING CURRENCY CODE) ========
-            mapValues.put("cardholderBillingCurrencyCode", fieldService.getFieldValue(cardholderBillingAmountDTO, CardholderBillingAmountDTO::getCurrency, DEFAULT_EMPTY_VALUE));
+            mapValues.put("cardholderBillingCurrencyCode", mapperUtil.convertCurrencyCodeToCurrencyId(cardholderBillingAmountDTO.getCurrency()));
         }
 
         // --- Transaction ID y Original Data Elements ---
@@ -246,7 +262,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
         // ======== FIELD 37 (RETRIEVAL REFERENCE NUMBER) ========
         mapValues.put("retrievalReferenceNumber", transId.getRetrievalReferenceNumber());
         // ======== FIELD 7 (TRANSMISSION DATE & TIME) ========
-        mapValues.put("transmissionDateTime", fieldService.reConvertFormatDateTime(transId.getTransmissionDateTime())); // Asumiendo que fieldService convierte a la inversa si es necesario.
+        mapValues.put("transmissionDateTime", mapperUtil.reConvertFormatDateTime(transId.getTransmissionDateTime())); // Asumiendo que mapperUtil convierte a la inversa si es necesario.
 
 
         // ======== FIELD 44 (ADDITIONAL RESPONSE DATA) ========
@@ -276,11 +292,11 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
     }
 
     private String reconstructOriginalDataElements(OriginalDataElementsDTO origData) {
-        return fieldService.getFieldValue(origData, OriginalDataElementsDTO::getMessageFunction, "") +
-                fieldService.getFieldValue(origData, OriginalDataElementsDTO::getSystemTraceAuditNumber, "") +
-                fieldService.getFieldValue(origData, OriginalDataElementsDTO::getTransmissionDateTime, "") +
-                fieldService.getFieldValue(origData, OriginalDataElementsDTO::getAcquirerId, "") +
-                fieldService.getFieldValue(origData, OriginalDataElementsDTO::getSenderIdentification, "");
+        return mapperUtil.getFieldValue(origData, OriginalDataElementsDTO::getMessageFunction, "") +
+                mapperUtil.getFieldValue(origData, OriginalDataElementsDTO::getSystemTraceAuditNumber, "") +
+                mapperUtil.getFieldValue(origData, OriginalDataElementsDTO::getTransmissionDateTime, "") +
+                mapperUtil.getFieldValue(origData, OriginalDataElementsDTO::getAcquirerId, "") +
+                mapperUtil.getFieldValue(origData, OriginalDataElementsDTO::getSenderIdentification, "");
     }
 
     private void addAdditionalData(List<AdditionalDataDTO> list, Map<String, String> subFields,
@@ -302,7 +318,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .filter(a -> "additionalAmounts".equals(a.getKey()))
                 .findFirst()
                 .ifPresent(dto -> {
-                    String amountValue = fieldService.getFieldValueDouble(
+                    String amountValue = mapperUtil.getFieldValueDouble(
                             dto.getAmount(), // El objeto fuente es AmountDTO
                             AmountDTO::getAmount, // El getter para el Double
                             DEFAULT_EMPTY_VALUE
@@ -314,21 +330,6 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 });
     }
 
-    /**
-     * Convierte un valor double a un String de 12 caracteres.
-     * El método elimina el punto decimal y rellena con ceros a la izquierda
-     * hasta alcanzar la longitud de 12.
-     *
-     * @param amount El valor double a convertir.
-     * @return Un String de 12 caracteres.
-     */
-    private String formatAmount(double amount) {
-        // Usar BigDecimal para evitar problemas de precisión con double
-        BigDecimal amountInCents = BigDecimal.valueOf(amount)
-                .setScale(2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
-        // Formatea a 12 dígitos con ceros a la izquierda
-        return String.format("%012d", amountInCents.longValue());
-    }
+
 
 }

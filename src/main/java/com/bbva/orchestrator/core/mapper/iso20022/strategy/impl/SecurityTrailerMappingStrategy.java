@@ -2,21 +2,20 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.MacDataDTO;
 import com.bbva.gateway.dto.iso20022.SecurityTrailerDTO;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldProcessingService;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<SecurityTrailerDTO> {
 
-    private final FieldProcessingService fieldService;
+    private final MapperUtil mapperUtil;
 
-    public SecurityTrailerMappingStrategy(FieldProcessingService fieldService) {
-        this.fieldService = fieldService;
+    public SecurityTrailerMappingStrategy(MapperUtil mapperUtil) {
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
@@ -30,13 +29,13 @@ public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<Se
 
         MacDataDTO macData = MacDataDTO.builder()
                 // 53.1 Security Format Code / Security Type Code
-                .keyProtection(fieldService.isNullOrEmptySubstring(secControlInformation, 0, 2))
+                .keyProtection(mapperUtil.isNullOrEmptySubstring(secControlInformation, 0, 2))
                 // 53.2 PIN Encryption Code
-                .algorithm(fieldService.isNullOrEmptySubstring(secControlInformation, 2, 4))
+                .algorithm(mapperUtil.isNullOrEmptySubstring(secControlInformation, 2, 4))
                 // 53.3 PIN Block Format Code
-                .derivedInformation(fieldService.isNullOrEmptySubstring(secControlInformation, 4, 6))
+                .derivedInformation(mapperUtil.isNullOrEmptySubstring(secControlInformation, 4, 6))
                 // 53.4 Key Index Number
-                .keyIndex(fieldService.isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
+                .keyIndex(mapperUtil.isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
                 .build();
 
         return SecurityTrailerDTO.builder()
@@ -45,15 +44,15 @@ public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<Se
     }
 
     @Override
-    public Map<String, String> unMapper(SecurityTrailerDTO input) {
+    public Map<String, String> unMapper(String networkName,SecurityTrailerDTO input) {
         Map<String, String> mapValues = new HashMap<>();
 
         /*MacDataDTO macData = input.getMacData();
 
-        String securityControlInfo = fieldService.getFieldValue(macData, MacDataDTO::getKeyProtection, DEFAULT_EMPTY_VALUE) +
-                fieldService.getFieldValue(macData, MacDataDTO::getAlgorithm, DEFAULT_EMPTY_VALUE) +
-                fieldService.getFieldValue(macData, MacDataDTO::getDerivedInformation, DEFAULT_EMPTY_VALUE) +
-                fieldService.getFieldValue(macData, MacDataDTO::getKeyIndex, DEFAULT_EMPTY_VALUE);
+        String securityControlInfo = mapperUtil.getFieldValue(macData, MacDataDTO::getKeyProtection, DEFAULT_EMPTY_VALUE) +
+                mapperUtil.getFieldValue(macData, MacDataDTO::getAlgorithm, DEFAULT_EMPTY_VALUE) +
+                mapperUtil.getFieldValue(macData, MacDataDTO::getDerivedInformation, DEFAULT_EMPTY_VALUE) +
+                mapperUtil.getFieldValue(macData, MacDataDTO::getKeyIndex, DEFAULT_EMPTY_VALUE);
 
         mapValues.put("securityControlInformation", securityControlInfo);
 

@@ -5,13 +5,15 @@ import com.bbva.gateway.dto.iso20022.AdditionalInformationDTO;
 import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
 import com.bbva.gateway.dto.iso20022.ResultDataDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProcessingResult {
+
     private static final List<String> MTI_OUTPUT = List.of("0110", "0130", "0410", "0430" , "0312");
+
     private ProcessingResult() {
     }
     public static ProcessingResultDTO createProcessingResult(ISO8583 inputObject) {

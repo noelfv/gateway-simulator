@@ -1,9 +1,9 @@
 package com.bbva.orchestrator.core.fields;
 
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
-import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -137,7 +137,6 @@ public enum MastercardISOField implements ISOField {
     ISSUER_TRACE_ID(126, "issuerTraceId", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     PRIVATE_DATA(127, "privateData", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     MESSAGE_AUTHENTICATION_CODE_2(128, "messageAuthenticationCode2", HEXADECIMAL, false, 8, new HexadecimalFieldParser());
-
 
 
     private final int id;

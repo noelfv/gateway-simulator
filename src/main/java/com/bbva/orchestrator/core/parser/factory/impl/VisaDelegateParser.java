@@ -1,36 +1,27 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.network.visa.VisaISOFieldParser;
 import com.bbva.orchestrator.network.visa.VisaISOSubFieldParser;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class VisaDelegateParser implements ISO8583DelegateParser {
 
-
+    private static final String NETWORK_VISA = "PEER01";
     private final VisaISOFieldParser fieldParser;
     private final VisaISOSubFieldParser subFieldParser;
 
-    /**
-     * Constructor que recibe los parsers de campo y subcampo de Visa.
-     * @param fieldParser Parser de campos de Visa.
-     * @param subFieldParser Parser de subcampos de Visa.
-     */
-    public VisaDelegateParser(VisaISOFieldParser fieldParser,
-                              VisaISOSubFieldParser subFieldParser) {
-        this.fieldParser = fieldParser;
-        this.subFieldParser = subFieldParser;
-    }
-
     @Override
     public Map<String, String> parser(String originalMessage) {
-        Map<String,String> mapValues = fieldParser.mapFields(originalMessage);
-        adjustFields(mapValues);
-        return mapValues;
+        Map<String,String> mappedFields = fieldParser.mapFields(originalMessage);
+        mappedFields.put("networkName",NETWORK_VISA);
+        adjustFields(mappedFields);
+        return mappedFields;
     }
 
     @Override

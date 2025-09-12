@@ -1,16 +1,16 @@
 package com.bbva.orchestrator.network.mastercard;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.core.exception.ParserLocalException;
-import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.PlainTextFieldParser;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.utils.ISOUtil;
+import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,14 +42,14 @@ public class MastercardISOFieldParser {
         boolean containsSecondaryBitmap = false;
 
         try {
-            position = processFieldData(MastercardISOField.MESSAGE_TYPE, isoMessage, position, valuesMap);
-            position = processFieldData(MastercardISOField.BITMAP_PRIMARY, isoMessage, position, valuesMap);
+            position = ParserUtil.processFieldData(MastercardISOField.MESSAGE_TYPE, isoMessage, position, valuesMap, mastercardHandlerField);
+            position = ParserUtil.processFieldData(MastercardISOField.BITMAP_PRIMARY, isoMessage, position, valuesMap, mastercardHandlerField);
 
             String binaryBitMapPrimary = valuesMap.get(MastercardISOField.BITMAP_PRIMARY.getName());
             StringBuilder fullBitmap = new StringBuilder(binaryBitMapPrimary);
 
             if (binaryBitMapPrimary.charAt(0) == '1') {
-                position = processFieldData(MastercardISOField.BITMAP_SECONDARY, isoMessage, position, valuesMap);
+                position = ParserUtil.processFieldData(MastercardISOField.BITMAP_SECONDARY, isoMessage, position, valuesMap, mastercardHandlerField);
                 String binaryBitMapSecondary = valuesMap.get(MastercardISOField.BITMAP_SECONDARY.getName());
                 fullBitmap.append(binaryBitMapSecondary);
                 containsSecondaryBitmap = true;
@@ -61,10 +61,10 @@ public class MastercardISOFieldParser {
 
                     if (field == null) {
                         LogsTraces.writeInfo("Campo no permitido: " + i + ". No hay mapeo disponible.");
-                        throw new ParserException(createMessageError(i));
+                        throw new ParserException(ParserUtil.createMessageError(i));
                     }
 
-                    position = processFieldData(field, isoMessage, position, valuesMap);
+                    position = ParserUtil.processFieldData(field, isoMessage, position, valuesMap,mastercardHandlerField);
                 }
             }
         } catch (ParserException e) {
@@ -181,34 +181,5 @@ public class MastercardISOFieldParser {
 
         // Construir trama final
         return messageType + bitmapHex + isoValues;
-    }
-
-    private  int processFieldData(MastercardISOField isoField, StringBuilder isoMessage, int currentPosition, Map<String, String> valuesMap) {
-        try {
-            String remainingMessageSegment = isoMessage.substring(currentPosition);
-            ParsedFieldResult result;
-
-           /* if (isoField.isVariable()) {
-                result = isoField.getParserStrategy().parse(remainingMessageSegment,  isoField,mastercardHandlerField);
-            } else {
-                int expectedHexLength = isoField.getLength() * 2;
-                result = isoField.getParserStrategy().parse(remainingMessageSegment,  isoField,mastercardHandlerField);
-            }*/
-
-            result = isoField.getParserStrategy().parse(remainingMessageSegment,  isoField,mastercardHandlerField);
-
-            valuesMap.put(isoField.getName(), result.value());
-
-            currentPosition += result.consumedLengthInChars(); // Usar getConsumedLength()
-
-            return currentPosition;
-
-        } catch (ParserLocalException e) {
-            throw new ParserException(ISOUtil.formatMessageException(e.getCode(),e.getDescription(),e));
-        }
-    }
-
-    private static String createMessageError(int fieldId) {
-        return "Error en campo " + fieldId + ": " + "No hay mapeo disponible";
     }
 }

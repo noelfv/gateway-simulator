@@ -1,14 +1,11 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
-import com.bbva.gateway.dto.iso20022.AdditionalDataCustomDataLocalDTO;
-import com.bbva.gateway.dto.iso20022.CustomDataLocalDTO;
-import com.bbva.gateway.dto.iso20022.RequestDTO;
+import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.commons.ContextData;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.ISO8583ContextService;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +13,10 @@ import java.util.Map;
 @Component
 public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<CustomDataLocalDTO> {
 
-    private final ISO8583ContextService iso8583ContextService;
+    private final ContextData contextData;
 
-    public CustomDataLocalMappingStrategy(ISO8583ContextService iso8583ContextService) {
-        this.iso8583ContextService = iso8583ContextService;
+    public CustomDataLocalMappingStrategy(ContextData contextData) {
+        this.contextData = contextData;
     }
 
     @Override
@@ -43,22 +40,13 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
         // 2. Crear y añadir el segundo par (ISO8583)
         RequestDTO iso8583Request = RequestDTO.builder()
                 .key("ISO8583")
-                .value(iso8583ContextService.getISO8583(GrpcHeadersInfo.getTraceId()))
+                .value(contextData.getISO8583(GrpcHeadersInfo.getTraceId()))
                 .build();
         additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
                 .request(iso8583Request)
                 .build());
 
-        // 3. Crear y añadir el tercer par (FLOWTYPE)
-        RequestDTO flowTypeRequest = RequestDTO.builder()
-                .key("FLOWTYPE")
-                .value("ASYNC")
-                .build();
-        additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
-                .request(flowTypeRequest)
-                .build());
-
-        // 4. Construir el DTO final con la lista poblada
+        // 3. Construir el DTO final con la lista poblada
         return CustomDataLocalDTO.builder()
                 .additionalData(additionalDataCustomDataLocalList)
                 .build();
@@ -66,7 +54,7 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
     }
 
     @Override
-    public Map<String, String> unMapper(CustomDataLocalDTO input) {
+    public Map<String, String> unMapper(String networkName,CustomDataLocalDTO input) {
 
         input.getAdditionalData().get(0).getRequest().getKey();
 

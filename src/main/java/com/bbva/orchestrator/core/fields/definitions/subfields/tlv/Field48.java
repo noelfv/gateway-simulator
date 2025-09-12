@@ -7,7 +7,7 @@ import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.AlphaNumericFie
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.HexadecimalFieldParser;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.NumericFieldParser;
 
-public  enum Field48 implements ISOSubField {
+public enum Field48 implements ISOSubField {
 
     // Subcampos del Campo 48 (additionalDataRetailer)
     // k: id, v: length in characters

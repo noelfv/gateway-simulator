@@ -1,23 +1,26 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.orchestrator.core.builders.ISO8583;
 import com.bbva.orchestrator.core.commons.ISOSubFieldProcess;
-import com.bbva.orchestrator.core.exception.MapperLocalException;
+import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldProcessingService;
-import lombok.RequiredArgsConstructor;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class EnvironmentMappingStrategy implements SectionMappingStrategy<EnvironmentDTO> {
 
-    private final FieldProcessingService fieldService;
+    private final MapperUtil mapperUtil;
+    
+    public EnvironmentMappingStrategy(MapperUtil mapperUtil) {
+        this.mapperUtil = mapperUtil;
+    }
+    
 
     @Override
     public EnvironmentDTO mapper(ISO8583 input, Map<String, String> subFields) {
@@ -34,7 +37,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     // ======== FIELD 23 (CARD SEQUENCE NUMBER) ========
                     .cardSequenceNumber(input.getCardSequenceNumber())
                     // ======== FIELD 14 (EXPIRATION DATE) ========
-                    .expiryDate(fieldService.convertFormatExpiryDate(input.getDateExpiration()))
+                    .expiryDate(mapperUtil.convertFormatExpiryDate(input.getDateExpiration()))
                     // ======== FIELD 2 (PAN) ========
                     .pan(input.getPrimaryAccountNumber())
                     // ======== FIELD 40 (SERVICE RESTRICTION CODE) ========
@@ -44,9 +47,22 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .track2(track2)
                     .build();
 
+            CardholderVerificationCapabilityDTO cvCapability = CardholderVerificationCapabilityDTO.builder()
+                    .capability(CardholderVerificationCapability.convertCardholderVerificationCapability(subFields.getOrDefault("22.02",null)))
+                    .build();
+
+            CardReadingCapabilityDTO cardReadingCapability = CardReadingCapabilityDTO.builder()
+                    .capability(CardholderVerificationCapability.mapSubField61_11(
+                                    subFields.getOrDefault("61.11", null))
+                                    .getOrDefault("capability",null))
+                    .build();
 
             CapabilitiesDTO capabilities = CapabilitiesDTO.builder()
-                    .approvalCodeLength(null)
+                    .cardholderVerificationCapabilities(List.of(cvCapability))
+                    .cardCaptureCapable(CardholderVerificationCapability.mapSubField61_06_capable(
+                            subFields.getOrDefault("61.06", null)))
+                    .cardReadingCapabilities(List.of(cardReadingCapability))
+
                     .build();
 
             TerminalIdDTO terminalId = TerminalIdDTO.builder()
@@ -54,19 +70,28 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .id(input.getCardAcceptorTerminalIdentification())
                     // ======== FIELD 60 (POS TERMINAL DATA) ========
                     .assigner(input.getPosTerminalData())
+                    // ======== FIELD 61_13 (POS COUNTRY CODE) ========
+                    .country(subFields.getOrDefault("61.13", null))
                     .build();
 
             // ... resto del mapeo
-            String type = ISOSubFieldProcess.channelTPVIndicator(input, subFields, GrpcHeadersInfo.getNetwork());
-            String otherType = type != null && type.length() > 4 ? type.substring(4) : null;
+            String type = ISOSubFieldProcess.channelTPVIndicator(input, subFields, input.getNetworkName());
             String typeValue = type != null ? type.substring(0, 4) : null;
+
+            Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapSubField61_03(
+                    subFields.getOrDefault("61.03", null),
+                    subFields.getOrDefault("61.02", null), type);
 
             TerminalDTO terminal = TerminalDTO.builder()
                     .capabilities(capabilities)
                     .terminalId(terminalId)
-                    //.key(fieldService.getChannelTPVIndicator(input, subFields)) //REVISAR
+                    //.key(mapperUtil.getChannelTPVIndicator(input, subFields)) //REVISAR
                     .key(typeValue)
-                    .otherType(otherType)
+                    .otherType(posTerminalLocation.getOrDefault("OtherType",null))
+                    .offPremisesIndicator(mapperUtil.safeBooleanValueOf(
+                            posTerminalLocation.getOrDefault("offPremisesIndicator",null)
+                    ))
+                    .geographicLocation(posTerminalLocation.getOrDefault("GeographicLocation",null))
                     .build();
 
             // ======== FIELD 62 (MAPPED AS POSTAL CODE) ========
@@ -96,11 +121,21 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .additionalId(additionalDataRetailer)
                     .build();
 
+            AddressDTO address = AddressDTO.builder()
+                    .postalCode(subFields.getOrDefault("61.14", null))
+                    .build();
+
+            LocalDataDTO localData = LocalDataDTO.builder()
+                    .address(address)
+                    .build();
+
             AcceptorDTO acceptor = AcceptorDTO.builder()
                     // ======== FIELD 42 (CARD ACCEPTOR IDENTIFICATION CODE) ========
                     .id(input.getCardAcceptorIdentificationCode())
                     // ======== FIELD 43 (CARD ACCEPTOR NAME AND LOCATION) ========
                     .nameAndLocation(input.getCardAcceptorNameLocation())
+                    // ======== FIELD 61_14 (POS Postal Code (or Sub-Merchant Information, if applicable)) ========
+                    .localData(localData)
                     .build();
 
             IssuerDTO issuer = IssuerDTO.builder()
@@ -118,12 +153,12 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .build();
         } catch (RuntimeException e) {
             // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
-            throw new MapperLocalException("PGWP-00121", "Error al mapear EnvironmentDTO desde ISO8583", e);
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear EnvironmentDTO desde ISO8583", e);
         }
     }
 
     @Override
-    public Map<String, String> unMapper(EnvironmentDTO env) {
+    public Map<String, String> unMapper(String networkName,EnvironmentDTO env) {
         Map<String, String> resultMap = new HashMap<>();
 
         CardDTO card = env.getCard();
@@ -135,32 +170,33 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
 
         // Card Information
-        resultMap.put("primaryAccountNumber", fieldService.getFieldValue(card, CardDTO::getPan, DEFAULT_EMPTY_VALUE));
-        //resultMap.put("dateExpiration",  fieldService.getFieldValue(card, CardDTO::getExpiryDate, DEFAULT_EMPTY_VALUE)); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
-        resultMap.put("dateExpiration", fieldService.reConvertFormatExpiryDate(card.getExpiryDate())); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
-        resultMap.put("cardSequenceNumber", fieldService.getFieldValue(card, CardDTO::getCardSequenceNumber, DEFAULT_EMPTY_VALUE));
-        resultMap.put("trackOneData", fieldService.getFieldValue(card, CardDTO::getTrack1, DEFAULT_EMPTY_VALUE));
-        resultMap.put("trackTwoData", fieldService.getFieldValue(card.getTrack2(), Track2DTO::getTextValue, DEFAULT_EMPTY_VALUE));
+        resultMap.put("primaryAccountNumber", mapperUtil.getFieldValue(card, CardDTO::getPan, DEFAULT_EMPTY_VALUE));
+        resultMap.put("dateExpiration", mapperUtil.reConvertFormatExpiryDate(card.getExpiryDate())); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
+        resultMap.put("cardSequenceNumber", mapperUtil.getFieldValue(card, CardDTO::getCardSequenceNumber, DEFAULT_EMPTY_VALUE));
+        resultMap.put("trackOneData", mapperUtil.getFieldValue(card, CardDTO::getTrack1, DEFAULT_EMPTY_VALUE));
+        resultMap.put("trackTwoData", mapperUtil.getFieldValue(card.getTrack2(), Track2DTO::getTextValue, DEFAULT_EMPTY_VALUE));
 
         // Terminal Information
-        resultMap.put("cardAcceptorTerminalIdentification", fieldService.getFieldValue(terminal.getTerminalId(), TerminalIdDTO::getId, DEFAULT_EMPTY_VALUE));
-        resultMap.put("posTerminalData", fieldService.getFieldValue(terminal.getTerminalId(), TerminalIdDTO::getAssigner, DEFAULT_EMPTY_VALUE));
+        resultMap.put("cardAcceptorTerminalIdentification", mapperUtil.getFieldValue(terminal.getTerminalId(), TerminalIdDTO::getId, DEFAULT_EMPTY_VALUE));
+        resultMap.put("posTerminalData", mapperUtil.getFieldValue(terminal.getTerminalId(), TerminalIdDTO::getAssigner, DEFAULT_EMPTY_VALUE));
 
         // Acquirer Information
-        resultMap.put("acquiringInstitutionIdentificationCode", fieldService.getFieldValue(acquirer, AcquirerDTO::getId, DEFAULT_EMPTY_VALUE));
-        resultMap.put("acquirerCountryCode", fieldService.getFieldValue(acquirer, AcquirerDTO::getCountry, DEFAULT_EMPTY_VALUE));
-        resultMap.put("postalCode", fieldService.getAdditionalDataValue(acquirer.getAdditionalId(), "postalCode", DEFAULT_EMPTY_VALUE));
+        resultMap.put("acquiringInstitutionIdentificationCode", mapperUtil.getFieldValue(acquirer, AcquirerDTO::getId, DEFAULT_EMPTY_VALUE));
+        resultMap.put("acquirerCountryCode", mapperUtil.getFieldValue(acquirer, AcquirerDTO::getCountry, DEFAULT_EMPTY_VALUE));
+        resultMap.put("postalCode", mapperUtil.getAdditionalDataValue(acquirer.getAdditionalId(), "postalCode", DEFAULT_EMPTY_VALUE));
 
         // Sender Information
-        resultMap.put("forwardingInstitutionIdentificationCode", fieldService.getFieldValue(sender, SenderDTO::getId, DEFAULT_EMPTY_VALUE));
-        resultMap.put("additionalDataRetailer", fieldService.getAdditionalDataValue(sender.getAdditionalId(), "additionalDataRetailer", DEFAULT_EMPTY_VALUE));
+        // ======== FIELD 33 (FORWARDING INSTITUTION IDENTIFICATION CODE) ========
+        resultMap.put("forwardingInstitutionIdentificationCode", mapperUtil.getFieldValue(sender, SenderDTO::getId, DEFAULT_EMPTY_VALUE));
+        // ======== FIELD 48 (ADDITIONAL DATA RETAILER) ========
+        resultMap.put("additionalDataRetailer", mapperUtil.getAdditionalDataValue(sender.getAdditionalId(), "additionalDataRetailer", DEFAULT_EMPTY_VALUE));
 
         // Acceptor Information
-        resultMap.put("cardAcceptorIdentificationCode", fieldService.getFieldValue(acceptor, AcceptorDTO::getId, DEFAULT_EMPTY_VALUE));
-        resultMap.put("cardAcceptorNameLocation", fieldService.getFieldValue(acceptor, AcceptorDTO::getNameAndLocation, DEFAULT_EMPTY_VALUE));
+        resultMap.put("cardAcceptorIdentificationCode", mapperUtil.getFieldValue(acceptor, AcceptorDTO::getId, DEFAULT_EMPTY_VALUE));
+        resultMap.put("cardAcceptorNameLocation", mapperUtil.getFieldValue(acceptor, AcceptorDTO::getNameAndLocation, DEFAULT_EMPTY_VALUE));
 
         // Issuer Information
-        resultMap.put("posCardIssuer", fieldService.getFieldValue(issuer, IssuerDTO::getAssigner, DEFAULT_EMPTY_VALUE));
+        resultMap.put("posCardIssuer", mapperUtil.getFieldValue(issuer, IssuerDTO::getAssigner, DEFAULT_EMPTY_VALUE));
 
         return resultMap;
     }

@@ -2,10 +2,9 @@ package com.bbva.orchestrator.core.commons;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.sensitivedata.SensitiveDataHandler;
-import com.bbva.orchestrator.core.builders.ISO8583;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +32,18 @@ public class ContextData {
         String maskedMessage = delegateParser.unParserPlainText(maskedFields);
 
         contextMap.put(GrpcHeadersInfo.getTraceId(), maskedMessage);
+    }
+
+
+    public String createFramePlainText( Map<String, String> mapFieldsValue, ISO8583DelegateParser delegateParser) {
+
+        if (mapFieldsValue.get("messageType").startsWith("08") || mapFieldsValue.get("messageType").startsWith("019")) {
+            return mapFieldsValue.get("messageType");
+        }
+        // Generar trama enmascarada
+        Map<String, String> maskedFields = maskSensitiveFields(mapFieldsValue);
+        return delegateParser.unParserPlainText(maskedFields);
+
     }
 
 

@@ -1,15 +1,11 @@
 package com.bbva.orchestrator.core.builders;
 
-import com.bbva.orchestrator.core.utils.FieldUtils;
-import com.bbva.orchestrator.core.utils.ISOUtil;
+import com.bbva.orchestrator.core.dto.ISO8583;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ISO8583Builder {
-
-    private ISO8583Builder() {
-    }
 
     public static ISO8583 buildISO8583(String originalMessage, Map<String, String> mapValues) {
 
@@ -135,23 +131,13 @@ public class ISO8583Builder {
                 .issuerTraceId(getValue("issuerTraceId", mapValues))
                 .privateData(getValue("privateData", mapValues))
                 .messageAuthenticationCode2(getValue("messageAuthenticationCode2", mapValues))
+                .networkName(getValue("networkName", mapValues))
                 .build();
     }
 
 
-    public static Map<String,String> logicResponse( Map<String,String>  mappedFields){
-        if(FieldUtils.isFlowAsynchronous(mappedFields.get("messageType"))) {
-            Map<String,String> mapValuesResponse = new HashMap<>(mappedFields);
-
-            //TODO Aplicar la logica de respuesta asincrónica específica de Mastercard excel
-            return mapValuesResponse;
-        }
-        return mappedFields;
-    }
-
     public static Map<String, String> buildMapISO8583(ISO8583 iso8583) {
         Map<String, String> mapValues = new HashMap<>();
-
         mapValues.put("header", iso8583.getHeader());
         mapValues.put("messageType", iso8583.getMessageType());
         mapValues.put("primaryAccountNumber", iso8583.getPrimaryAccountNumber());
@@ -282,19 +268,4 @@ public class ISO8583Builder {
         }
         return "";
     }
-
-    private static String getValueAmount(String fieldName, Map<String, String> values) {
-        if (values.containsKey(fieldName)) {
-            return ISOUtil.validAmount(values.get(fieldName));
-        }
-        return "";
-    }
-
-    private static String getValueAmountRate(String fieldName, Map<String, String> values) {
-        if (values.containsKey(fieldName)) {
-            return ISOUtil.validAmount(values.get(fieldName));
-        }
-        return "";
-    }
-
 }

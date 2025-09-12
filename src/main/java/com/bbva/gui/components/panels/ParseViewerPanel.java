@@ -1,27 +1,21 @@
 package com.bbva.gui.components.panels;
 
-import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.spring.ApplicationContextProvider;
-import com.bbva.orchestrator.core.builders.ISO8583;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
 import com.bbva.orchestrator.core.commons.ContextData;
-import com.bbva.orchestrator.core.commons.ISO8583Context;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
-import com.bbva.orchestrator.core.mapper.factory.impl.MastercardDelegateMapper;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
-import com.bbva.orchestrator.core.parser.factory.impl.MastercardDelegateParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.gateway.dto.iso20022.ISO20022;
 import lombok.Setter;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -132,14 +126,13 @@ public class ParseViewerPanel extends JPanel {
     private void setupEventHandlers() {
 
         if (parserFactory == null) {
-            contextData = ApplicationContextProvider.getBean(ContextData.class);
             parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
             delegateParser = parserFactory.getDelegateParser("PEER02");
             delegateMapper=  ApplicationContextProvider.getBean(MapperFactory.class).getDelegateMapper("PEER02");
+            contextData=ApplicationContextProvider.getBean(ContextData.class);
         }
         System.out.println("DelegateParser bean: " + delegateParser);
         System.out.println("DelegateMapper bean: " + delegateMapper);
-        System.out.println("contextData bean: " + contextData);
 
         parseButton.addActionListener(new ActionListener() {
             @Override
@@ -207,7 +200,7 @@ public class ParseViewerPanel extends JPanel {
             ParseResult result = ParseGUI.process(mapValues);
 
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, mapValues);
-            ISO8583Context.storeISO8583(iso8583, mapValues, delegateParser);
+            contextData.storeISO8583(iso8583, mapValues, delegateParser);
             Map<String, String> subFields =  delegateParser.parserSubFields(iso8583);
             ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields);
 
