@@ -1,37 +1,57 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
+import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
+import com.bbva.gateway.dto.iso20022.ResultDataDTO;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
+import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.enums.ResultaDataType;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class MapperUtil {
 
     private static final String NETWORK_PEER01 = "PEER01";
     private static final String NETWORK_PEER02 = "PEER02";
     private static final String RESPONSE_CODE_SECTION  = "response_code";
-
+    private static final List<String> MTI_OUTPUT = List.of("0120", "0420");
     private final ApplicationDataCache applicationDataCache;
     private final ApplicationDataLocalCache applicationDataLocalCache;
 
-    public MapperUtil(ApplicationDataCache applicationDataCache, ApplicationDataLocalCache applicationDataLocalCache) {
-        this.applicationDataCache = applicationDataCache;
-        this.applicationDataLocalCache = applicationDataLocalCache;
-    }
+    public ProcessingResultDTO createProcessingResult(ISO8583 inputObject) {
 
+        if (MTI_OUTPUT.contains(inputObject.getMessageType())) {
+            String result = ResultaDataType.convertResultDataType(inputObject.getMessageType());
+            String otherResult = applicationDataLocalCache.getCustomValue(inputObject.getNetworkName(), "response_code", inputObject.getResponseCode());
+
+            ResultDataDTO resultData = ResultDataDTO.builder()
+                    // ======== FIELD 39 (RESPONSE CODE) ========
+                    .result(result)
+                    .otherResult(otherResult)
+                    .build();
+
+            return ProcessingResultDTO.builder()
+                    .resultData(resultData)
+                    // ======== FIELD 38 (AUTHORIZATION IDENTIFICATION RESPONSE) ========
+                    .approvalCode(inputObject.getAuthorizationIdentificationResponse())
+                    .build();
+        }
+        return null;
+    }
     // currencyId=604 -> currencyCode=PEN
     public String convertCurrencyIdToCurrencyCode(String currencyId) {
         return applicationDataCache.getCurrencyCode(currencyId);
     }
-
     //  currencyCode=PEN -> currencyId=604
     public String convertCurrencyCodeToCurrencyId(String currencyCode) {
         return applicationDataCache.getCurrencyCode(currencyCode);
@@ -50,15 +70,17 @@ public class MapperUtil {
     }
 
     public String convertEffectiveExchangeRate(String conversionRate) {
-        return FieldUtils.convertEffectiveExchangeRate(conversionRate);
+        return FieldUtil.convertEffectiveExchangeRate(conversionRate);
     }
 
     public String convertConversionRate(String effectiveExchangeRate) {
-        return FieldUtils.convertConversionRate(effectiveExchangeRate);
+        return FieldUtil.convertConversionRate(effectiveExchangeRate);
     }
 
+
+
     public Double convertAmountDouble(String amount) {
-        return FieldUtils.convertAmountDouble(amount);
+        return FieldUtil.convertAmountDouble(amount);
     }
 
     /**
@@ -70,31 +92,31 @@ public class MapperUtil {
      * @return Un String de 12 caracteres.
      */
     public String convertAmountString(Double amount) {
-        return FieldUtils.convertAmountString(amount);
+        return FieldUtil.convertAmountString(amount);
     }
 
     public String isNullOrEmptySubstring(String source, int begin, int end) {
-        return FieldUtils.isNullOrEmptySubstring(source, begin, end);
+        return FieldUtil.isNullOrEmptySubstring(source, begin, end);
     }
 
     public String convertFormatDateTime(String input) {
-        return FieldUtils.convertFormatDateTime(input);
+        return FieldUtil.convertFormatDateTime(input);
     }
 
     public String reConvertFormatDateTime(String input) {
-        return FieldUtils.reConvertFormatDateTime(input);
+        return FieldUtil.reConvertFormatDateTime(input);
     }
 
     public Double conversionRateValidation(String rate) {
-        return FieldUtils.conversionRateValidation(rate);
+        return FieldUtil.conversionRateValidation(rate);
     }
 
     public String convertFormatExpiryDate(String expiry) {
-        return FieldUtils.convertFormatExpiryDate(expiry);
+        return FieldUtil.convertToLastDayOfMonth(expiry);
     }
 
     public String reConvertFormatExpiryDate(String expiry) {
-        return FieldUtils.reConvertFormatExpiryDate(expiry);
+        return FieldUtil.reConvertFormatExpiryDate(expiry);
     }
 
     public String operationTypeValue(String messageType, String transactionType) {
@@ -141,13 +163,22 @@ public class MapperUtil {
         return value == null || value.trim().isEmpty() ? "" : value;
     }
 
-    public String channelTPVIndicator(Object input, Map<String, String> subFields, String network) {
-        // Placeholder: esta lógica vendría de ISOSubFieldProcess
-        return subFields.get("CHANNEL_TPV_INDICATOR");
+    public String channelTPVIndicator(ISO8583 iso8583, Map<String, String> subFields) {
+        if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
+            return MastercardAxisOperator.channelTPVIndicator(subFields, iso8583.getMerchantType());
+        }else {
+            //return ProcessSubFieldsVisa.channelTPVIndicator(subFields, values.getMerchantType());
+            return null;
+        }
     }
 
-    public Boolean channelECommerceIndicator(Object input, Map<String, String> subFields, String network) {
-        return Objects.equals(subFields.get("E_COMMERCE_INDICATOR"), "true");
+    public Boolean channelECommerceIndicator(ISO8583 iso8583, Map<String, String> subFields) {
+        if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
+            return MastercardAxisOperator.channelECommerceIndicator(iso8583.getPointServiceEntryMode(), subFields);
+        }else {
+            //return ProcessSubFieldsVisa.channelECommerceIndicator(values.getPointServiceConditionCode(), subFields);
+            return null;
+        }
     }
 
     public String defaultIfEmpty(String value, String defaultValue) {

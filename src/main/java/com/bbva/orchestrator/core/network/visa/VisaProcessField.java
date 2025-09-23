@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.network.visa;
+package com.bbva.orchestrator.core.network.visa;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
@@ -6,6 +6,7 @@ import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.VisaHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.PlainTextFieldParser;
+import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class VisaISOFieldParser {
+public class VisaProcessField {
 
     private static final int LENGTH_BINARY_PRIMARY_BITMAP = 64;
     private static final int LENGTH_BINARY_SECONDARY_BITMAP = 128;
@@ -77,7 +78,7 @@ public class VisaISOFieldParser {
         } catch (ParserException e) {
             throw e;
         } catch (Exception e) {
-            throw new ParserException(ISOUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+ISOUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
+            throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
         }
         return valuesMap;
     }
@@ -153,7 +154,7 @@ public class VisaISOFieldParser {
             return currentPosition;
 
         } catch (ParserFieldsException e) {
-            throw new ParserException(ISOUtil.formatMessageException(e.getCode(),e.getDescription(),e));
+            throw new ParserException(FieldUtil.formatMessageException(e.getCode(),e.getDescription(),e));
         }
     }
 

@@ -1,14 +1,13 @@
-package com.bbva.orchestrator.network.mastercard;
+package com.bbva.orchestrator.core.logic.process;
 
-import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
-import com.bbva.orchestrator.network.ISOSubFieldParser;
-import com.bbva.orchestrator.network.common.DefaultISOSubFieldParser;
+import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
@@ -20,9 +19,9 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class MastercardISOSubFieldParser implements ISOSubFieldParser {
+public class MastercardProcessSubField  {
 
-    private final DefaultISOSubFieldParser defaultISOSubFieldParser;
+    private final CommonsProcessSubField defaultISOSubFieldParser;
     private final MastercardHandlerField mastercardHandlerField;
 
     /**
@@ -35,11 +34,10 @@ public class MastercardISOSubFieldParser implements ISOSubFieldParser {
      * con claves como "48.01", "48.11.01", etc.
      * Si el Campo 48 no está presente, devuelve un mapa vacío.
      */
-    @Override
     public  Map<String, String> parseSubfields(ISO8583 iso8583) {
         Map<String, String> allParsedSubfields = new HashMap<>();
 
-        if(iso8583.getMessageType().equals("0800")){ //0810,0130,0430,
+        if(!FieldUtil.requiredProcess(iso8583.getMessageType())){
             return allParsedSubfields;
         }
 
@@ -63,27 +61,17 @@ public class MastercardISOSubFieldParser implements ISOSubFieldParser {
      */
     private Map<String,String> processField48(ISO8583 iso8583){
 
-        Map<String, String> mapField48 = new HashMap<>();//FIXME: Para optimizacion de procesamiento deberia ser un HashMap
+        Map<String, String> mapField48 = new HashMap<>();
         // 1. Obtener la data hexadecimal cruda del Campo 48
         String field48RawHex = iso8583.getAdditionalDataRetailer();
 
         if (field48RawHex == null || field48RawHex.isEmpty()) {
-            LogsTraces.writeInfo("Campo 48 (additionalDataRetailer) no presente en la trama principal o está vacío. No se parsearán subcampos.");
             return mapField48;
         }
 
         try {
-            // 2. Instanciar el CompositeSubFieldParser para el Campo 48
-            // Le pasamos "48" para que sepa qué definiciones de subcampos buscar.
-            // Ahora, el CompositeSubFieldParser se inicializa de forma segura.
-            // CORRECCIÓN: Obtener las definiciones de subcampos del Campo 48 a través de la nueva clase de definiciones
             CompositeTlvFieldParser field48Parser = new CompositeTlvFieldParser("48", TLVFieldLoadStructure.getDirectSubFieldDefinitionsForField48());
-
-            // 3. Parsear la data hexadecimal cruda del Campo 48 usando parseToMap
-            // Necesitamos pasarle la definición del campo 48 para que el parseToMap tenga acceso a ella.
             Map<String, String> parsedInternalSubfields = field48Parser.parseToMap(field48RawHex, MastercardISOField.ADDITIONAL_DATA_48,mastercardHandlerField);
-
-            // 4. Combinar los subcampos parseados con el mapa principal
             mapField48.putAll(parsedInternalSubfields);
 
         } catch (RuntimeException e) {

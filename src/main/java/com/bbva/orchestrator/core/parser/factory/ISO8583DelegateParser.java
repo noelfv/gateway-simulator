@@ -1,7 +1,5 @@
 package com.bbva.orchestrator.core.parser.factory;
 
-import com.bbva.orchestrator.core.dto.ISO8583;
-
 import java.util.Map;
 
 /**
@@ -39,7 +37,7 @@ public interface ISO8583DelegateParser {
      *         Si el Campo 48 no está presente, devuelve un mapa vacío.
      */
     //Validar este punto en que casos requiere un mapa de subcampos para los 0800 no es necesario
-    Map<String, String> parserSubFields(ISO8583 iso8583);
+  //  Map<String, String> parserSubFields(ISO8583 iso8583);
 
 
     /**

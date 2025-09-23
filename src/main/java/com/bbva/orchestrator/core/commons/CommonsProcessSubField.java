@@ -1,21 +1,19 @@
-package com.bbva.orchestrator.network.common;
+package com.bbva.orchestrator.core.commons;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeFixedFieldParser;
-import com.bbva.orchestrator.network.ISOSubFieldParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class DefaultISOSubFieldParser implements ISOSubFieldParser {
+public class CommonsProcessSubField {
 
     private final CompositeFixedFieldParser compositeFieldParser;
 
-    @Override
+
     public Map<String, String> parseSubfields(ISO8583 iso8583) {
         Map<String, String> allParsedSubfields = new HashMap<>();
 

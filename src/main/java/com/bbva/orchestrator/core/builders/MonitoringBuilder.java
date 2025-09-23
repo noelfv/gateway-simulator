@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.core.commons;
+package com.bbva.orchestrator.core.builders;
 
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
@@ -6,6 +6,7 @@ import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.ChannelOperator;
 import com.bbva.orchestrator.core.enums.FilterOperator;
 import com.bbva.orchestrator.core.enums.TransactionType;
+import com.bbva.orchestrator.core.utils.FieldUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class MonitoringService {
+public class MonitoringBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringBuilder.class);
     private static final List<String> MTI_INPUT = List.of("0100", "0120", "0400", "0420");
     private static final List<String> MTI_OUTPUT = List.of("0110", "0130", "0410", "0430");
     private static final String BIN_ADQUIRENTE_P2P = "420829";
@@ -29,7 +30,7 @@ public class MonitoringService {
     private final ApplicationDataCache applicationDataCache;
 
 
-    public MonitoringService(ApplicationDataCache applicationDataCache) {
+    public MonitoringBuilder(ApplicationDataCache applicationDataCache) {
         this.applicationDataCache = applicationDataCache;
     }
 
@@ -43,7 +44,7 @@ public class MonitoringService {
         String merchantCategory = input.getMerchantType();
         try {
 
-            if (MTI_INPUT.contains(input.getMessageType())) {
+            if(FieldUtil.requiredProcess(input.getMessageType())){
                 String binCode = extractBinCode(input.getPrimaryAccountNumber());
                 String merchantName = extractMerchantName(envAcceptorNameAndLocation);
                 long endDate = Instant.now().toEpochMilli();
@@ -79,14 +80,15 @@ public class MonitoringService {
     }
 
 
-    private  String extractBinCode(String binCode) {
-        String resultBinCode = "";
+    private  String extractBinCode(String primaryAccountNumber) {
+        String resultBinCode = "000000";
         try {
-            resultBinCode = binCode.substring(0, 6);
+            resultBinCode = primaryAccountNumber.substring(0, 6);
+            return resultBinCode;
         } catch (Exception e) {
-            LOGGER.info("Error getting the binCode from the field PAN {} - {}  ", binCode, e.getMessage());
+            LOGGER.info("Error getting the binCode from the field primaryAccountNumber {} - {}  ", primaryAccountNumber, e.getMessage());
+            return resultBinCode;
         }
-        return resultBinCode;
     }
 
     private static String extractMerchantName(String nameLocation) {

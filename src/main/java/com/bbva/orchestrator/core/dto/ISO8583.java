@@ -130,4 +130,5 @@ public class ISO8583 {
     private String privateData;
     private String messageAuthenticationCode2;
     private String networkName;
+    private String plainTextPCI;
 }

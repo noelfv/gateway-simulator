@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchlib.parser.ParserException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,11 +10,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
-public class FieldUtils {
+public class FieldUtil {
 
-    public static final String FIELD_NOT_MAPPED = "NOT_MAPPED";
-    public static final String TYPE_MESSAGE = "TYPE_MESSAGE";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
+    public static boolean requiredProcess(String messageType) {
+        return Set.of("0100","0120","0400","0420").contains(messageType);
+    }
     /**
      * Parsea un String a Double, devuelve null si es nulo, vacío o inválido.
      */
@@ -92,6 +95,32 @@ public class FieldUtils {
         }
     }
 
+    public static String convertToLastDayOfMonth(String dateStr) {
+        if (dateStr == null || dateStr.length() != 4) {
+            return null;
+        }
+
+        try {
+            // Extraer el año y el mes de la cadena de entrada
+            int year = 2000 + Integer.parseInt(dateStr.substring(0, 2)); // "25" -> 2025
+            int month = Integer.parseInt(dateStr.substring(2, 4)); // "04" -> abril
+
+            if (month < 1 || month > 12) {
+                return null; // Validar que el mes esté en el rango válido
+            }
+
+            // Crear el último día del mes
+            YearMonth yearMonth = YearMonth.of(year, month);
+            LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+            // Formatear la salida como "yyyy-MM-dd"
+            return lastDayOfMonth.format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+        } catch (NumberFormatException e) {
+            return null; // Manejar errores de formato
+        }
+    }
+
+
     /**
      * Valida tasa de conversión: si es 000000, devuelve null.
      */
@@ -133,57 +162,6 @@ public class FieldUtils {
         }
     }
 
-
-
-    public static String unParserPlainText(Map<String, String> mapValues) {
-        StringBuilder binaryBitmap = new StringBuilder();
-        binaryBitmap.append('0'); // Bit 1 del bitmap primario
-        StringBuilder isoValues = new StringBuilder();
-
-        boolean hasSecondaryBitmap = false;
-
-        for (int i = 2; i <= 128; i++) {
-
-            MastercardISOField field = MastercardISOField.getById(i);
-
-            if (field == null) {
-                binaryBitmap.append('0');
-                continue;
-            }
-
-            String fieldName = field.getName();
-
-            String value = mapValues.get(fieldName);
-
-            if (value != null && !value.isEmpty()) {
-                binaryBitmap.append('1');
-                isoValues.append(value); // Valor en claro, sin EBCDIC, sin padding
-
-                if (i > 64) {
-                    hasSecondaryBitmap = true;
-                }
-            } else {
-                binaryBitmap.append('0');
-            }
-        }
-
-        if (hasSecondaryBitmap) {
-            binaryBitmap.setCharAt(0, '1');
-        } else {
-            binaryBitmap.setLength(64);
-        }
-
-        String messageType = mapValues.getOrDefault("messageType", "0000");
-        String bitmapHex = ISOUtil.convertBITMAPtoHEX(binaryBitmap.toString());
-
-        return messageType + bitmapHex + isoValues;
-    }
-
-    public static String convertDoubleToString(Double value, int padding) {
-        String format = "%0" + (padding + 1) + ".2f";
-        return (value == null) ? "" : String.format(format, value);
-    }
-
     //TODO REVISAR LA FUNCIONALIDAD
     public static String convertEffectiveExchangeRate(String value) {
         if (value == null || value.isEmpty()) {
@@ -216,28 +194,67 @@ public class FieldUtils {
         return conversionRate.toString();
     }
 
-
-    public static String convertFormatDateTime2(String value) {
-        if (value == null || value.isEmpty()) {
+    // --- Métodos Específicos para Montos ---
+    public static String validAmount(String amount) {
+        if (amount == null || amount.isEmpty()) {
             return null;
         }
-
-        try {
-            // Parseando la fecha ISO con zona horaria Z (UTC)
-            Instant instant = Instant.parse(value);
-            ZonedDateTime zonedDateTime = instant.atZone(ZoneOffset.UTC);
-
-            // Formateo al patrón MMddHHmmss
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMddHHmmss");
-
-            return zonedDateTime.format(outputFormatter);
-        } catch (Exception e) {
-            return null;
+        String amountGeneral = amount.substring(0, amount.length() - 2);
+        String amountCents = amount.substring(amount.length() - 2);
+        return amountGeneral + "." + amountCents;
+    }
+    public static String revertValidAmount(String amount) {
+        String revertedAmount = amount;
+        if (amount.contains(",") || amount.contains(".")) {
+            revertedAmount = amount.replace(",", "").trim();
+            revertedAmount = revertedAmount.replace(".", "").trim();
         }
+        return revertedAmount;
     }
 
-    public static boolean isFlowAsynchronous(String typeMessage) {
-        return Set.of("0110","0130","0410","0430").contains(typeMessage);
+    //TODO revisar el processError
+    // --- Métodos para manejar errores de trama ---
+    public static String processError(String messageIso,String network, boolean containsSecondaryBitmap) {
+        if(!containsSecondaryBitmap){
+            return replaceWithF0(messageIso,28,24);
+        }
+        return replaceWithF0(messageIso,44,24);
+    }
+
+    public static String formatMessageException(String code,String description,Throwable cause) {
+        return String.format("Error Code: %s, Description: %s, Cause: %s", code, description, cause != null ? cause.getMessage() : "No cause provided");
+    }
+
+    public static String replaceWithF0(String originalString, int startPosition, int charsToReplace) {
+        if (originalString == null || originalString.isEmpty()) {
+            return originalString;
+        }
+        if (startPosition >= originalString.length()) {
+            return originalString;
+        }
+        int endPosition = Math.min(startPosition + charsToReplace, originalString.length());
+        StringBuilder replacement = new StringBuilder();
+        for (int i = 0; i < charsToReplace / 2; i++) {
+            replacement.append("F0");
+        }
+        if (charsToReplace % 2 != 0) {
+            replacement.append("F");
+        }
+        return originalString.substring(0, startPosition) +
+                replacement.toString() +
+                originalString.substring(endPosition);
+    }
+
+    public static String getEnvVariableOrDefault(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return (value != null) ? value : defaultValue;
+    }
+
+    public static String getValue(String fieldName, Map<String, String> values) {
+        if (values.containsKey(fieldName)) {
+            return values.get(fieldName);
+        }
+        return "";
     }
 
 }

@@ -4,19 +4,17 @@ import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
 
 @Component
+@RequiredArgsConstructor
 public class ProcessingResultMappingStrategy implements SectionMappingStrategy<ProcessingResultDTO> {
 
     private final MapperUtil mapperUtil;
-
-    public ProcessingResultMappingStrategy(MapperUtil mapperUtil) {
-        this.mapperUtil = mapperUtil;
-    }
 
     @Override
     public ProcessingResultDTO mapper(ISO8583 input, Map<String, String> subFields) {
@@ -34,12 +32,15 @@ public class ProcessingResultMappingStrategy implements SectionMappingStrategy<P
         ResultDataDTO resultData = input.getResultData();
         String respondeCode= resultData.getResult();//TODO Aca se peude hacer la conversion
         String result = mapperUtil.convertResponseCodeToResultData(networkName,respondeCode);
+
+        // ======== FIELD 39 (RESPONDE CODE) ========
+        mapValues.put("responde_code",result);
+
         if(result.equals("00")){
             // ======== FIELD 38 (AUTHORIZATION IDENTIFICATION RESPONSE) ========
-            mapValues.put("respondeCode", input.getApprovalCode());
+            mapValues.put("authorizationIdentificationResponse", input.getApprovalCode());
         }
-        // ======== FIELD 39 (RESPONSE CODE) ========
-        mapValues.put("respondeCode", respondeCode);
+
         //TODO En el tiempo se debe definir que otros campos se pueden mapear del processing result
         // ======== FIELD 48.87 TAG ========
         mapValues.put("48.87",findValueInAdditionalInformation(input,"cvv_validation_result"));

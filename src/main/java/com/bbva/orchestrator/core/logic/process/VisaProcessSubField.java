@@ -1,9 +1,8 @@
-package com.bbva.orchestrator.network.visa;
+package com.bbva.orchestrator.core.logic.process;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
-
-import com.bbva.orchestrator.network.ISOSubFieldParser;
-import com.bbva.orchestrator.network.common.DefaultISOSubFieldParser;
+import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
@@ -15,9 +14,9 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class VisaISOSubFieldParser implements ISOSubFieldParser {
+public class VisaProcessSubField {
 
-    private final DefaultISOSubFieldParser defaultISOSubFieldParser;
+    private final CommonsProcessSubField defaultISOSubFieldParser;
 
     /**
      * Parsea los subcampos de campos variables específicos (como el Campo 48)
@@ -29,14 +28,16 @@ public class VisaISOSubFieldParser implements ISOSubFieldParser {
      * con claves como "48.01", "48.11.01", etc.
      * Si el Campo 48 no está presente, devuelve un mapa vacío.
      */
-    @Override
     public  Map<String, String> parseSubfields(ISO8583 iso8583) {
         Map<String, String> allParsedSubfields = new HashMap<>();
 
-        if(iso8583.getMessageType().equals("0800")){ //0810,0130,0430,
+        if(!FieldUtil.requiredProcess(iso8583.getMessageType())){
             return allParsedSubfields;
         }
-        return defaultISOSubFieldParser.parseSubfields(iso8583);
+
+        allParsedSubfields = defaultISOSubFieldParser.parseSubfields(iso8583);
+
+        return allParsedSubfields;
     }
 
 }

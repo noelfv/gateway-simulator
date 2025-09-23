@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
@@ -101,6 +100,8 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 .localDate(input.getLocalTransactionDate())
                 // ======== FIELD 13 (LOCAL TRANSACTION TIME) ========
                 .localTime(input.getLocalTransactionTime())
+                // ======== FIELD CALCULATED FIELD 12 + FIELD 13 ========
+                .localDateTime(mapperUtil.convertFormatDateTime(input.getLocalTransactionDate()+input.getLocalTransactionTime()))
                 // ======== FIELD 37 (RETRIEVAL REFERENCE NUMBER) ========
                 .retrievalReferenceNumber(input.getRetrievalReferenceNumber())
                 // ======== FIELD 90 (ORIGINAL DATA ELEMENTS) ========
@@ -108,7 +109,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                 // ======== FIELD 7 (TRANSMISSION DATE & TIME) ========
                 .transmissionDateTime(mapperUtil.convertFormatDateTime(input.getTransmissionDateTime()))
                 // ======== ID MONITOR ========
-                .transactionReference(mapperUtil.createTransactionReference(input, subFields,  GrpcHeadersInfo.getNetwork()))
+                .transactionReference(mapperUtil.createTransactionReference(input, subFields,  input.getNetworkName()))
                 .build();
 
         // Additional Fees

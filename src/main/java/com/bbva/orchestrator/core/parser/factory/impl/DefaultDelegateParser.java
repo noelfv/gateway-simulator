@@ -27,10 +27,10 @@ public class DefaultDelegateParser implements ISO8583DelegateParser {
     public String unParserPlainText(Map<String, String> mappedFields) {
         throw new UnsupportedOperationException("RED NO SOPORTADA : " + GrpcHeadersInfo.getNetwork());
     }
-
+/*
     @Override
     public Map<String, String> parserSubFields(ISO8583 iso8583) {
         throw new UnsupportedOperationException("RED NO SOPORTADA : " + GrpcHeadersInfo.getNetwork());
     }
-
+*/
 }

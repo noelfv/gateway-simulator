@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.core.logic;
+package com.bbva.orchestrator.core.logic.factory;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.bbva.orchestrator.core.logic;
+package com.bbva.orchestrator.core.logic.factory;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import org.springframework.stereotype.Component;

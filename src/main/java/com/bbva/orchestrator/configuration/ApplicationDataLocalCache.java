@@ -72,7 +72,7 @@ public class ApplicationDataLocalCache {
         Map<String, String> map = outputLRAByNetwork.get(network);
         return map != null ? map.get(key) : null;
     }
-
+    // Red - responde code - label/codigo de respuesta
     public String getCustomValue(String network,String section, String key) {
 
         Map<String, Map<String, String>> networkMap = customDataByNetwork.get(network);

@@ -4,9 +4,8 @@ import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
-import com.bbva.orchestrator.core.commons.ContextData;
-import com.bbva.orchestrator.core.logic.FieldLogicFactory;
-import com.bbva.orchestrator.core.logic.NetworkDelegateFieldLogic;
+import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
+import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
@@ -23,7 +22,6 @@ public class OrchestratorFlowProcess implements IParser {
 
     private final ParserFactory parserFactory;
     private final MapperFactory mapperFactory;
-    private final ContextData contextData;
     private final FieldLogicFactory fieldLogicFactory;
 
     @Override
@@ -31,27 +29,14 @@ public class OrchestratorFlowProcess implements IParser {
         ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser(GrpcHeadersInfo.getNetwork());
         Map<String, String> fieldsValues = delegateParser.parser(originalMessage);
         ISO8583 iso8583 = ISO8583Builder.buildISO8583(originalMessage, fieldsValues);
-        contextData.storeISO8583(iso8583, fieldsValues, delegateParser);
         NetworkDelegateFieldLogic delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic(iso8583.getNetworkName());
         Map<String, String> subFieldsValues = delegateFieldLogic.parseSubfields(iso8583);
         ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper();
-        ISO20022 iso20022=delegateMapper.mapper(iso8583, subFieldsValues);
-       /* if(isProcessingResultNullOrEmpty(iso20022)){
-            System.out.println("Mensaje de respuesta de flujo asincrono");
-        }else{
-            //TODO Este bloque solo genera la trama de respuesta para el flujo sincrono(PAP)
-            Map<String, String> fieldsValuesResp = delegateMapper.unMapper(iso20022);
-            Map<String, String> fieldsValuesResponse = delegateFieldLogic.applyLogicFields(fieldsValuesResp);
-            String tramaResp= delegateParser.unParser(fieldsValuesResponse);
-            System.out.println(tramaResp);
-        }*/
-
-        return iso20022;
+        return delegateMapper.mapper(iso8583, subFieldsValues);
     }
 
     @Override
     public String convert20022to8583(ISO20022 iso20022) {
-        contextData.removeStoreId();
         // TODO: como saber si es un flujo sincrono o asincrono? Solicitar a global poder identificar un iso20022 de respuesta de PAP
         String typeMessage= extractMessageType(iso20022);
         if(!requiredUnparser(typeMessage)) {

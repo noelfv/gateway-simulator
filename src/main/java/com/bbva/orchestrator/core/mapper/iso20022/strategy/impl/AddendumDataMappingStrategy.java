@@ -1,9 +1,7 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.commons.ContextData;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -12,12 +10,6 @@ import java.util.Map;
 
 @Component
 public class AddendumDataMappingStrategy implements SectionMappingStrategy<AddendumDataDTO> {
-
-    private final ContextData contextData;
-
-    public AddendumDataMappingStrategy(ContextData contextData) {
-        this.contextData = contextData;
-    }
 
     @Override
     public AddendumDataDTO mapper(ISO8583 input, Map<String, String> subFields) {
@@ -40,7 +32,7 @@ public class AddendumDataMappingStrategy implements SectionMappingStrategy<Adden
 
         additionalDataList.add(AdditionalDataDTO.builder()
                 .key("ISO8583")
-                .value(contextData.getISO8583(GrpcHeadersInfo.getTraceId()))
+                .value(input.getPlainTextPCI())
                 .build());
 
         // Mapeo campo 61
@@ -174,8 +166,6 @@ public class AddendumDataMappingStrategy implements SectionMappingStrategy<Adden
                 .key("magnetic_stripe_compliance_error_indicator")
                 .value(subFields.getOrDefault("48.89",null))
                 .build());
-
-
 
         return AddendumDataDTO.builder()
                 .additionalData(additionalDataList)

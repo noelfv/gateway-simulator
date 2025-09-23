@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.core.builders;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,6 +131,7 @@ public class ISO8583Builder {
                 .privateData(getValue("privateData", mapValues))
                 .messageAuthenticationCode2(getValue("messageAuthenticationCode2", mapValues))
                 .networkName(getValue("networkName", mapValues))
+                .plainTextPCI(getValue("plainTextPCI", mapValues))
                 .build();
     }
 

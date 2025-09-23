@@ -1,9 +1,7 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.commons.ContextData;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -13,19 +11,13 @@ import java.util.Map;
 @Component
 public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<CustomDataLocalDTO> {
 
-    private final ContextData contextData;
-
-    public CustomDataLocalMappingStrategy(ContextData contextData) {
-        this.contextData = contextData;
-    }
-
     @Override
     public CustomDataLocalDTO mapper(ISO8583 input, Map<String, String> subFields) {
 
         //TODO Se debe considerar la siguiente logica, para los mensaje de entrada se debe de crear los
         // los objetos addendumData y customData con la siguiente logica:
         // 1. AddendumData:    MGSTYPE, ISO8583_HOST, ISO8583
-        // 2. CustomDataLocal: MGSTYPE, ISO8583, FLOWTYPE(para el caso de flowType siempre seria ASYNC)
+        // 2. CustomDataLocal: MGSTYPE, ISO8583
         List<AdditionalDataCustomDataLocalDTO> additionalDataCustomDataLocalList = new ArrayList<>();
 
         // 1. Crear y añadir el primer par (MSGTYPE)
@@ -40,7 +32,7 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
         // 2. Crear y añadir el segundo par (ISO8583)
         RequestDTO iso8583Request = RequestDTO.builder()
                 .key("ISO8583")
-                .value(contextData.getISO8583(GrpcHeadersInfo.getTraceId()))
+                .value(input.getPlainTextPCI())
                 .build();
         additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
                 .request(iso8583Request)
@@ -55,9 +47,6 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
 
     @Override
     public Map<String, String> unMapper(String networkName,CustomDataLocalDTO input) {
-
-        input.getAdditionalData().get(0).getRequest().getKey();
-
         return Map.of();
     }
 }

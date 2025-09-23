@@ -4,8 +4,10 @@ import com.bbva.orchestrator.core.fields.definitions.ISODataType;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public enum VisaISOField implements ISOField {
 
@@ -134,4 +136,9 @@ public enum VisaISOField implements ISOField {
         return BY_ID.get(id);
     }
 
+    public static Optional<VisaISOField> findById(int id) {
+        return Arrays.stream(values())
+                .filter(f -> f.id == id)
+                .findFirst();
+    }
 }

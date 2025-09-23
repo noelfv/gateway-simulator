@@ -1,9 +1,9 @@
-package com.bbva.orchestrator.core.commons;
+package com.bbva.orchestrator.core.network.mastercard;
 
 import java.util.Map;
 import java.util.Set;
 
-public class ProcessSubFieldsMastercard {
+public class MastercardAxisOperator {
 
     private static final String VAR_2201 = "22.01";
     private static final String VAR_6111 = "61.11";
@@ -19,7 +19,7 @@ public class ProcessSubFieldsMastercard {
 
     private static final String RETAIL = "R";
 
-    private ProcessSubFieldsMastercard() {
+    private MastercardAxisOperator() {
     }
 
 
@@ -53,9 +53,9 @@ public class ProcessSubFieldsMastercard {
                 && RETAIL.equals(subFields.get(VAR_4801))
         ){
             return "POST";
-        }else if(subFields.containsKey("3.01") && subFields.get("3.01").equals("01") && merchantType != null && merchantType.equals("6011")){
+        }else if(subFields.containsKey("03.01") && subFields.get("03.01").equals("01") && merchantType != null && merchantType.equals("6011")){
             return "ATMT";
-        }else if(subFields.containsKey("3.01") && subFields.get("3.01").equals("01") && merchantType != null && merchantType.equals("6010")){
+        }else if(subFields.containsKey("03.01") && subFields.get("03.01").equals("01") && merchantType != null && merchantType.equals("6010")){
             return "OTHNRETV";
         }else{
             return "OTHN";

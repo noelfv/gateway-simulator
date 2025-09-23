@@ -12,7 +12,6 @@ import com.bbva.orchlib.parser.ParserException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 public class CompositeTlvFieldParser implements FieldParserStrategy {
 
     private static final int TAG_LENGTH_HEX = 4;        // 2 bytes → 4 caracteres hex

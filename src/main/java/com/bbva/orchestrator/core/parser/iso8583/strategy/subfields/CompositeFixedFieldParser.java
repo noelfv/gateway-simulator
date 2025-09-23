@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.core.parser.iso8583.strategy.subfields;
 
-
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedSubFieldResult;
 import com.bbva.orchestrator.core.fields.definitions.subfields.fixed.CompositeFieldDefinition;

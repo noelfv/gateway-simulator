@@ -1,11 +1,10 @@
-package com.bbva.orchestrator.network.mastercard;
+package com.bbva.orchestrator.core.network.mastercard;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.core.exception.ParserFieldsException;
-import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.PlainTextFieldParser;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
@@ -20,7 +19,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class MastercardISOFieldParser {
+public class MastercardProcessField {
 
     private static final int LENGTH_BINARY_PRIMARY_BITMAP = 64;
     private static final int LENGTH_BINARY_SECONDARY_BITMAP = 128;
@@ -70,7 +69,7 @@ public class MastercardISOFieldParser {
         } catch (ParserException e) {
             throw e;
         } catch (Exception e) {
-            throw new ParserException(ISOUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+ISOUtil.processError(originalMessageHex,"peer02", containsSecondaryBitmap),e.getCause()));
+            throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer02", containsSecondaryBitmap),e.getCause()));
         }
         return valuesMap;
     }

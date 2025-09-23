@@ -1,12 +1,11 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.orchestrator.core.commons.ISOSubFieldProcess;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardDataEntryMode;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.utils.FieldUtils;
+import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
     public ContextDTO mapper(ISO8583 input, Map<String, String> subFields) {
         // === TRANSACTION CONTEXT ===
 
-        Boolean isECommerceIndicator= ISOSubFieldProcess.channelECommerceIndicator(input, subFields, input.getNetworkName());
+        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input, subFields);
 
         ReconciliationDTO reconciliation = ReconciliationDTO.builder()
                 .date(input.getAmountTransactionFee())
@@ -42,7 +41,7 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
 
         String operationType = mapperUtil.operationTypeValue(
                 input.getMessageType(),
-                FieldUtils.isNullOrEmptySubstring(input.getProcessingCode(), 0, 2)
+                FieldUtil.isNullOrEmptySubstring(input.getProcessingCode(), 0, 2)
         );
 
         String channel = mapperUtil.channelValue(

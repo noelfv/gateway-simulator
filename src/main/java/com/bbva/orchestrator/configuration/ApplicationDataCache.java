@@ -6,7 +6,6 @@ import com.bbva.orchlib.featuretoggle.businessdata.Currency;
 import com.bbva.orchlib.featuretoggle.businessdata.Custom;
 import com.bbva.orchlib.featuretoggle.businessdata.Fields;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
@@ -91,8 +90,4 @@ public class ApplicationDataCache {
         return result;
     }
 
-    private Map<String, String> createMapByCurrencyId(List<Currency> currencyList) {
-        return currencyList.stream()
-                .collect(Collectors.toMap(Currency::getNumericCurrencyId, Currency::getDecimalCurrencyNumber));
-    }
 }

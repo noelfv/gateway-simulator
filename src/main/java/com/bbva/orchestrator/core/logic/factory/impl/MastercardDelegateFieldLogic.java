@@ -1,10 +1,11 @@
-package com.bbva.orchestrator.core.logic.impl;
+package com.bbva.orchestrator.core.logic.factory.impl;
 
+import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.fields.VisaISOField;
-import com.bbva.orchestrator.core.logic.NetworkDelegateFieldLogic;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeFixedFieldParser;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
+import com.bbva.orchestrator.core.logic.process.MastercardProcessSubField;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +15,11 @@ import java.util.Set;
 public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
 
     private final ApplicationDataLocalCache applicationDataLocalCache;
-    private final CompositeFixedFieldParser compositeFieldParser;
+    private final MastercardProcessSubField mastercardISOSubFieldParser;
 
-    public MastercardDelegateFieldLogic(ApplicationDataLocalCache applicationDataLocalCache, CompositeFixedFieldParser compositeFieldParser) {
+    public MastercardDelegateFieldLogic(ApplicationDataLocalCache applicationDataLocalCache, MastercardProcessSubField mastercardISOSubFieldParser) {
         this.applicationDataLocalCache = applicationDataLocalCache;
-        this.compositeFieldParser = compositeFieldParser;
+        this.mastercardISOSubFieldParser = mastercardISOSubFieldParser;
     }
 
     @Override
@@ -27,15 +28,8 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
         if(!requiredProcessSubFields(iso8583.getMessageType())){
             return allParsedSubfields;
         }
-        //TODO: Validar el tratamiento de subcampos por tipo de mensaje si es necesario
-        Map<String, String> mapSubField03 = compositeFieldParser.buildSubFieldsSpecific("03", iso8583.getProcessingCode());
-        Map<String, String> mapSubField22 = compositeFieldParser.buildSubFieldsSpecific("22", iso8583.getPointServiceEntryMode());
-        Map<String, String> mapSubField54 = compositeFieldParser.buildSubFieldsSpecific("54", iso8583.getAdditionalAmounts());
-        Map<String, String> mapSubField61 = compositeFieldParser.buildSubFieldsSpecific("61", iso8583.getPosCardIssuer());
-        allParsedSubfields.putAll(mapSubField03);
-        allParsedSubfields.putAll(mapSubField22);
-        allParsedSubfields.putAll(mapSubField54);
-        allParsedSubfields.putAll(mapSubField61);
+        allParsedSubfields=mastercardISOSubFieldParser.parseSubfields(iso8583);
+
         return allParsedSubfields;
     }
 
@@ -45,17 +39,14 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
         String networkName= mapValues.get("networkName");
         String messageType= mapValues.get("messageType");
         Map<Integer,String> mapFieldsResponse = applicationDataLocalCache.getFieldsResponse(networkName,messageType);
-        //TODO contador de mandatorios
-        int conta=0;
         Map<String, String> mapValuesResponse = new HashMap<>();
         for (Map.Entry<Integer, String> entry : mapFieldsResponse.entrySet()) {
             Integer fieldId = entry.getKey();
             String condition = entry.getValue();
-            String fieldName = VisaISOField.getById(fieldId).getName();
+            String fieldName = MastercardISOField.getById(fieldId).getName();
 
             // Comprueba si el campo existe en mapValues y lo añade al nuevo mapa.
             if (mapValues.containsKey(fieldName)) {
-                conta++;
                 mapValuesResponse.put(fieldName, mapValues.get(fieldName));
             }
 
@@ -63,12 +54,13 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
             // Por ejemplo, si el campo es mandatorio y no se encontró.
             if ("M".equals(condition) && !mapValues.containsKey(fieldName)) {
                 // Lanza una excepción o maneja el error como necesites.
-                System.out.println("Error: Campo mandatorio faltante: " + fieldName + " (ID: " + fieldId + ")");
+                //throw new MandatoryFieldsException();
+                LogsTraces.writeError("Error: Campo mandatorio faltante: " + fieldName + " (ID: " + fieldId + ")");
             }
         }
 
         mapValuesResponse.put("messageType",mapValues.get("messageType"));
-        //mapValuesResponse.put("additionalDataRetailer",applyLogicField48(messageType,mapValuesResponse));
+        mapValuesResponse.put("additionalDataRetailer",applyLogicField48(messageType,mapValuesResponse));
         return mapValuesResponse;
 
     }
@@ -77,10 +69,10 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
         String field48 = mapValues.get("additionalDataRetailer");
         if (messageType.contains("0110") && field48 != null) {
             String field48Tag87 = mapValues.get("48.87");
-            if ("true".equals(field48Tag87)) {
+            if ("true".equalsIgnoreCase(field48Tag87)) {
                 return field48 + "F8F7F0F1D4";
             }
-            if ("false".equals(field48Tag87)) {
+            if ("false".equalsIgnoreCase(field48Tag87)) {
                 return field48 + "F8F7F0F1D5";
             }
         }
@@ -88,7 +80,7 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
     }
 
     private boolean requiredProcessSubFields(String messageType) {
-        return Set.of("0100","0120","0400","0420").contains(messageType);
+        return Set.of("0100","0110","0400","0410").contains(messageType);
     }
 
 }

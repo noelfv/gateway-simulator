@@ -3,17 +3,13 @@ package com.bbva.orchestrator.core.mapper.factory.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.gui.dto.Metadata;
-import com.bbva.orchestrator.core.commons.ContextData;
 import com.bbva.orchestrator.core.enums.MessageFunction;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.impl.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
-import com.bbva.orchestrator.core.utils.FieldUtils;
-import com.bbva.orchestrator.core.commons.MonitoringService;
-import com.bbva.orchestrator.core.commons.ProcessingResult;
-import com.bbva.orchestrator.validations.FieldLocalCodeMapper;
+import com.bbva.orchestrator.core.builders.MonitoringBuilder;
+import com.bbva.orchestrator.core.utils.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -22,7 +18,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
-    private final ContextData contextData;
+    private final MapperUtil mapperUtil;
+
     private final EnvironmentMappingStrategy environmentStrategy;
     private final TransactionMappingStrategy transactionStrategy;
     private final ContextMappingStrategy contextStrategy;
@@ -33,7 +30,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     private final ProcessingResultMappingStrategy processingResultMappingStrategy;
     private final AddendumDataMappingStrategy addendumDataStrategy;
     private final CustomDataLocalMappingStrategy customDataLocalStrategy;
-    private final MonitoringService monitoringService;
+    private final MonitoringBuilder monitoringService;
 
 
     /**
@@ -66,13 +63,13 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
             MonitoringDTO monitoring=monitoringService.build(input, transaction,environment,context);
 
             LogsTraces.writeInfo("requestMessage %s|%s"
-                    .formatted(contextData.getISO8583(GrpcHeadersInfo.getTraceId()),
+                    .formatted(input.getPlainTextPCI(),
                             transaction.getTransactionId().getTransactionReference()));
 
             // Construir el objeto ISO20022 final usando su builder, solo con objetos no nulos
             ISO20022.ISO20022Builder iso20022Builder = ISO20022.builder()
-                    .networkName(GrpcHeadersInfo.getNetwork())
-                    //.messageFunction(FieldLocalCodeMapper.getCode(FieldUtils.TYPE_MESSAGE, "in", input.getMessageType(), GrpcHeadersInfo.getNetwork()))
+                    .networkName(input.getNetworkName())
+                    .isSimulation(false)//TODO Revisar este valor siempre es false(ecommerce nos indica que sea false)
                     .messageFunction(MessageFunction.convertMessageFunction(input.getMessageType()))
                     .socketPort(GrpcHeadersInfo.getPort())
                     .traceData(traceData)
@@ -81,7 +78,6 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                     .addendumData(addendumData)
                     .customDataLocal(customDataLocal)//se deberia eliminar este bloque en el sensitiveData del flowhandler
                     .monitoring(monitoring);//Esto se deberia de setear en el mapper de la respuesta
-                    //.mappingMetadata(Metadata.createMetadata(input));//Esto se deberia de setear en el mapper de la respuesta;//Esto se deberia de setear en el mapper de la respuesta
 
             if (Objects.nonNull(context)) { // Asumiendo que context es un objeto DTO
                 iso20022Builder.context(context);
@@ -98,7 +94,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
             //  Solo agregar processingResult si es un mensaje de respuesta
             if (input.getMessageType().equals("0120") || input.getMessageType().equals("0420")) {
-                iso20022Builder.processingResult(ProcessingResult.createProcessingResult(input));
+                iso20022Builder.processingResult(mapperUtil.createProcessingResult(input));
             }
 
             return iso20022Builder.build();
@@ -163,7 +159,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
         //TransactionDTO transaction= transactionStrategy.mapper(input, subFields);//Campos mandatorios
         //ContextDTO context = contextStrategy.mapper(input, subFields);//Campos mandatorios
         //TODO: No aplica para el mensaje 0800 y 0302 validar que  ocurriria
-        ProcessingResultDTO processingResultDTO = ProcessingResult.createProcessingResult(input);
+        ProcessingResultDTO processingResultDTO = mapperUtil.createProcessingResult(input);
         return ISO20022.builder()
                 .networkName(input.getNetworkName())
                 .messageFunction(MessageFunction.convertMessageFunction(input.getMessageType()))
@@ -185,8 +181,8 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     //Esto solo aplica para el passtrhoug luego se debe de evaluar si se debe de eliminar
     private ISO20022 buildFallbackResponse(ISO8583 input) {
         return ISO20022.builder()
-                .networkName(GrpcHeadersInfo.getNetwork())
-                .messageFunction(FieldLocalCodeMapper.getCode(FieldUtils.TYPE_MESSAGE, "in", input.getMessageType(), GrpcHeadersInfo.getNetwork()))
+                .networkName(input.getNetworkName())
+                .messageFunction(MessageFunction.convertMessageFunction(input.getMessageType()))
                 .socketPort(GrpcHeadersInfo.getPort())
                 .environment(EnvironmentDTO.builder()
                         .card(CardDTO.builder()

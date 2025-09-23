@@ -4,6 +4,7 @@ package com.bbva.gui.commons;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
 import java.util.LinkedHashMap;
@@ -106,7 +107,7 @@ public class ISO8583Processor {
 
     private static String processFieldTramaClaro(ISOField isoField, String value) {
         if (isoField.getTypeData() == NUMERIC_DECIMAL) {
-            return ISOUtil.validAmount(value);
+            return FieldUtil.validAmount(value);
         } else if (isoField.getTypeData() == BINARY_STRING) {
             return  ISOUtil.convertHEXtoBITMAP(value);
         }else

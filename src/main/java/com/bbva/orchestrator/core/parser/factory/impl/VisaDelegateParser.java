@@ -1,9 +1,7 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
-import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
-import com.bbva.orchestrator.network.visa.VisaISOFieldParser;
-import com.bbva.orchestrator.network.visa.VisaISOSubFieldParser;
+import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.Map;
@@ -13,14 +11,14 @@ import java.util.Map;
 public class VisaDelegateParser implements ISO8583DelegateParser {
 
     private static final String NETWORK_VISA = "PEER01";
-    private final VisaISOFieldParser fieldParser;
-    private final VisaISOSubFieldParser subFieldParser;
+    private final VisaProcessField fieldParser;
 
     @Override
     public Map<String, String> parser(String originalMessage) {
         Map<String,String> mappedFields = fieldParser.mapFields(originalMessage);
-        mappedFields.put("networkName",NETWORK_VISA);
         adjustFields(mappedFields);
+        mappedFields.put("networkName",NETWORK_VISA);
+        //mappedFields.put("plainTextPCI", ParserUtil.unParserPlainTextPCI(mappedFields,fieldParser));
         return mappedFields;
     }
 
@@ -34,10 +32,10 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
         return fieldParser.unMapFieldsPlainText(mappedFields);
     }
 
-    @Override
-    public Map<String, String> parserSubFields(ISO8583 iso8583) {
-        return subFieldParser.parseSubfields(iso8583);
-    }
+    //@Override
+    //public Map<String, String> parserSubFields(ISO8583 iso8583) {
+      //  return subFieldParser.parseSubfields(iso8583);
+    //}
 
     /**
      * Ajusta los campos específicos en el mapa de valores.

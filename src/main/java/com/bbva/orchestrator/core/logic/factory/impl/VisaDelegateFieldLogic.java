@@ -1,9 +1,9 @@
-package com.bbva.orchestrator.core.logic.impl;
+package com.bbva.orchestrator.core.logic.factory.impl;
 
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.fields.VisaISOField;
-import com.bbva.orchestrator.core.logic.NetworkDelegateFieldLogic;
+import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeFixedFieldParser;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;

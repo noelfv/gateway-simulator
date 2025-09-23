@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
 import com.bbva.gateway.dto.iso20022.*;
-import com.bbva.orchestrator.core.commons.ISOSubFieldProcess;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
@@ -75,7 +74,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .build();
 
             // ... resto del mapeo
-            String type = ISOSubFieldProcess.channelTPVIndicator(input, subFields, input.getNetworkName());
+            String type = mapperUtil.channelTPVIndicator(input, subFields);
             String typeValue = type != null ? type.substring(0, 4) : null;
 
             Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapSubField61_03(
