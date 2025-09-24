@@ -161,17 +161,6 @@ public class MastercardParserGUI6 extends JFrame {
             }
         });
 
-
-/*
-        parseMenuItem.addActionListener(
-                new InternalFrameActionListener(
-                        (JDesktopPane) getContentPane(),
-                        new ParseViewerPanel(),
-                        "Parser Principal"
-                )
-        );*/
-
-
         convertirTramaMenuItem.addActionListener(new ActionListener() {
             JInternalFrame internalFrame;
             @Override
@@ -195,17 +184,6 @@ public class MastercardParserGUI6 extends JFrame {
                 }
             }
         });
-
-        /*
-        convertirTramaMenuItem.addActionListener(
-                new InternalFrameActionListener(
-                        (JDesktopPane) getContentPane(),
-                        new ConverterTramaViewerPanel(),
-                        "Convertir trama"
-                )
-        );
-
-         */
 
         convertirIso20022MenuItem.addActionListener(new ActionListener() {
             JInternalFrame internalFrame;
@@ -231,16 +209,6 @@ public class MastercardParserGUI6 extends JFrame {
             }
         });
 
-
-/*
-        convertirIso20022MenuItem.addActionListener(
-                new InternalFrameActionListener(
-                        (JDesktopPane) getContentPane(),
-                        new ConverterTramaViewerPanel(),
-                        "Convertir Objeto"
-                )
-        );
-  */
 
         generarTramaMenuItem.addActionListener(new ActionListener() {
             JInternalFrame internalFrame;
@@ -298,11 +266,27 @@ public class MastercardParserGUI6 extends JFrame {
 
         // Agregar listener para campo48MenuItem
         campo48MenuItem.addActionListener(new ActionListener() {
+
+            JInternalFrame internalFrame;
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                JPanel parserPanel = new TramaExamplesViewerPanel();
-                SwingUtils.mostrarEnInternalFrame(desktopPane, parserPanel, "Formato del Campo 48");
+                if (internalFrame == null || internalFrame.isClosed()) {
+                    internalFrame = SwingUtils.mostrarEnInternalFrame2(desktopPane, new TLVParseViewerPanel(), "Parsear TLV");
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } else {
+                    try {
+                        internalFrame.setIcon(false);
+                        internalFrame.setSelected(true);
+                        internalFrame.toFront();
+                        desktopPane.revalidate();
+                        desktopPane.repaint();
+                    } catch (Exception ex) {
+                        LogsTraces.writeWarning(ex.getMessage());
+                        // Manejo de excepción
+                    }
+                }
             }
         });
 

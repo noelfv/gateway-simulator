@@ -3,7 +3,9 @@ package com.bbva.gui.commons;
 
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
@@ -14,6 +16,31 @@ import static com.bbva.orchestrator.core.fields.definitions.ISODataType.*;
 
 
 public class ISO8583Processor {
+
+    public static String buildFromMap(Map<String, String> subFieldsMap) {
+        StringBuilder tlvBuilder = new StringBuilder();
+
+        for (Map.Entry<String, String> entry : subFieldsMap.entrySet()) {
+            // Extraer el tag (última parte de la clave, ej: "48.33.01" → "01")
+            String[] keyParts = entry.getKey().split("\\.");
+            String tag = keyParts[keyParts.length - 1];
+
+            // Codificar tag a EBCDIC Hex (2 bytes → 4 hex)
+            String tagHex = ISOUtil.stringToEBCDICHex(tag);
+
+            // Codificar valor a EBCDIC Hex
+            String valueHex = ISOUtil.stringToEBCDICHex(entry.getValue());
+
+            // Calcular longitud en bytes y codificar a EBCDIC Hex (2 bytes → 4 hex)
+            int valueLength = valueHex.length() / 2;
+            String lengthHex = ISOUtil.stringToEBCDICHex(String.format("%02d", valueLength));
+
+            // Concatenar TLV
+            tlvBuilder.append(tagHex).append(lengthHex).append(valueHex);
+        }
+
+        return tlvBuilder.toString();
+    }
 
     public static Map<String, String> createMapFieldsISO8583(String messageOriginal) {
 

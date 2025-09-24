@@ -4,6 +4,8 @@ import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 
 import javax.swing.*;
@@ -86,6 +88,33 @@ public class ParseGUI {
     }
 
 
+    public static void updateTreeViewTLV(DefaultTreeModel treeModel, JTree resultTree, ParseResult result) {
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("DATO TLV");
+
+        // Crear nodos categorizados
+        DefaultMutableTreeNode headerNode = new DefaultMutableTreeNode("Campo 48");
+
+        result.fieldsById().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    // Tu lógica aquí, por ejemplo:
+                    String nodeText = entry.getKey() + ": " + "[" + entry.getValue() + "]";
+                    headerNode.add(new DefaultMutableTreeNode(nodeText));
+                });
+
+
+        if (headerNode.getChildCount() > 0) root.add(headerNode);
+
+        treeModel.setRoot(root);
+
+        // Expandir todos los nodos
+        for (int i = 0; i < resultTree.getRowCount(); i++) {
+            resultTree.expandRow(i);
+        }
+    }
+
+
     public static ParseResult process(Map<String,String> mapValues)  {
 
         Map<String, String> fieldsById = new HashMap<>();
@@ -108,8 +137,38 @@ public class ParseGUI {
         return new ParseResult(mapValues, fieldsById);
     }
 
+
+    public static ParseResult processTLV(Map<String,String> mapValues)  {
+
+        Map<String, String> fieldsById = new HashMap<>();
+        // Iterar sobre los campos ya mapeados
+        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            // Para el mapa por ID, necesitamos mapear las descripciones a IDs
+            String fieldId = findFieldTLVIdByName(key);
+            if (fieldId != null) {
+                fieldsById.put(fieldId, value);
+            } else {
+                // Si no encontramos el ID, usar la descripción como clave
+                fieldsById.put(key, value);
+            }
+        }
+
+        return new ParseResult(mapValues, fieldsById);
+    }
     private static  String findFieldIdByName(String fieldName) {
         for (ISOField field : MastercardISOField.values()) {
+            if (field.getName().equalsIgnoreCase(fieldName)) {
+                return String.valueOf(field.getId());
+            }
+        }
+        return null;
+    }
+
+    private static  String findFieldTLVIdByName(String fieldName) {
+        for (ISOSubField field : Field48.values()) {
             if (field.getName().equalsIgnoreCase(fieldName)) {
                 return String.valueOf(field.getId());
             }
