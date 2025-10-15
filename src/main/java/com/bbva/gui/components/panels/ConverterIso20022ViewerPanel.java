@@ -5,9 +5,11 @@ import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.dto.*;
 import com.bbva.gui.spring.ApplicationContextProvider;
+import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.utils.UtilGUI;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
+import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
@@ -48,11 +50,17 @@ public class ConverterIso20022ViewerPanel extends JPanel {
     private ISO8583DelegateParser delegateParser;
     private ISO20022DelegateMapper delegateMapper;
 
-    public ConverterIso20022ViewerPanel() {
+    public ConverterIso20022ViewerPanel(BeanProviderInstance beanProviderInstance) {
         initializeComponents();
         createPanelsLayout();
         setupEventHandlers();
-
+        /*ParserFactory parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
+        MapperFactory mapperFactory = ApplicationContextProvider.getBean(MapperFactory.class);
+        FieldLogicFactory fieldLogicFactory = ApplicationContextProvider.getBean(FieldLogicFactory.class);*/
+        delegateParser = beanProviderInstance.parserFactory().getDelegateParser("PEER02");
+        delegateMapper = beanProviderInstance.mapperFactory().getDelegateMapper("PEER02");
+        System.out.println("ConverterIso20022ViewerPanel DelegateParser bean: " + delegateParser);
+        System.out.println("ConverterIso20022ViewerPanel DelegateMapper bean: " + delegateMapper);
         //Poner el foco en el JTextArea de entrada
         SwingUtilities.invokeLater(() -> {
             inputTextArea.requestFocusInWindow();
@@ -210,10 +218,10 @@ public class ConverterIso20022ViewerPanel extends JPanel {
             objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             ISO20022 inputObject = objectMapper.readValue(jsonString, ISO20022.class);
 
-            delegateParser = ApplicationContextProvider.getBean(ParserFactory.class).getDelegateParser("PEER02");
-            delegateMapper = ApplicationContextProvider.getBean(MapperFactory.class).getDelegateMapper("PEER02");
-            System.out.println("Delegate Parser: " + delegateParser.getClass().getName());
-            System.out.println("DelegateMapper Mapper: " + delegateMapper.getClass().getName());
+            //delegateParser = ApplicationContextProvider.getBean(ParserFactory.class).getDelegateParser("PEER02");
+           // delegateMapper = ApplicationContextProvider.getBean(MapperFactory.class).getDelegateMapper("PEER02");
+            //System.out.println("Delegate Parser: " + delegateParser.getClass().getName());
+           // System.out.println("DelegateMapper Mapper: " + delegateMapper.getClass().getName());
             Map<String, String> fieldsValues  = delegateMapper.unMapper(inputObject);
             String trama=delegateParser.unParserPlainText(fieldsValues);
             LOGGER.info("Trama generada: [{}]", trama);

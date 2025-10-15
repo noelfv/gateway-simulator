@@ -1,24 +1,17 @@
 package com.bbva.gui.components.panels;
 
-import com.bbva.gateway.dto.iso20022.ISO20022;
-import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.ApplicationContextProvider;
+import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.ParseGUI;
+import com.bbva.gui.utils.SwingUtils;
 import com.bbva.gui.utils.UtilGUI;
-import com.bbva.orchestrator.core.builders.ISO8583Builder;
-import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
-import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
-import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
-import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 
@@ -48,12 +41,12 @@ public class TLVParseViewerPanel extends JPanel {
 
     final String SAMPLE_MESSAGE = "E3F3F7F1F5F0F5F1F1F0F0F0F0F0F9F9F9F9F9F7F4F2F0F7F0F1F0F3F2F1F0F2F2F0F8F0F5F0F4D4F1F0F3F6F1F0F5F0F0F0F0F1F5F6F1F8C1D8E5F1F1F6C1D8E2F6F0F9C1D8C6F1F1F6F7F5F3F2F0F1F0F3F8F8F0F0F2F0F2F1F4F0F3F0F3F8F8F0F0F4F0F2F1F4F0F5F0F2F0F0F7F1F0F4F1F8C3C3";
 
-    public TLVParseViewerPanel() {
+    public TLVParseViewerPanel(BeanProviderInstance beanProviderInstance) {
         initializeComponents();
         createPanelsLayout();
         setupEventHandlers();
-        ParserFactory parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
-        delegateParser = parserFactory.getDelegateParser("PEER02");
+        //ParserFactory parserFactory = ApplicationContextProvider.getBean(ParserFactory.class);
+        delegateParser = beanProviderInstance.parserFactory().getDelegateParser("PEER02");
         System.out.println("DelegateParser bean: " + delegateParser);
 
         //Poner el foco en el JTextArea de entrada

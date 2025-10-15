@@ -176,7 +176,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>libs/</classpathPrefix>
-              <mainClass>com.bbva.gui.components.views.MastercardParserGUI5</mainClass>
+              <mainClass>com.bbva.gui.components.views.MastercardParserGUI6</mainClass>
             </manifest>
           </archive>
         </configuration>

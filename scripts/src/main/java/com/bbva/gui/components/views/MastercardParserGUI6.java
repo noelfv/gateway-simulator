@@ -1,8 +1,6 @@
 package com.bbva.gui.components.views;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.gui.commons.LoadConfigDialog;
-import com.bbva.gui.commons.Y;
 import com.bbva.gui.components.panels.SwingUtils;
 import com.bbva.gui.components.panels.*;
 import org.slf4j.Logger;

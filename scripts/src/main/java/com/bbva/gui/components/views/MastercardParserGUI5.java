@@ -1,7 +1,5 @@
 package com.bbva.gui.components.views;
 
-import com.bbva.gui.commons.LoadConfigDialog;
-import com.bbva.gui.commons.Y;
 import com.bbva.gui.components.panels.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
