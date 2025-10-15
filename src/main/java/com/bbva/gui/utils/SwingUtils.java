@@ -2,6 +2,7 @@ package com.bbva.gui.utils;
 
 
 import javax.swing.*;
+import java.awt.*;
 
 public class SwingUtils {
     /**
@@ -38,12 +39,12 @@ public class SwingUtils {
     public static JInternalFrame mostrarEnInternalFrame2(JDesktopPane desktopPane, JPanel panel, String titulo) {
         JInternalFrame internalFrame = new JInternalFrame(titulo, true, true, true, true);
         internalFrame.setContentPane(panel);
-       // internalFrame.setBackground(Color.BLACK);
+        internalFrame.setBackground(Color.BLUE);
 
         int desktopWidth = desktopPane.getWidth();
         int desktopHeight = desktopPane.getHeight();
 
-        int frameWidth = (int) (desktopWidth * 0.47);
+        int frameWidth = (int) (desktopWidth * 0.49);
         int frameHeight = (int) (desktopHeight * 0.8);
 
         internalFrame.setSize(frameWidth, frameHeight);

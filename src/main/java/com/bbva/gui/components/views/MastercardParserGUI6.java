@@ -4,8 +4,6 @@ import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
 import com.bbva.gui.components.panels.*;
-import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
-import com.bbva.orchestrator.core.parser.factory.ParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.*;
@@ -36,7 +34,7 @@ public class MastercardParserGUI6 extends JFrame {
 
     private void initializeComponents() {
         setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        setTitle("Mastercard Message Parser");
+        setTitle("Gateway Message Parser");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(false); // Mantener decoraciones de ventana (barra de título, botones)

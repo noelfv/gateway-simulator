@@ -11,10 +11,9 @@ public class PanelDoggy {
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JTree resultTree,JPanel outputPanel) {
 
-
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
-        splitPane.setResizeWeight(0.5); // 50% para cada panel
-        splitPane.setDividerLocation(0.5); // Inicialmente mitad y mitad
+        splitPane.setResizeWeight(0.8); // 50% para cada panel
+        splitPane.setDividerLocation(0.8); // Inicialmente mitad y mitad
 
         //mainPanel.add(splitPane, BorderLayout.CENTER);
 
@@ -35,7 +34,8 @@ public class PanelDoggy {
         // Tool Window para la respuesta
         ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("OUT",
                 "Resultado", null, outputPanel, ToolWindowAnchor.BOTTOM);
-        outputToolWindow.setAvailable(true);
+        outputToolWindow.setAvailable(false);
+        //outputToolWindow.setActive(false);
         outputToolWindow.setVisible(true);
 
         return toolWindowManager;
@@ -43,23 +43,20 @@ public class PanelDoggy {
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JPanel outputPanel) {
 
-
+/*
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
-        splitPane.setResizeWeight(0.5); // 50% para cada panel
-        splitPane.setDividerLocation(0.5); // Inicialmente mitad y mitad
-
-        //mainPanel.add(splitPane, BorderLayout.CENTER);
+        splitPane.setResizeWeight(0.8); // 50% para cada panel
+        splitPane.setDividerLocation(0.8); // Inicialmente mitad y mitad*/
 
         MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
-        // El main principal me lo pasan por parametro
-        //JPanel mainPanel = createMainPanel();
         JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setPreferredSize(new Dimension(800, 600));
         contentPanel.add(mainPanel, BorderLayout.CENTER);
         // Agregar el panel contenedor como contenido central
         toolWindowManager.getContentManager().addContent("main", "Parser Principal",null , contentPanel);
 
         // Tool Window para la respuesta
-        ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("OUT",
+        ToolWindow outputToolWindow = toolWindowManager.registerToolWindow("out",
                 "Resultado", null, outputPanel, ToolWindowAnchor.BOTTOM);
         outputToolWindow.setAvailable(true);
         outputToolWindow.setVisible(true);

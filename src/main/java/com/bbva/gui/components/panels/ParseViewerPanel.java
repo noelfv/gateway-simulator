@@ -40,20 +40,26 @@ public class ParseViewerPanel extends JPanel {
     private JButton parseButton;
     private JButton limpiarButton;
     private JButton copiarRespuestaButton;
+    private JRadioButton optionMastercard;
+    private JRadioButton optionVisa;
     @Setter
     private JInternalFrame parentFrame;
-    private final ISO8583DelegateParser delegateParser;
-    private final ISO20022DelegateMapper delegateMapper;
-    private final NetworkDelegateFieldLogic delegateFieldLogic;
+    private  ISO8583DelegateParser delegateParser;
+    private  ISO20022DelegateMapper delegateMapper;
+    private  NetworkDelegateFieldLogic delegateFieldLogic;
     final String SAMPLE_MESSAGE = "F0F1F0F0FEFF640188E1E10A0000000000000040F1F6F5F5F3F6F5F0F9F9F9F9F9F9F9F9F9F9F0F0F0F0F0F0F0F0F0F0F0F0F0F2F2F9F9F0F0F0F0F0F0F0F0F0F6F3F5F6F0F0F0F0F0F0F0F2F2F9F9F0F0F6F1F6F0F7F2F7F2F4F7F2F7F6F4F6F8F0F6F1F0F0F0F0F0F0F8F9F8F7F1F6F0F3F2F7F2F4F0F6F1F6F2F9F0F5F0F6F1F6F0F6F1F5F5F8F1F8F8F4F0F1F0F0F0F6F0F0F3F2F8F6F0F6F0F0F3F2F8F6F5F1F6F7F5F4F8F9F8F7F1F6F0F0F4F0F0F2F1F6F4F0F0F2F1F6F0F0F0F1F0F8F7F7F8C1D7D7D3C54BC3D6D461C2C9D3D3404040404040404040F8F6F660F7F1F260F7F7F5F34040E4E2C1F1F1F8E3F3F7F1F5F0F5F1F1F0F0F0F0F0F9F9F9F9F9F7F4F2F0F7F0F1F0F3F2F1F0F2F2F0F8F0F5F0F4D4F1F0F3F6F1F0F5F0F0F0F0F1F5F6F1F8C1D8E5F1F1F6C1D8E2F6F0F9C1D8C6F1F1F6F7F5F3F2F0F1F0F3F8F8F0F0F2F0F2F1F4F0F3F0F3F8F8F0F0F4F0F2F1F4F0F5F0F2F0F0F7F1F0F4F1F8C340F6F0F4F8F4F0F6F0F4F0F3F7F0F1F3F3F0F1F2F9F5F0F0F1F9F3C8D2D8C9E6C5E8E5C9E2C5F7E4D2E3D8D2F8E8D1F5C3F0F0F2F6F0F0F0F4F1F0F0F0F0F0F6F0F0F8F4F0F9F5F0F1F44040404040F0F0F9D4C2D2C3C7F4F6F2C6F1F0F1F0F0F1F0F9F5F0F0F1F0F1F8D6D5C540C1D7D7D3C540D7C1D9D240E6C1E8F0F0F2F0F0F3C3C140F0F0F3F0F1F3C1D7D7D3C54BC3D6D440C2C9D3F0F0F4F0F1F0F8F6F6F7F1F2F7F7F5F3F0F0F7F0F2F1F8F4F2F8F0F5F8F2F24040404040404040404040E8";
+    private String networkName="PEER02";
+    private final ParserFactory parserFactory;
+    private final MapperFactory mapperFactory;
+    private final FieldLogicFactory fieldLogicFactory;
 
     public ParseViewerPanel(BeanProviderInstance beanProviderInstance) {
         initializeComponents();
         createPanelsLayout();
         setupEventHandlers();
-        delegateParser = beanProviderInstance.parserFactory().getDelegateParser("PEER02");
-        delegateMapper = beanProviderInstance.mapperFactory().getDelegateMapper("PEER02");
-        delegateFieldLogic = beanProviderInstance.fieldLogicFactory().getDelegateFieldLogic("PEER02");
+        this.parserFactory = beanProviderInstance.parserFactory();
+        this.mapperFactory = beanProviderInstance.mapperFactory();
+        this.fieldLogicFactory = beanProviderInstance.fieldLogicFactory();
         //Poner el foco en el JTextArea de entrada
         SwingUtilities.invokeLater(() -> {
             inputTextArea.requestFocusInWindow();
@@ -63,7 +69,7 @@ public class ParseViewerPanel extends JPanel {
     private void initializeComponents() {
 
         setLayout(new BorderLayout());
-        inputTextArea = new JTextArea(8, 60);
+        inputTextArea = new JTextArea(12, 60);
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
         inputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -79,17 +85,57 @@ public class ParseViewerPanel extends JPanel {
         limpiarButton = new JButton("Limpiar");
         copiarRespuestaButton = new JButton("Copiar respuesta");
 
+        optionMastercard= new JRadioButton("Mastercard", true);
+        optionMastercard.setVisible(true);
+        optionVisa= new JRadioButton("Visa", false);
+        optionVisa.setVisible(true);
+
         // Inicializar el árbol jerárquico
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Mensaje Parseado");
         treeModel = new DefaultTreeModel(root);
         resultTree = new JTree(treeModel);
+        //resultTree.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         //resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
     }
 
     private void createPanelsLayout() {
-        MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        //MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel2(), createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
+    }
+
+    private JPanel createMainPanel2() {
+        // Panel para el JTree
+        JPanel treePanel = new JPanel(new BorderLayout());
+        treePanel.setBorder(BorderFactory.createTitledBorder("Estructura del mensaje"));
+        treePanel.add(new JScrollPane(resultTree), BorderLayout.CENTER);
+
+        // Panel de entrada y botones (como antes)
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Mensaje de entrada"));
+        inputPanel.add(new JScrollPane(inputTextArea), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(parseButton);
+        buttonPanel.add(limpiarButton);
+
+        JPanel optionPanel = new JPanel(new FlowLayout());
+        optionPanel.add(optionMastercard);
+        optionPanel.add(optionVisa);
+
+        inputPanel.add(optionPanel, BorderLayout.NORTH);
+        inputPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Dividir horizontalmente: árbol a la izquierda, entrada a la derecha
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePanel, inputPanel);
+        splitPane.setResizeWeight(0.3); // 30% para el árbol, 70% para la entrada
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setSize(new Dimension(1000, 600));
+        mainPanel.add(splitPane, BorderLayout.CENTER);
+
+        return mainPanel;
     }
 
     private JPanel createMainPanel() {
@@ -180,6 +226,29 @@ public class ParseViewerPanel extends JPanel {
             }
         });
 
+        optionMastercard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (optionMastercard.isSelected()) {
+                    networkName="PEER02";
+                    optionVisa.setSelected(false);
+                } else {
+                    optionMastercard.setSelected(true);
+                }
+            }
+        });
+
+        optionVisa.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (optionVisa.isSelected()) {
+                    networkName="PEER01";
+                    optionMastercard.setSelected(false);
+                } else {
+                    optionVisa.setSelected(true);
+                }
+            }
+        });
     }
 
     private void parseMessage() {
@@ -191,6 +260,19 @@ public class ParseViewerPanel extends JPanel {
                 return;
             }
             Map<String, String> mapValues=new HashMap<>();
+
+            if(optionMastercard.isSelected()){
+                System.out.println("Red seleccionada Mastercard");
+                delegateParser = parserFactory.getDelegateParser("PEER02");
+                delegateMapper = mapperFactory.getDelegateMapper("PEER02");
+                delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic("PEER02");
+            }else {
+                System.out.println("Red seleccionada Visa");
+                delegateParser = parserFactory.getDelegateParser("PEER01");
+                delegateMapper = mapperFactory.getDelegateMapper("PEER01");
+                delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic("PEER01");
+            }
+
             if(inputMessage.startsWith("F0")){
                 System.out.println("Mensaje en formato EBCDIC");
                 mapValues = delegateParser.parser(inputMessage);
