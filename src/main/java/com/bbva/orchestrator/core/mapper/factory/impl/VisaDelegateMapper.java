@@ -4,15 +4,15 @@ import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 @Component
-public class VisaIDelegateMapper implements ISO20022DelegateMapper {
+public class VisaDelegateMapper implements ISO20022DelegateMapper {
 
-    private static final String NETWORK_VISA = "PEER01";
     private final DefaultDelegateMapper delegate;
 
-    public VisaIDelegateMapper(DefaultDelegateMapper delegate) {
+    public VisaDelegateMapper(DefaultDelegateMapper delegate) {
         this.delegate = delegate;
     }
 
@@ -25,7 +25,7 @@ public class VisaIDelegateMapper implements ISO20022DelegateMapper {
 
     @Override
     public Map<String, String> unMapper(ISO20022 input) {
-        // Puedes personalizar el comportamiento para Mastercard
+        // Puedes personalizar el comportamiento para Visa
         return delegate.unMapper( input);
     }
 }

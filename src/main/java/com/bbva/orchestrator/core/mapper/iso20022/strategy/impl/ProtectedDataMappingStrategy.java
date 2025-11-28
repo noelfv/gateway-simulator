@@ -6,6 +6,7 @@ import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 
 
@@ -70,6 +71,9 @@ public class ProtectedDataMappingStrategy implements SectionMappingStrategy<List
     }
 
     private KEKIdDTO findFirstKekId(List<ProtectedDataDTO> protectedDataList) {
+        if (protectedDataList == null) {
+            return null; // Retorna null si el parámetro es null
+        }
         return protectedDataList.stream()
                 .filter(Objects::nonNull)
                 .map(ProtectedDataDTO::getEnvelopedData)

@@ -3,12 +3,11 @@ package com.bbva.gui.commons;
 
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
-import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static com.bbva.orchestrator.core.fields.MastercardISOField.*;

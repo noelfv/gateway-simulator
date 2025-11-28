@@ -7,4 +7,5 @@ public enum ISODataType {
     NUMERIC(),
     NUMERIC_DECIMAL(),
     NUMERIC_ODD(),
+    NUMERIC_ODD_VARIABLE(),
 }

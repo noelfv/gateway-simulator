@@ -7,7 +7,6 @@ import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandler
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.PlainTextFieldParser;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;

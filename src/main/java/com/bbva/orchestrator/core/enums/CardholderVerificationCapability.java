@@ -43,18 +43,18 @@ public enum CardholderVerificationCapability {
         return lookupMap.get(typeMessage);
     }
 
-    public static String convertTypeCardholderVerificationCapability(String cardholderVerificationCapability) {
-        return lookupMap.get(cardholderVerificationCapability);
+    public static String convertTypeCardholderVerificationCapability(String cardHolderVerificationCapability) {
+        return lookupMap.get(cardHolderVerificationCapability);
     }
 
-    public static Boolean mapSubField01AttendedIndicator(String posTerminalAttendance) {
+    public static Boolean mapPointOfServiceContext_AttendedIndicator(String posTerminalAttendance) {
         if (posTerminalAttendance == null) {
             return null;
         }
-        return "1".equals(posTerminalAttendance);
+        return "0".equals(posTerminalAttendance);
     }
 
-    public static String mapSubField01_10Category(String posTerminalAttendance, String cardHolderATL){
+    public static String mapPointOfServiceContext_UnattendedLevelCategory(String posTerminalAttendance, String cardHolderATL){
 
         if (posTerminalAttendance == null && cardHolderATL == null) {
             return null; // O un valor por defecto si es necesario
@@ -81,7 +81,7 @@ public enum CardholderVerificationCapability {
         return result;
     }
 
-    public static Map<String, String> mapSubField61_03(String posTerminalLocation, String posTerminalAttendance, String type) {
+    public static Map<String, String> mapPosTerminalLocation(String posTerminalLocation, String posTerminalAttendance, String type) {
         if (posTerminalAttendance == null || !List.of("0", "1", "2", "3", "4").contains(posTerminalLocation)) {
             return Map.of(); // Devuelve un mapa inmutable vacío
         }
@@ -118,13 +118,13 @@ public enum CardholderVerificationCapability {
         return result;
     }
 
-    public static Map<String, String> mapSubField61_04_cardHolderPresent(String posCardholderPresence) {
+    public static Map<String, String> mapPointOfServiceContext_CardDataEntryMode(String posCardholderPresence) {
         if (posCardholderPresence == null) {
             return Map.of();
         }
 
         Map<String, String> result = new HashMap<>();
-        result.put("cardholderPresent", "0".equals(posCardholderPresence) ? "false" : "true");
+        result.put("cardholderPresent", "0".equals(posCardholderPresence) ? "true" : "false");
 
         switch (posCardholderPresence) {
             case "2" -> result.put("MOTOCode", "MAOR");
@@ -136,7 +136,7 @@ public enum CardholderVerificationCapability {
         return result;
     }
 
-    public static Boolean mapSubField61_05_cardPresent(String posCardPresence){
+    public static Boolean mapPointOfServiceContext_CardPresent(String posCardPresence){
         if (posCardPresence == null) {
             return null;
         }
@@ -144,7 +144,7 @@ public enum CardholderVerificationCapability {
         return "0".equals(posCardPresence);
     }
 
-    public static Boolean mapSubField61_06_capable(String posCardCaptureCapabilities){
+    public static Boolean mapCapabilities_CardCaptureCapable(String posCardCaptureCapabilities){
         if (posCardCaptureCapabilities == null) {
             return null;
         }
@@ -152,7 +152,7 @@ public enum CardholderVerificationCapability {
         return !"0".equals(posCardCaptureCapabilities);
     }
 
-    public static Map<String, String> mapSubField61_11(String value){
+    public static Map<String, String> mapCardReadingCapability_Capability(String value){
         if (value == null) {
             return Map.of();
         }
@@ -162,34 +162,40 @@ public enum CardholderVerificationCapability {
         switch (value) {
             case "0" -> result.put("capability", "UNKW");
             case "1" -> {
-                result.put("capability", "MAOR");
-                result.put("otherCapability", "VALUE");
+                result.put("capability", "OTHN");
+                result.put("otherCapability", "voice_aru");
             }
             case "2" -> result.put("capability", "MGST");
             case "3" -> result.put("capability", "ECTL");
             case "4" -> result.put("capability", "MSIP");
-            case "5", "7", "8" -> {
+            case "5" -> {
                 result.put("capability", "OTHN");
-                result.put("otherCapability", "VALUE");
+                result.put("otherCapability", "ECTL_MGST");
             }
             case "6" -> result.put("capability", "KEEN");
+            case "7" -> {
+                result.put("capability", "OTHN");
+                result.put("otherCapability", "MGST_KEEN");
+            }
+            case "8" -> {
+                result.put("capability", "OTHN");
+                result.put("otherCapability", "ECTL_MGST_KEEN");
+            }
             case "9" -> result.put("capability", "CICC");
         }
 
         return result;
     }
 
-    public static Boolean mapEcommerceIndicator(String value, Boolean ecommerceValue){
+    public static Boolean mapPointOfServiceContext_EcommerceIndicator(String value, Boolean ecommerceValue){
         Boolean result = null;
-        if("5".equals(value))
-            result = true;
 
         if(ecommerceValue != null)
             result = ecommerceValue;
 
+        if("5".equals(value))
+            result = true;
+
         return result;
     }
-
-
-
 }

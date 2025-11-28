@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.orchlib.parser.ParserException;
+
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;
@@ -93,4 +94,13 @@ public class ISOUtil {
         return HexFormat.of().withUpperCase().formatHex(ebcdicBytes);
     }
 
+    // --- Metodo para validar longitud, si es impar le añade +1 ---
+    public static int alignToEvenLength(int value) {
+        return value + (value % 2);
+    }
+
+    // Añade un '0' como prefijo a un String si su longitud actual es impar.
+    public static String prefixZeroIfOdd(String value) {
+        return ((value.length() & 1) == 1) ? "0" + value : value;
+    }
 }

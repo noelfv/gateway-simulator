@@ -22,6 +22,9 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
+    <grpc-client.version>3.1.0.RELEASE</grpc-client.version>
+    <grpc-server.version>3.1.0.RELEASE</grpc-server.version>
+    <grpc.version>1.62.2</grpc.version>
   </properties>
 
 
@@ -46,6 +49,46 @@
       <artifactId>spring-boot-starter-logging</artifactId>
       <optional>true</optional>
     </dependency>
+
+    <!-- gRPC dependencies -->
+    <dependency>
+      <groupId>com.github.os72</groupId>
+      <artifactId>protoc-jar</artifactId>
+      <version>3.11.4</version>
+    </dependency>
+    <dependency>
+      <groupId>net.devh</groupId>
+      <artifactId>grpc-client-spring-boot-starter</artifactId>
+      <version>${grpc-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.devh</groupId>
+      <artifactId>grpc-server-spring-boot-starter</artifactId>
+      <version>${grpc-server.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>3.25.3</version>
+    </dependency>
+    <!-- gson -->
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-testing</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -126,8 +169,40 @@
       <scope>test</scope>
     </dependency>-->
   </dependencies>
+
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.github.os72</groupId>
+        <artifactId>protoc-jar-maven-plugin</artifactId>
+        <version>3.6.0.1</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <includeMavenTypes>direct</includeMavenTypes>
+              <inputDirectories>
+                <include>src/main/resources/proto</include>
+              </inputDirectories>
+              <outputTargets>
+                <outputTarget>
+                  <type>java</type>
+                  <outputDirectory>src/main/java</outputDirectory>
+                </outputTarget>
+                <outputTarget>
+                  <type>grpc-java</type>
+                  <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.62.2</pluginArtifact>
+                  <outputDirectory>src/main/java</outputDirectory>
+                </outputTarget>
+              </outputTargets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

@@ -1,11 +1,6 @@
 package com.bbva.orchestrator.validations;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
-import com.bbva.orchlib.enums.RuleType;
-import com.bbva.orchlib.featuretoggle.ruleslocal.ConditionLocal;
-import com.bbva.orchlib.featuretoggle.ruleslocal.RulesLocalsListPreLoad;
-import com.bbva.orchlib.featuretoggle.ruleslocal.RulesLocalsPreLoad;
-import com.bbva.orchlib.rules.RulesCommon;
 
 import java.util.Optional;
 

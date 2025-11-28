@@ -8,5 +8,5 @@ import lombok.Setter;
 public class Currency {
     private String numericCurrencyId;
     private String decimalCurrencyNumber;
-
+    private String currencyCode;
 }

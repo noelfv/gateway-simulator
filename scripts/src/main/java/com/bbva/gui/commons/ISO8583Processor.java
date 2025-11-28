@@ -5,7 +5,7 @@ import com.bbva.orchestrator.core.commons.ISOUtil;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchlib.parser.ParserException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static com.bbva.orchestrator.core.fields.MastercardISOField.*;

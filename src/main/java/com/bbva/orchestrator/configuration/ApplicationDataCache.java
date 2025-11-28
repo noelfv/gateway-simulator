@@ -6,6 +6,7 @@ import com.bbva.orchlib.featuretoggle.businessdata.Currency;
 import com.bbva.orchlib.featuretoggle.businessdata.Custom;
 import com.bbva.orchlib.featuretoggle.businessdata.Fields;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +57,8 @@ public class ApplicationDataCache {
     private Map<String, String> createMapBiderectionalByCurrencyCode(List<Currency> currencyList) {
         Map<String, String> currencyMap = new ConcurrentHashMap<>();
         for (Currency currency : currencyList) {
-            currencyMap.put(currency.getNumericCurrencyId(), currency.getDecimalCurrencyNumber());
-            currencyMap.put(currency.getDecimalCurrencyNumber(), currency.getNumericCurrencyId());
+            currencyMap.put(currency.getNumericCurrencyId(), currency.getCurrencyCode());
+            currencyMap.put(currency.getCurrencyCode(), currency.getNumericCurrencyId());
         }
         return currencyMap;
     }

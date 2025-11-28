@@ -1,0 +1,725 @@
+// version 1.0.0
+// category iso20022
+
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+package b.gateway.v1;
+
+option java_package = "com.bbva.business.gateway.iso20022";
+option java_multiple_files = true;
+
+service CryptoService {
+  rpc Tokenize(Iso20022Request) returns (Iso20022Response);
+  rpc Untokenize(Iso20022Request) returns (Iso20022Response);
+  rpc ValidateMac(Iso20022Request) returns (Iso20022Response);
+}
+
+service FraudService {
+  rpc GetFraudInfo (Iso20022Request) returns (Iso20022Response){}
+  rpc PostFeedBackFraud (Iso20022Request) returns (Empty) {}
+  rpc GetFraudInfoAsync (Iso20022Request) returns (Empty){}
+}
+
+service MonitorService {
+  rpc PostPatchInsertDocument(Iso20022Request) returns (Empty);
+  rpc PostPatchUpdateDocument(Iso20022Request) returns (Empty);
+}
+
+service FlowHandlerService {
+  rpc SendResolverConnector(Iso20022Request) returns (Iso20022Response);
+  rpc SendResolverConnectorAsync (Iso20022Request) returns (Empty);
+}
+
+service ApiConnectorService {
+  rpc SendAPIConnector(Iso20022Request) returns (Iso20022Response);
+}
+
+service DialogControlService {
+  rpc Process (Iso20022Request) returns (Iso20022Response);
+  rpc SignOn (Iso20022Request) returns (Iso20022Response);
+  rpc SignOff (Iso20022Request) returns (Iso20022Response);
+  rpc Echo (Iso20022Request) returns (Iso20022Response);
+}
+
+service DummyResponseService {
+  rpc GetDummyResponse (Iso20022Request) returns (Iso20022Response);
+}
+
+service EventService {
+  rpc PostEvent (Iso20022Request) returns (Iso20022Response);
+}
+
+
+message Iso20022Request {
+  google.protobuf.StringValue messageFunction = 1;
+  repeated TraceData traceData = 2;
+  Transaction transaction = 3;
+  Environment environment = 4;
+  Context context = 5;
+  ProcessingResult processingResult = 6;
+  SecurityTrailer securityTrailer = 7;
+  google.protobuf.StringValue iccRelatedData = 8;
+  repeated ProtectedData protectedData = 9;
+  repeated SupplementaryData supplementaryData = 10;
+  google.protobuf.StringValue networkName = 11;
+  google.protobuf.StringValue exchangeIdentification = 12;
+  google.protobuf.StringValue protocolVersion = 13;
+  InitiatingParty initiatingParty = 14;
+  RecipientParty recipientParty = 15;
+  google.protobuf.StringValue socketPort = 16;
+  google.protobuf.BoolValue isSimulation = 17;
+  AddendumData addendumData = 18;
+  Monitoring monitoring = 19;
+  google.protobuf.StringValue socketIp = 20;
+  google.protobuf.StringValue socketClusterPort = 21;
+  CustomDataLocal customDataLocal = 22;
+}
+
+message Iso20022Response {
+  google.protobuf.StringValue messageFunction = 1;
+  repeated TraceData traceData = 2;
+  Transaction transaction = 3;
+  Environment environment = 4;
+  Context context = 5;
+  ProcessingResult processingResult = 6;
+  SecurityTrailer securityTrailer = 7;
+  google.protobuf.StringValue iccRelatedData = 8;
+  repeated ProtectedData protectedData = 9;
+  repeated SupplementaryData supplementaryData = 10;
+  google.protobuf.StringValue networkName = 11;
+  google.protobuf.StringValue exchangeIdentification = 12;
+  google.protobuf.StringValue protocolVersion = 13;
+  InitiatingParty initiatingParty = 14;
+  RecipientParty recipientParty = 15;
+  google.protobuf.StringValue socketPort = 16;
+  google.protobuf.BoolValue isSimulation = 17;
+  AddendumData addendumData = 18;
+  Monitoring monitoring = 19;
+  google.protobuf.StringValue socketIp = 20;
+  google.protobuf.StringValue socketClusterPort = 21;
+  CustomDataLocal customDataLocal = 22;
+}
+
+message Transaction {
+  TransactionId transactionId = 1;
+  google.protobuf.StringValue transactionType = 2;
+  AccountFrom accountFrom = 3;
+  AccountTo accountTo = 4;
+  TransactionAmounts transactionAmounts = 5;
+  google.protobuf.Int64Value transactionAttribute = 6;
+  google.protobuf.StringValue messageReason = 7;
+  repeated OriginalAdditionalFees originalAdditionalFee = 8;
+  repeated AdditionalFees additionalFee = 9;
+  repeated AdditionalAmount additionalAmount = 10;
+  repeated AdditionalData additionalData = 11;
+  repeated AdditionalService additionalService = 12;
+  google.protobuf.StringValue networkManagementType = 13;
+  KeyExchangeData keyExchangeData = 14;
+  DetailedRequestedAmount detailedRequestedAmount = 15;
+  google.protobuf.StringValue otherTransactionAttribute = 16;
+  repeated google.protobuf.StringValue alternateMessageReason = 17;
+  google.protobuf.StringValue transactionSubtype = 18;
+  repeated SpecialProgrammeQualification specialProgrammeQualification = 19;
+}
+
+
+message DetailedRequestedAmount {
+  google.protobuf.StringValue amountToDispense = 1;
+}
+
+message TransactionId {
+  google.protobuf.StringValue transactionReference = 1;
+  google.protobuf.StringValue transmissionDateTime = 2;
+  google.protobuf.StringValue systemTraceAuditNumber = 3;
+  google.protobuf.StringValue localDate = 4;
+  google.protobuf.StringValue localTime = 5;
+  google.protobuf.StringValue localDateTime = 6;
+  google.protobuf.StringValue acquirerReferenceData = 7;
+  google.protobuf.StringValue retrievalReferenceNumber = 8;
+  OriginalDataElements originalDataElements = 9;
+  google.protobuf.StringValue cardIssuerReferenceData = 10;
+}
+
+message OriginalDataElements {
+  google.protobuf.StringValue messageFunction = 1;
+  google.protobuf.StringValue transactionReference = 2;
+  google.protobuf.StringValue systemTraceAuditNumber = 3;
+  google.protobuf.StringValue localDate = 4;
+  google.protobuf.StringValue localTime = 5;
+  google.protobuf.StringValue localDateTime = 6;
+  google.protobuf.StringValue acquirerId = 7;
+  google.protobuf.StringValue transmissionDateTime = 8;
+  google.protobuf.StringValue senderIdentification = 9;
+  google.protobuf.StringValue retrievalReferenceNumber = 10;
+}
+
+message AccountFrom {
+  google.protobuf.StringValue accountId =1;
+  google.protobuf.StringValue accountType = 2;
+}
+
+message AccountTo {
+  google.protobuf.StringValue accountId = 1;
+  google.protobuf.StringValue accountType = 2;
+}
+
+message TransactionAmounts {
+  TransactionAmount transactionAmount = 1;
+  ReconciliationAmount reconciliationAmount = 2;
+  CardholderBillingAmount cardholderBillingAmount = 3;
+  OriginalTransactionAmounts originalTransactionAmounts = 4;
+}
+
+message TransactionAmount {
+  google.protobuf.DoubleValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+}
+
+message ReconciliationAmount {
+  google.protobuf.DoubleValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+  google.protobuf.StringValue effectiveExchangeRate = 3;
+  google.protobuf.StringValue conversionDate = 4;
+}
+
+message CardholderBillingAmount {
+  google.protobuf.DoubleValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+  google.protobuf.StringValue effectiveExchangeRate = 3;
+}
+
+
+message OriginalTransactionAmounts {
+  TransactionAmount transactionAmount = 1;
+  CardholderBillingAmount cardholderBillingAmount = 2;
+  ReconciliationAmount reconciliationAmount = 3;
+}
+
+message OriginalAdditionalFees {
+  FeeAmount feeAmount = 1;
+  FeeReconciliationAmount feeReconciliationAmount = 2;
+  google.protobuf.StringValue key = 3;
+  google.protobuf.StringValue otherType = 4;
+}
+
+message AdditionalFees {
+  FeeAmount feeAmount = 1;
+  FeeReconciliationAmount feeReconciliationAmount = 2;
+  google.protobuf.StringValue key = 3;
+  google.protobuf.StringValue otherType = 4;
+}
+
+message FeeAmount {
+  google.protobuf.DoubleValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+}
+
+message FeeReconciliationAmount {
+  google.protobuf.DoubleValue amount = 1;
+}
+
+message AdditionalAmount {
+  google.protobuf.StringValue key = 1;
+  Amount amount = 2;
+  google.protobuf.StringValue description = 3;
+}
+
+message Amount {
+  google.protobuf.DoubleValue amount = 1;
+  google.protobuf.StringValue currency = 2;
+}
+
+message AdditionalData {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message AdditionalService {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue otherType = 2;
+  repeated ServiceDetail serviceDetail = 3;
+  google.protobuf.StringValue otherResult = 4;
+}
+
+message SpecialProgrammeQualification {
+  repeated Detail detail = 1;
+}
+
+message Detail {
+  google.protobuf.StringValue name = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message KeyExchangeData {
+  google.protobuf.StringValue keyChecksumValue = 1;
+  google.protobuf.StringValue encryptedData = 2;
+  google.protobuf.StringValue keySetIdentifier = 3;
+}
+
+message ServiceDetail {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message AdditionalInformation {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message TraceData {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Environment {
+  Card card = 1;
+  Terminal terminal = 2;
+  Acquirer acquirer = 3;
+  Sender sender = 4;
+  Acceptor acceptor = 5;
+  Issuer issuer = 6;
+  Cardholder cardholder = 7;
+  Receiver receiver = 8;
+  google.protobuf.StringValue atmManagerIdentification = 9;
+  Token token = 10;
+  CustomerDevice customerDevice = 11;
+}
+
+message Card {
+  google.protobuf.StringValue pan = 1;
+  google.protobuf.StringValue effectiveDate = 2;
+  google.protobuf.StringValue expiryDate = 3;
+  google.protobuf.StringValue cardSequenceNumber = 4;
+  google.protobuf.StringValue track1 = 5;
+  Track2 track2 = 6;
+  google.protobuf.StringValue track3 = 7;
+  google.protobuf.StringValue serviceCode = 8;
+  repeated AdditionalCardData additionalCardData = 9;
+}
+
+
+message AdditionalCardData {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message CustomerDevice {
+  DeviceIdentification deviceIdentification = 1;
+}
+
+message DeviceIdentification {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue otherType = 2;
+  google.protobuf.StringValue identification = 3;
+}
+
+message Token {
+  google.protobuf.StringValue paymentToken = 1;
+  google.protobuf.StringValue tokenExpiryDate = 2;
+  repeated AdditionalData additionalData = 3;
+  google.protobuf.StringValue tokenAssuranceMethod = 4;
+  google.protobuf.StringValue tokenRequestorIdentification = 5;
+  google.protobuf.StringValue storageLocation = 6;
+}
+
+message Track2 {
+  google.protobuf.StringValue textValue = 1;
+}
+
+message Terminal {
+  Capabilities capabilities = 1;
+  TerminalId terminalId = 2;
+  google.protobuf.StringValue key = 4;
+  google.protobuf.StringValue otherType = 5;
+  google.protobuf.StringValue geographicLocation = 6;
+  repeated PoiComponent poiComponent = 7;
+  google.protobuf.BoolValue offPremisesIndicator = 8;
+}
+
+message PoiComponent {
+  Identification identification = 1;
+  repeated Assessment assessment = 2;
+}
+
+message Assessment {
+  google.protobuf.StringValue itemNumber = 1;
+  google.protobuf.StringValue id = 2;
+  google.protobuf.StringValue providerIdentification = 3;
+}
+
+message Identification {
+  google.protobuf.StringValue itemNumber = 1;
+  google.protobuf.StringValue id = 2;
+  google.protobuf.StringValue providerIdentification = 3;
+  google.protobuf.StringValue key = 4;
+  google.protobuf.StringValue serialNumber = 5;
+}
+
+message Capabilities {
+  google.protobuf.StringValue approvalCodeLength = 1;
+  google.protobuf.BoolValue cardCaptureCapable = 2;
+  google.protobuf.StringValue pINLengthCapability = 3;
+  repeated CardReadingCapability cardReadingCapability = 4;
+  repeated CardholderVerificationCapability cardholderVerificationCapability = 5;
+  repeated CardWritingCapability cardWritingCapability = 6;
+}
+
+message CardWritingCapability {
+  google.protobuf.StringValue capability = 1;
+}
+
+message CardholderVerificationCapability {
+  google.protobuf.StringValue capability = 1;
+}
+
+message CardReadingCapability {
+  google.protobuf.StringValue capability = 1;
+}
+
+message TerminalId {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue assigner = 2;
+  google.protobuf.StringValue country = 3;
+}
+
+message Acquirer {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue acquirerInstitution = 2;
+  google.protobuf.StringValue country = 3;
+  AdditionalId additionalId = 4;
+}
+
+message AdditionalId {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Sender {
+  google.protobuf.StringValue id = 1;
+  AdditionalId additionalId = 2;
+  LocalDataSender localData = 3;
+}
+
+message Acceptor {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue nameAndLocation = 2;
+  LocalData localData = 3;
+  repeated AdditionalData additionalData = 4;
+}
+
+message LocalData {
+  Address address = 1;
+}
+
+message LocalDataSender {
+  repeated AdditionalData additionalData = 1;
+}
+
+message Address {
+  google.protobuf.StringValue townName = 1;
+  google.protobuf.StringValue countrySubDivisionMajorName = 2;
+  google.protobuf.StringValue country = 3;
+  google.protobuf.StringValue postalCode = 4;
+}
+
+message Issuer {
+  google.protobuf.StringValue assigner = 1;
+  AdditionalIdentification additionalIdentification = 2;
+}
+
+message AdditionalIdentification {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Cardholder {
+  CardholderName cardholderName = 1;
+  repeated IdentificationCardholder identification = 2;
+  ContactInformation contactInformation = 3;
+}
+
+message CardholderName {
+  google.protobuf.StringValue name = 1;
+}
+
+message IdentificationCardholder {
+  google.protobuf.StringValue identificationValue = 1;
+}
+
+message ContactInformation {
+  google.protobuf.StringValue personalEmailAddress = 1;
+}
+
+message Receiver {
+  google.protobuf.StringValue id = 1;
+}
+
+message Context {
+  TransactionContext transactionContext = 1;
+  repeated Verification verification = 2;
+  PointOfServiceContext pointOfServiceContext = 3;
+  SaleContext saleContext = 4;
+  repeated RiskContext riskContext = 5;
+}
+
+message TransactionContext {
+  SettlementService settlementService = 1;
+  google.protobuf.StringValue captureDate = 2;
+  google.protobuf.StringValue merchantCategoryCode = 3;
+  google.protobuf.StringValue merchantCategorySpecificData = 4;
+  Reconciliation reconciliation = 5;
+  google.protobuf.StringValue transactionInitiator = 6;
+  google.protobuf.StringValue iCCFallbackIndicator = 7;
+  google.protobuf.StringValue magneticStripeFallbackIndicator = 8;
+  google.protobuf.BoolValue reSubmissionIndicator = 9;
+  repeated AdditionalData additionalData = 10;
+}
+
+message SettlementService {
+  SettlementServiceDates settlementServiceDates = 1;
+  repeated AdditionalSettlementInformation additionalSettlementInformation = 2;
+}
+
+message SettlementServiceDates {
+  google.protobuf.StringValue settlementDate = 1;
+}
+
+message AdditionalSettlementInformation {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Reconciliation {
+  google.protobuf.StringValue date = 1;
+}
+
+message Verification {
+  google.protobuf.StringValue key = 1;
+  repeated VerificationInformation verificationInformation = 2;
+  repeated VerificationResult verificationResult = 3;
+}
+
+message VerificationResult {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue entity = 2;
+  google.protobuf.StringValue otherEntity = 3;
+  google.protobuf.StringValue otherResult = 4;
+  repeated ResultDetails resultDetails = 5;
+}
+
+message ResultDetails {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message VerificationInformation {
+  google.protobuf.StringValue key = 1;
+  Value value = 2;
+}
+
+message Value {
+  PINData pinData = 1;
+  google.protobuf.StringValue textValue = 2;
+}
+
+message PINData {
+  google.protobuf.StringValue control = 1;
+  google.protobuf.StringValue keySetIdentifier = 2;
+  google.protobuf.StringValue derivedInformation = 3;
+  google.protobuf.StringValue algorithm = 4;
+  google.protobuf.StringValue keyLength = 5;
+  google.protobuf.StringValue keyProtection = 6;
+  google.protobuf.StringValue keyIndex = 7;
+  google.protobuf.StringValue pinBlockFormat = 8;
+  google.protobuf.StringValue encryptedPINBlock = 9;
+}
+
+message PointOfServiceContext {
+  google.protobuf.StringValue cardDataEntryMode = 1;
+  google.protobuf.StringValue otherCardDataEntryMode = 2;
+  google.protobuf.BoolValue cardPresent = 3;
+  google.protobuf.BoolValue cardholderPresent = 4;
+  google.protobuf.StringValue unattendedLevelCategory = 5;
+  google.protobuf.BoolValue partialApprovalSupported = 6;
+  google.protobuf.StringValue otherSecurityCharacteristics = 7;
+  google.protobuf.BoolValue eCommerceIndicator = 8;
+  google.protobuf.StringValue mOTOCode = 9;
+  google.protobuf.BoolValue attendedIndicator = 10;
+  repeated AdditionalData additionalData = 11;
+}
+
+message SaleContext {
+  repeated AdditionalData additionalData = 1;
+}
+
+message RiskContext {
+  repeated RiskAssessment riskAssessment = 1;
+}
+
+message RiskAssessment {
+  google.protobuf.StringValue result = 1;
+}
+
+message ProcessingResult {
+  google.protobuf.StringValue approvalCode = 1;
+  ApprovalData approvalData = 2;
+  repeated Action action = 3;
+  ResultData resultData = 4;
+  repeated AdditionalInformation additionalInformation = 5;
+}
+
+
+message ApprovalData {
+  ApprovalEntity approvalEntity = 1;
+}
+
+message ApprovalEntity {
+  google.protobuf.StringValue id = 1;
+}
+
+message Action {
+  google.protobuf.StringValue actionType = 1;
+  AdditionalData additionalData = 2;
+}
+
+message ResultData {
+  google.protobuf.StringValue result = 1;
+  google.protobuf.StringValue resultDetails = 2;
+  google.protobuf.StringValue otherResult = 3;
+  google.protobuf.StringValue otherResultDetails = 4;
+  repeated AdditionalResultInformation additionalResultInformation = 5;
+}
+
+message AdditionalResultInformation {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message SecurityTrailer {
+  MacData macData = 1;
+  google.protobuf.StringValue mac = 2;
+}
+
+message MacData {
+  google.protobuf.StringValue algorithm = 1;
+  google.protobuf.StringValue derivedInformation = 2;
+  google.protobuf.StringValue keyProtection = 3;
+  google.protobuf.StringValue keyIndex = 4;
+  google.protobuf.StringValue paddingMethod = 5;
+}
+
+message ProtectedData {
+  EnvelopedData envelopedData = 1;
+}
+
+message EnvelopedData {
+  repeated Recipient recipient = 1;
+}
+
+message Recipient {
+  KEK kek = 1;
+}
+
+message  KEK {
+  KEKId kekId = 1;
+}
+
+message KEKId {
+  google.protobuf.StringValue keyId = 1;
+}
+
+message SupplementaryData {
+  google.protobuf.StringValue placeAndName = 1;
+  google.protobuf.StringValue envelope = 2;
+  google.protobuf.StringValue key = 3;
+}
+
+message AddendumData {
+  repeated AdditionalData additionalData = 1;
+  Invoice invoice = 2;
+  Sale sale = 3;
+}
+
+message Invoice {
+  Summary summary = 1;
+}
+
+message Sale {
+  SummarySale summary = 1;
+}
+
+message Summary {
+  google.protobuf.StringValue invoiceNumber = 1;
+  google.protobuf.StringValue additionalData = 2;
+}
+
+
+message SummarySale {
+  LoyaltyProgramme loyaltyProgramme = 1;
+  repeated Adjustment adjustment = 2;
+}
+
+message LoyaltyProgramme {
+  google.protobuf.StringValue programmeType = 1;
+  google.protobuf.StringValue programmeId = 2;
+}
+
+message Adjustment {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue additionalType = 2;
+  google.protobuf.DoubleValue adjustmentAmount = 3;
+}
+
+message InitiatingParty {
+  google.protobuf.StringValue id = 1;
+}
+
+message RecipientParty {
+  google.protobuf.StringValue id = 1;
+}
+
+message Monitoring {
+  google.protobuf.StringValue startDateMs = 1;
+  google.protobuf.StringValue endDateMs = 2;
+  google.protobuf.StringValue differenceDateTime = 3;
+  google.protobuf.StringValue binCode = 4;
+  google.protobuf.StringValue binDescription = 5;
+  google.protobuf.StringValue binType = 6;
+  google.protobuf.StringValue binBrand = 7;
+  google.protobuf.StringValue merchantNameAceptor = 8;
+  google.protobuf.StringValue merchantCategoryDescription = 9;
+  google.protobuf.StringValue transactionStatus = 10;
+  google.protobuf.StringValue channelFilter = 11;
+  google.protobuf.StringValue operationFilter = 12;
+  google.protobuf.StringValue transactionTypeDescription = 13;
+  google.protobuf.StringValue p2pType = 14;
+  google.protobuf.StringValue originBankCode = 15;
+  google.protobuf.StringValue originBankDescription = 16;
+  google.protobuf.StringValue countryDate = 17;
+  google.protobuf.BoolValue isNextGen = 18;
+  google.protobuf.BoolValue isMessageInvalid = 19;
+}
+
+message CustomDataLocal {
+  repeated AdditionalDataCustomDataLocal additionalData = 1;
+}
+
+message AdditionalDataCustomDataLocal {
+   Request request = 1;
+   Response response = 2;
+}
+
+message Request {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Response {
+  google.protobuf.StringValue key = 1;
+  google.protobuf.StringValue value = 2;
+}
+
+message Empty {
+
+}

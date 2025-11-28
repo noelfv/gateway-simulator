@@ -1,20 +1,21 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
+import com.bbva.gateway.dto.iso20022.AdditionalInformationDTO;
 import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
 import com.bbva.gateway.dto.iso20022.ResultDataDTO;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
-import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.ResultaDataType;
+import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
+import com.bbva.orchestrator.core.network.visa.VisaAxisOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -23,8 +24,11 @@ public class MapperUtil {
 
     private static final String NETWORK_PEER01 = "PEER01";
     private static final String NETWORK_PEER02 = "PEER02";
+    private static final String APPROVED = "Approved";
+    private static final String DENIED = "Denied";
+    private static final String CODE_00 = "00";
     private static final String RESPONSE_CODE_SECTION  = "response_code";
-    private static final List<String> MTI_OUTPUT = List.of("0120", "0420");
+    private static final List<String> MTI_OUTPUT = List.of("0110", "0130", "0410", "0430","0120", "0420", "0312");
     private final ApplicationDataCache applicationDataCache;
     private final ApplicationDataLocalCache applicationDataLocalCache;
 
@@ -33,20 +37,35 @@ public class MapperUtil {
         if (MTI_OUTPUT.contains(inputObject.getMessageType())) {
             String result = ResultaDataType.convertResultDataType(inputObject.getMessageType());
             String otherResult = applicationDataLocalCache.getCustomValue(inputObject.getNetworkName(), "response_code", inputObject.getResponseCode());
+            String additionalValue = additionalInfoValue(inputObject.getResponseCode());
 
             ResultDataDTO resultData = ResultDataDTO.builder()
                     // ======== FIELD 39 (RESPONSE CODE) ========
                     .result(result)
                     .otherResult(otherResult)
+                    .otherResultDetails(inputObject.getResponseCode())
                     .build();
+
+            AdditionalInformationDTO additionalInformation = AdditionalInformationDTO.builder()
+                    .key("transaction")
+                    .value(additionalValue)
+                    .build();
+
+            List<AdditionalInformationDTO> additionalInformationList = new ArrayList<>();
+            additionalInformationList.add(additionalInformation);
 
             return ProcessingResultDTO.builder()
                     .resultData(resultData)
                     // ======== FIELD 38 (AUTHORIZATION IDENTIFICATION RESPONSE) ========
                     .approvalCode(inputObject.getAuthorizationIdentificationResponse())
+                    .additionalInformation(additionalInformationList)
                     .build();
         }
         return null;
+    }
+
+    public static String additionalInfoValue(String responseCode){
+        return CODE_00.equals(responseCode) ? APPROVED : DENIED;
     }
     // currencyId=604 -> currencyCode=PEN
     public String convertCurrencyIdToCurrencyCode(String currencyId) {
@@ -107,27 +126,63 @@ public class MapperUtil {
         return FieldUtil.reConvertFormatDateTime(input);
     }
 
-    public Double conversionRateValidation(String rate) {
-        return FieldUtil.conversionRateValidation(rate);
-    }
-
     public String convertFormatExpiryDate(String expiry) {
-        return FieldUtil.convertToLastDayOfMonth(expiry);
+        //return FieldUtil.convertToLastDayOfMonth(expiry);
+        return FieldUtil.convertFormatDateExpiration(expiry);
     }
 
     public String reConvertFormatExpiryDate(String expiry) {
         return FieldUtil.reConvertFormatExpiryDate(expiry);
     }
 
-    public String operationTypeValue(String messageType, String transactionType) {
-        // Lógica real según tus reglas de negocio
-        return "OP_" + messageType + "_" + transactionType;
+    public Double conversionRateValidation(String rate) {
+        return FieldUtil.conversionRateValidation(rate);
     }
 
-    public String channelValue(String messageType, Boolean isEcommerce, String terminalKey) {
-        if (isEcommerce != null && isEcommerce) return "ECOMMERCE";
-        if (terminalKey != null && terminalKey.startsWith("ATM")) return "ATM";
+
+    public String operationTypeValue(String transactionType) {
+        if (transactionType == null) {
+            return null;
+        }
+
+        return switch (transactionType) {
+            case "00" -> "PURCHASE";
+            case "01" -> "WTHDMON";
+            case "20" -> "REFUND";
+            default -> null;
+        };
+    }
+    public String generateTransactionReferenceFromSeed(String seed){
+
+        byte[] bytes = seed.getBytes(StandardCharsets.UTF_8);
+        byte[] truncate = Arrays.copyOf(bytes, 16);
+
+        UUID uuid= UUID.nameUUIDFromBytes(truncate);
+
+        return uuid.toString().substring(0,35);
+    }
+
+    public String validValue(String value) {
+        return (value == null || value.trim().isEmpty()) ? null : value;
+    }
+
+    public String channelValue(Boolean isEcommerce, String tpvIndicator , String terminalKey) {
+        if (isEcommerce != null && isEcommerce) return "ECOMMER";
+        if (terminalKey != null && (terminalKey.startsWith("ATM") || "ATMT".equals(tpvIndicator))) return "ATM";
         return "POS";
+    }
+
+    public String entryModeValue(ISO8583 iso8583, Map<String, String> subFields, String cardDataEntryMode) {
+        if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
+            return MastercardAxisOperator.entryModeIndicator(subFields, cardDataEntryMode);
+        }else {
+            //return ProcessSubFieldsVisa.entryModeIndicator(subFields, values.getMerchantType());
+            return VisaAxisOperator.entryModeIndicator(subFields, cardDataEntryMode);
+        }
+    }
+
+    public String ownerValue(String channel) {
+        return  "RETV".equals(channel) ? "OFFUS" : "ONUS";
     }
 
     //TODO revisar la nueva estructura de los mensajes
@@ -138,16 +193,14 @@ public class MapperUtil {
         String field32 = isNullOrEmpty(inputObject.getAcquiringInstitutionIdentificationCode());
         String field37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());
         String field41 = isNullOrEmpty(inputObject.getCardAcceptorTerminalIdentification());
-        String field42 = isNullOrEmpty(inputObject.getCardAcceptorIdentificationCode());
         String field63 = isNullOrEmpty(inputObject.getNetworkData());
-        String field63Part1 = subFields.get("63.1");
+        String field63Part1 = subFields.get("63.01");
 
         if (networkName.equalsIgnoreCase(NETWORK_PEER01)) {
             transactionReference.append(field11)
                     .append(field32)
                     .append(field37)
                     .append(field41)
-                    .append(field42)
                     .append(field63Part1);
         } else if (networkName.equalsIgnoreCase(NETWORK_PEER02)) {
             transactionReference.append(field11)
@@ -167,17 +220,31 @@ public class MapperUtil {
         if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
             return MastercardAxisOperator.channelTPVIndicator(subFields, iso8583.getMerchantType());
         }else {
-            //return ProcessSubFieldsVisa.channelTPVIndicator(subFields, values.getMerchantType());
-            return null;
+            return VisaAxisOperator.channelTPVIndicator(subFields, iso8583.getMerchantType());
         }
     }
 
-    public Boolean channelECommerceIndicator(ISO8583 iso8583, Map<String, String> subFields) {
-        if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
-            return MastercardAxisOperator.channelECommerceIndicator(iso8583.getPointServiceEntryMode(), subFields);
+    public Boolean channelECommerceIndicator(String networkName, Map<String, String> subFields) {
+        if("peer02".equalsIgnoreCase(networkName)){
+            return MastercardAxisOperator.channelECommerceIndicator(subFields);
         }else {
-            //return ProcessSubFieldsVisa.channelECommerceIndicator(values.getPointServiceConditionCode(), subFields);
-            return null;
+            return VisaAxisOperator.channelECommerceIndicator(subFields);
+        }
+    }
+
+    public String electronicCommerceIndicators(String networkName, Map<String, String> subFields) {
+        if("peer02".equalsIgnoreCase(networkName)){
+            return MastercardAxisOperator.valueElectronicCommerceIndicators(subFields);
+        }else {
+            return VisaAxisOperator.valueElectronicCommerceIndicators(subFields);
+        }
+    }
+
+    public String securityLevelECI(String networkName, String ECI) {
+        if("peer02".equalsIgnoreCase(networkName)){
+            return MastercardAxisOperator.securityLevelECI(ECI);
+        }else {
+            return VisaAxisOperator.securityLevelECI(ECI);
         }
     }
 
@@ -270,5 +337,20 @@ public class MapperUtil {
         return Boolean.valueOf(value);
     }
 
+    public String safeSubstring(String input, int beginIndex, int endIndex) {
+        if (input == null || input.isEmpty()) {
+            return input; // Retorna el texto original si es nulo o vacío
+        }
+        if (beginIndex < 0) {
+            beginIndex = 0; // Asegura que el índice inicial no sea negativo
+        }
+        if (endIndex > input.length()) {
+            endIndex = input.length(); // Ajusta el índice final si excede la longitud
+        }
+        if (beginIndex >= endIndex) {
+            return ""; // Retorna cadena vacía si los índices no son válidos
+        }
+        return input.substring(beginIndex, endIndex);
+    }
 
 }

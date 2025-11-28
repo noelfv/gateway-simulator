@@ -1,13 +1,15 @@
 package com.bbva.orchlib.validations;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
+import com.bbva.gateway.dto.iso20022.ResultDataDTO;
+import com.bbva.gateway.mapper.Convert;
 
 
 public class ValidationsError implements IResponseError {
     private static final String ERROR_RESULT = "Error";
     public static ISO20022 validationsErr(ISO20022 iso20022, String validationName) {
         ValidationsError instance = new ValidationsError();
-        //Convert.mapProcessingResult(iso20022, null, null, null, iso20022.getProcessingResult() != null && iso20022.getProcessingResult().getResultData() != null ? null : ResultDataDTO.builder().build(), null);
+        Convert.mapProcessingResult(iso20022, null, null, null, iso20022.getProcessingResult() != null && iso20022.getProcessingResult().getResultData() != null ? null : ResultDataDTO.builder().build(), null);
         switch (validationName) {
             case "validateBin" -> instance.validateBinError(iso20022);
             case "validateProcessingCode" -> instance.validateProcessingCodeError(iso20022);

@@ -14,7 +14,7 @@ import java.util.List;
 
 
 /**
- * Clase de validaciones globales
+ * Class for global validations
  */
 
 public class ValidationsGlobal {
@@ -35,10 +35,10 @@ public class ValidationsGlobal {
     }
 
 
-   /**
-     * Valida el bin
-     * @param iso20022 Recibe el iso20022 para obtener los campos a validar
-     * @return Retorna true, si todas las validaciones son verdaderas, si alguna es falsa, regresa false
+    /**
+     * Validates the BIN
+     * @param iso20022 Receives the iso20022 to obtain the fields to validate
+     * @return Returns true if all validations are true, if any are false, returns false
      */
     public static boolean validateBin(ISO20022 iso20022) {
 
@@ -57,9 +57,9 @@ public class ValidationsGlobal {
     }
 
     /**
-     * Valida el codigo de proceso
-     * @param iso20022 Recibe el iso20022 para obtener los campos a validar
-     * @return Retorna true, si todas las validaciones son verdaderas, si alguna es falsa, regresa false
+     * Validates the processing code
+     * @param iso20022 Receives the iso20022 to obtain the fields to validate
+     * @return Returns true if all validations are true, if any are false, returns false
      */
     public static boolean validateProcessingCode(ISO20022 iso20022) {
         String networkName = iso20022.getNetworkName();
@@ -74,10 +74,10 @@ public class ValidationsGlobal {
 
 
     /**
-     * Valida el codigo de proceso
-     * @param type Recibe el tipo de campo a validar
-     * @param positionType Recibe la posicion del tipo de campo a validar
-     * @return Retorna true, si todas las validaciones son verdaderas, si alguna es falsa, regresa false
+     * Validates the type processing code
+     * @param type Receives the type of field to validate
+     * @param positionType Receives the position of the type of field to validate
+     * @return Returns true if all validations are true, if any are false, returns false
      */
     private static boolean validateType(String networkName, String type, int positionType) {
         for (BusinessDataLocal businessDataLocal : businessDataLocal) {
@@ -95,17 +95,17 @@ public class ValidationsGlobal {
     }
 
 
-   /**
-     * Valida la moneda
-     * @param iso20022 Recibe el iso20022 para obtener los campos a validar
-     * @return Retorna true, si todas las validaciones son verdaderas, si alguna es falsa, regresa false
+    /**
+     * Validates the currency
+     * @param iso20022 Receives the iso20022 to obtain the fields to validate
+     * @return Returns true if all validations are true, if any are false, returns false
      */
     public static boolean validateCurrency(ISO20022 iso20022) {
         String currency =  iso20022.getTransaction().getTransactionAmounts().getTransactionAmount().getCurrency();
         boolean result = false;
 
         for(int i=0 ; i<businessData.getCurrency().size() ; i++) {
-            String key = businessData.getCurrency().get(i).getNumericCurrencyId();
+            String key = businessData.getCurrency().get(i).getCurrencyCode();
 
             if(key.equals(currency)) {
                 result = true;

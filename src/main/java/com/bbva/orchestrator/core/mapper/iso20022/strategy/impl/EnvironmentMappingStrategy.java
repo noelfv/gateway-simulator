@@ -7,9 +7,11 @@ import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class EnvironmentMappingStrategy implements SectionMappingStrategy<EnvironmentDTO> {
@@ -19,7 +21,6 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
     public EnvironmentMappingStrategy(MapperUtil mapperUtil) {
         this.mapperUtil = mapperUtil;
     }
-    
 
     @Override
     public EnvironmentDTO mapper(ISO8583 input, Map<String, String> subFields) {
@@ -32,11 +33,14 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .textValue(input.getTrackTwoData())
                     .build();
 
+           // ======== FIELD 14 (EXPIRATION DATE) ========
+            String dateExpiration = mapperUtil.convertFormatExpiryDate(input.getDateExpiration());
+
             CardDTO card = CardDTO.builder()
                     // ======== FIELD 23 (CARD SEQUENCE NUMBER) ========
                     .cardSequenceNumber(input.getCardSequenceNumber())
                     // ======== FIELD 14 (EXPIRATION DATE) ========
-                    .expiryDate(mapperUtil.convertFormatExpiryDate(input.getDateExpiration()))
+                    .expiryDate(dateExpiration)
                     // ======== FIELD 2 (PAN) ========
                     .pan(input.getPrimaryAccountNumber())
                     // ======== FIELD 40 (SERVICE RESTRICTION CODE) ========
@@ -51,17 +55,16 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .build();
 
             CardReadingCapabilityDTO cardReadingCapability = CardReadingCapabilityDTO.builder()
-                    .capability(CardholderVerificationCapability.mapSubField61_11(
+                    .capability(CardholderVerificationCapability.mapCardReadingCapability_Capability(
                                     subFields.getOrDefault("61.11", null))
                                     .getOrDefault("capability",null))
                     .build();
 
             CapabilitiesDTO capabilities = CapabilitiesDTO.builder()
                     .cardholderVerificationCapabilities(List.of(cvCapability))
-                    .cardCaptureCapable(CardholderVerificationCapability.mapSubField61_06_capable(
+                    .cardCaptureCapable(CardholderVerificationCapability.mapCapabilities_CardCaptureCapable(
                             subFields.getOrDefault("61.06", null)))
                     .cardReadingCapabilities(List.of(cardReadingCapability))
-
                     .build();
 
             TerminalIdDTO terminalId = TerminalIdDTO.builder()
@@ -75,16 +78,15 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
             // ... resto del mapeo
             String type = mapperUtil.channelTPVIndicator(input, subFields);
-            String typeValue = type != null ? type.substring(0, 4) : null;
+            String typeValue = type != null ? type.substring(0, 4) : null; //Punto de exception si type es menor de 4 digits
 
-            Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapSubField61_03(
+            Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapPosTerminalLocation(
                     subFields.getOrDefault("61.03", null),
                     subFields.getOrDefault("61.02", null), type);
 
             TerminalDTO terminal = TerminalDTO.builder()
                     .capabilities(capabilities)
                     .terminalId(terminalId)
-                    //.key(mapperUtil.getChannelTPVIndicator(input, subFields)) //REVISAR
                     .key(typeValue)
                     .otherType(posTerminalLocation.getOrDefault("OtherType",null))
                     .offPremisesIndicator(mapperUtil.safeBooleanValueOf(
@@ -142,14 +144,24 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .assigner(input.getPosCardIssuer())
                     .build();
 
-            return EnvironmentDTO.builder()
-                    .card(card)
-                    .terminal(terminal)
-                    .acquirer(acquirer)
-                    .sender(sender)
-                    .acceptor(acceptor)
-                    .issuer(issuer)
-                    .build();
+            if(!Set.of("0110","0130","0410","0430","0210","0810","0312","0800").contains(input.getMessageType())){
+                return EnvironmentDTO.builder()
+                        .card(card)
+                        .terminal(terminal)
+                        .acquirer(acquirer)
+                        .sender(sender)
+                        .acceptor(acceptor)
+                        .issuer(issuer)
+                        .build();
+            }else{
+                return EnvironmentDTO.builder()
+                        .card(card)
+                        .acquirer(acquirer)
+                        .sender(sender)
+                        .issuer(issuer)
+                        .build();
+            }
+
         } catch (RuntimeException e) {
             // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
             throw new MapperFieldsException("PGWP-00121", "Error al mapear EnvironmentDTO desde ISO8583", e);
@@ -167,10 +179,12 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
         AcceptorDTO acceptor = env.getAcceptor();
         IssuerDTO issuer = env.getIssuer();
 
-
         // Card Information
+        // ======== FIELD 14 (EXPIRATION DATE) ========
+        String dateExpiration = mapperUtil.reConvertFormatExpiryDate(card.getExpiryDate());
+
         resultMap.put("primaryAccountNumber", mapperUtil.getFieldValue(card, CardDTO::getPan, DEFAULT_EMPTY_VALUE));
-        resultMap.put("dateExpiration", mapperUtil.reConvertFormatExpiryDate(card.getExpiryDate())); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
+        resultMap.put("dateExpiration", dateExpiration); //El formato de fecha debe ser MMYY pero regresa como YYYY-MM
         resultMap.put("cardSequenceNumber", mapperUtil.getFieldValue(card, CardDTO::getCardSequenceNumber, DEFAULT_EMPTY_VALUE));
         resultMap.put("trackOneData", mapperUtil.getFieldValue(card, CardDTO::getTrack1, DEFAULT_EMPTY_VALUE));
         resultMap.put("trackTwoData", mapperUtil.getFieldValue(card.getTrack2(), Track2DTO::getTextValue, DEFAULT_EMPTY_VALUE));

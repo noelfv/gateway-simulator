@@ -110,7 +110,7 @@ public class ISO8583 {
     private String receivingInstitutionIdentificationCode;
     private String fileName;
     private String accountIdentification1;
-    private String accountIdentification;
+    private String accountIdentification2;
     private String transactionData;
     private String doubleLengthDesKey;
     private String fleetServiceData;

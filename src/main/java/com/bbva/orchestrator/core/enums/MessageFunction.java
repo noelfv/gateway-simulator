@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.core.enums;
 
 import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +11,10 @@ public enum MessageFunction {
 
     // Define los MTI y sus valores de función
     MTI_0100_TO_FUNC("0100", "AUTQ"),
+    MTI_0101_TO_FUNC("0101", "AUTQ"),
     MTI_0120_TO_FUNC("0120", "FAUQ"),
     MTI_0400_TO_FUNC("0400", "RVRA"),
+    MTI_0401_TO_FUNC("0401", "RVRA"),
     MTI_0420_TO_FUNC("0420", "FRVA"),
     MTI_0800_TO_FUNC("0800", "CMPV"),
     MTI_0190_TO_FUNC("0190", "UNKW"),

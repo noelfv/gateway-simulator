@@ -25,7 +25,7 @@ public class Metadata {
         mappingMetadata.addFieldOrigin("[P003][" + inputObject.getProcessingCode()+"]","Transaction/AccountTo/accountFrom");
         mappingMetadata.addFieldOrigin("[P004][" + inputObject.getTransactionAmount()+"]","Transaction/TransactionAmounts/TransactionAmount/amount");
         mappingMetadata.addFieldOrigin("[P049][" + inputObject.getTransactionCurrencyCode()+"]","Transaction/TransactionAmounts/TransactionAmount/currency");
-        mappingMetadata.addFieldOrigin("[P103][" + inputObject.getAccountIdentification()+"]","Transaction/AccountTo/accountId");
+        mappingMetadata.addFieldOrigin("[P103][" + inputObject.getAccountIdentification1()+"]","Transaction/AccountTo/accountId");
         mappingMetadata.addFieldOrigin("[P005][" + inputObject.getSettlementAmount()+"]","Transaction/TransactionAmounts/ReconciliationAmount/amount");
         mappingMetadata.addFieldOrigin("[P050][" + inputObject.getSettlementCurrencyCode()+"]","Transaction/TransactionAmounts/ReconciliationAmount/currency");
         mappingMetadata.addFieldOrigin("[P009][" + inputObject.getConversionRateSettlement()+"]","Transaction/TransactionAmounts/ReconciliationAmount/effectiveExchangeRate");

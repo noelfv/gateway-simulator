@@ -1,5 +1,3 @@
-server:
-  port: 8082
 spring:
   profiles:
     group:
@@ -8,8 +6,18 @@ grpc:
   server:
     address: ${GRPC_SERVER_ADDRESS}
     port: ${GRPC_SERVER_PORT}
+    enable-keep-alive: true
+    permit-keep-alive-without-calls: true
+    keep-alive-time: 1200s
+    keep-alive-timeout: 60s
+    permit-keep-alive-time: 30s
   client:
     GLOBAL:
+      enable-keep-alive: true
+      permit-keep-alive-without-calls: true
+      keep-alive-time: 1200s
+      keep-alive-timeout: 60s
+      permit-keep-alive-time: 30s
       services:
         flowhandler:
           channel-server: ${ORCHESTRATION_FLOWHANDLER_ADDRESS}
@@ -17,31 +25,59 @@ grpc:
         monitor:
           channel-server: ${ORCHESTRATION_MONITOR_ADDRESS}
           channel-port: ${ORCHESTRATION_MONITOR_PORT}
-        dialog:
-          channel-server: ${ORCHESTRATION_DIALOG_ADDRESS}
-          channel-port: ${ORCHESTRATION_DIALOG_PORT}
-        dummyprocessor:
-          channel-server: ${ORCHESTRATION_DUMMYPROCESSOR_ADDRESS}
-          channel-port: ${ORCHESTRATION_DUMMYPROCESSOR_PORT}
         fraud:
           channel-server: ${ORCHESTRATION_FRAUD_ADDRESS}
           channel-port: ${ORCHESTRATION_FRAUD_PORT}
         crypto:
           channel-server: ${ORCHESTRATION_CRYPTO_ADDRESS}
           channel-port: ${ORCHESTRATION_CRYPTO_PORT}
-        proxy:
+        apiconnector:
+          channel-server: ${ORCHESTRATION_APICONNECTOR_ADDRESS}
+          channel-port: ${ORCHESTRATION_APICONNECTOR_PORT}
+        dialogcontrol:
+          channel-server: ${ORCHESTRATION_DIALOG_ADDRESS}
+          channel-port: ${ORCHESTRATION_DIALOG_PORT}
+        events:
+          channel-server: ${ORCHESTRATION_EVENTS_ADDRESS}
+          channel-port: ${ORCHESTRATION_EVENTS_PORT}
+        dummyprocessor:
+          channel-server: ${ORCHESTRATION_DUMMYPROCESSOR_ADDRESS}
+          channel-port: ${ORCHESTRATION_DUMMYPROCESSOR_PORT}
+        processor:
           - channel-server: ${ORCHESTRATION_PROXYPROCESSOR_PEER01_ADDRESS}
             channel-port: ${ORCHESTRATION_PROXYPROCESSOR_PEER01_PORT}
-          - channel-server: ${ORCHESTRATION_PROXYHOST_PEER01_ADDRESS}
-            channel-port: ${ORCHESTRATION_PROXYHOST_PEER01_PORT}
           - channel-server: ${ORCHESTRATION_PROXYPROCESSOR_PEER02_ADDRESS}
             channel-port: ${ORCHESTRATION_PROXYPROCESSOR_PEER02_PORT}
+        host:
+          - channel-server: ${ORCHESTRATION_PROXYHOST_PEER01_ADDRESS}
+            channel-port: ${ORCHESTRATION_PROXYHOST_PEER01_PORT}
           - channel-server: ${ORCHESTRATION_PROXYHOST_PEER02_ADDRESS}
             channel-port: ${ORCHESTRATION_PROXYHOST_PEER02_PORT}
+
+lombok:
+  addLombokGeneratedAnnotation: true
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: info, health, readiness, liveness
+  endpoint:
+    health:
+      show-details: always
+      group:
+        readiness:
+          include: readinessIndicator
+        liveness:
+          include: livenessIndicator
 
 logging:
   pattern:
     console: "%m%n"
 
-lombok:
-  addLombokGeneratedAnnotation: true
+server:
+  port: 8083
+

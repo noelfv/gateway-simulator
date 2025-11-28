@@ -16,16 +16,31 @@ public enum CardDataEntryMode {
     ENUM_04("04", "OCRR"),
     ENUM_05("05", "ICCY"),
     ENUM_07("07", "ICPY"),
-    ENUM_10("20", "DFLE"),
+    ENUM_09("09", "OTHN"),
+    ENUM_10("10", "DFLE"),
+    ENUM_80("80", "MGST"),
+    ENUM_81("81", "OTHN"),
+    ENUM_82("82", "OTHN"),
+    ENUM_90("90", "MGST"),
+    ENUM_91("91", "MGST"),
+    ENUM_95("95", "PEND"), // No definido en la tabla
+
     // Define los valores enums y raw
-    RAW_UNSP("UNSP", "00"),
-    RAW_MLEY("MLEY", "01"),
-    RAW_MGST("MGST", "02"),
-    RAW_OPTC("OPTC", "03"),
-    RAW_OCRR("OCRR", "04"),
-    RAW_ICCY("ICCY", "05"),
-    RAW_ICPY("ICPY", "07"),
-    RAW_DFLE("DFLE", "20");
+    RAW_UNSP_00("UNSP","00"),
+    RAW_MLEY_01("MLEY","01"),
+    RAW_MGST_02("MGST","02"),
+    RAW_OPTC_03("OPTC","03"),
+    RAW_OCRR_04("OCRR","04"),
+    RAW_ICCY_05("ICCY","05"),
+    RAW_ICPY_07("ICPY","07"),
+    RAW_OTHN_09("OTHN","09"),
+    RAW_DFLE_10("DFLE","10"),
+    RAW_MGST_80("MGST","80"),
+    RAW_OTHN_81("OTHN","81"),
+    RAW_OTHN_82("OTHN","82"),
+    RAW_MGST_90("MGST","90"),
+    RAW_MGST_91("MGST","91"),
+    RAW_PEND_95("PEND","95");
 
     private final String key;
     private final String value;

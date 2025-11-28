@@ -8,6 +8,7 @@ import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrateg
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,12 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
     public ContextDTO mapper(ISO8583 input, Map<String, String> subFields) {
         // === TRANSACTION CONTEXT ===
 
-        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input, subFields);
+        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input.getNetworkName(), subFields);
+        String channelTPVIndicator = mapperUtil.channelTPVIndicator(input, subFields);
+        String dateValue = input.getAmountTransactionProcessingFee();
 
         ReconciliationDTO reconciliation = ReconciliationDTO.builder()
-                .date(input.getAmountTransactionFee())
+                .date(mapperUtil.validValue(dateValue))
                 .build();
 
         SettlementServiceDatesDTO settlementServiceDates = SettlementServiceDatesDTO.builder()
@@ -39,18 +42,28 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                 .settlementServiceDates(settlementServiceDates)
                 .build();
 
+        String cardDataEntryModeValue = CardDataEntryMode.convertCardDataEntryMode(
+                subFields.getOrDefault("22.01",null));
+
+        String entryMode = mapperUtil.entryModeValue(input, subFields, cardDataEntryModeValue);
+
         String operationType = mapperUtil.operationTypeValue(
-                input.getMessageType(),
                 FieldUtil.isNullOrEmptySubstring(input.getProcessingCode(), 0, 2)
         );
 
         String channel = mapperUtil.channelValue(
-                input.getMessageType(),
                 isECommerceIndicator,
+                channelTPVIndicator,
                 input.getPosTerminalData()
         );
 
+        String owner = mapperUtil.ownerValue(channel);
+
         List<AdditionalDataDTO> transactionContextAdditionalData = List.of(
+                AdditionalDataDTO.builder()
+                        .key("ENTRY_MODE")
+                        .value(entryMode)
+                        .build(),
                 AdditionalDataDTO.builder()
                         .key("OPERATION_TYPE")
                         .value(operationType)
@@ -58,41 +71,51 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                 AdditionalDataDTO.builder()
                         .key("CHANNEL")
                         .value(channel)
+                        .build(),
+                AdditionalDataDTO.builder()
+                        .key("OWNER")
+                        .value(owner)
                         .build()
         );
 
+        String captureDateValue = input.getCaptureDate();
+
         TransactionContextDTO transactionContext = TransactionContextDTO.builder()
                 .merchantCategoryCode(input.getMerchantType())
+                .merchantCategorySpecificData("NATIONAL")
                 .reconciliation(reconciliation)
                 .settlementService(settlementService)
-                .captureDate(input.getCaptureDate())
+                .captureDate(mapperUtil.validValue(captureDateValue))
                 .additionalData(transactionContextAdditionalData)
                 .build();
 
         // === POINT OF SERVICE CONTEXT ===
 
-        Map<String, String> posCardHolderPresence = CardholderVerificationCapability.mapSubField61_04_cardHolderPresent(
+        Map<String, String> posCardHolderPresence = CardholderVerificationCapability.mapPointOfServiceContext_CardDataEntryMode(
                 subFields.getOrDefault("61.04",null)
         );
 
+        //TODO Validar este campo ya que se usa de manera provisional para guardar el valor original del campo 22
+        // === FIELD CAMPO 22 ===
+        AdditionalDataDTO pointServiceEntryMode = AdditionalDataDTO.builder()
+                .key("UNKNOWN")
+                .value(input.getPointServiceEntryMode())
+                .build();
+
         PointOfServiceContextDTO pointOfServiceContext = PointOfServiceContextDTO.builder()
-                //.cardDataEntryMode(input.getPointServiceEntryMode())
-                .cardDataEntryMode(CardDataEntryMode.convertCardDataEntryMode(
-                        subFields.getOrDefault("22.01",null)))
-                .ecommerceIndicator(CardholderVerificationCapability.mapEcommerceIndicator(
+                .cardDataEntryMode(cardDataEntryModeValue)
+                .ecommerceIndicator(CardholderVerificationCapability.mapPointOfServiceContext_EcommerceIndicator(
                         subFields.getOrDefault("61.04",null),isECommerceIndicator))
-                .attendedIndicator(CardholderVerificationCapability.mapSubField01AttendedIndicator(
+                .attendedIndicator(CardholderVerificationCapability.mapPointOfServiceContext_AttendedIndicator(
                         subFields.getOrDefault("61.01",null)))
-                .unattendedLevelCategory(CardholderVerificationCapability.mapSubField01_10Category(
+                .unattendedLevelCategory(CardholderVerificationCapability.mapPointOfServiceContext_UnattendedLevelCategory(
                         subFields.getOrDefault("61.01",null), subFields.getOrDefault("61.10",null)))
                 .cardholderPresent(mapperUtil.safeBooleanValueOf(
-                        posCardHolderPresence.getOrDefault("cardholderPresent",null))
-                )
-                .motoCode(posCardHolderPresence.getOrDefault("MOTOCode",null)
-                )
-                .cardPresent(CardholderVerificationCapability.mapSubField61_05_cardPresent(
-                        subFields.getOrDefault("61.05",null))
-                )
+                        posCardHolderPresence.getOrDefault("cardholderPresent",null)))
+                .motoCode(posCardHolderPresence.getOrDefault("MOTOCode",null))
+                .cardPresent(CardholderVerificationCapability.mapPointOfServiceContext_CardPresent(
+                        subFields.getOrDefault("61.05",null)))
+                .additionalData(List.of(pointServiceEntryMode))
                 .build();
 
         // === VERIFICATION ===
@@ -105,6 +128,7 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                 .build();
 
         VerificationInformationDTO verificationInfo = VerificationInformationDTO.builder()
+                .key("CVC")
                 .value(value)
                 .build();
 
@@ -114,13 +138,16 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
 
         //CAMPO 48 SUBCAMPO 92
         VerificationInformationDTO verificationInfoCVC2 = VerificationInformationDTO.builder()
-                .key("CVC_2")
+                .key("CVV2")
                 .value(valueCVC2)
                 .build();
 
+
         ResultDetailsDTO resultDetails = ResultDetailsDTO.builder()
-                .key("CVC")
-                .value(subFields.getOrDefault("48.87",null))
+                //.key("CVC")
+                .key("PENDING")
+                //.value(subFields.getOrDefault("48.87",null))
+                .value("")
                 .build();
 
         VerificationResultDTO verificationResult = VerificationResultDTO.builder()
@@ -153,6 +180,16 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                 .build();
     }
 
+    public ContextDTO mapper_response(ISO8583 input, Map<String, String> subFields) {
+        TransactionContextDTO transactionContextVuelta = TransactionContextDTO.builder()
+                .transactionInitiator("0000")
+                .build();
+
+        return ContextDTO.builder()
+                .transactionContext(transactionContextVuelta)
+                .build();
+    }
+
     @Override
     public Map<String, String> unMapper(String networkName,ContextDTO input) {
         Map<String, String> mapValues = new HashMap<>();
@@ -162,13 +199,20 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
         SaleContextDTO saleContext = input.getSaleContext();
 
         // --- TransactionContext ---
-        mapValues.put("amountTransactionFee", mapperUtil.getFieldValue(transactionContext.getReconciliation(), ReconciliationDTO::getDate, DEFAULT_EMPTY_VALUE));
+        mapValues.put("amountTransactionFee", mapperUtil.safeSubstring(mapperUtil.getFieldValue(transactionContext.getReconciliation(), ReconciliationDTO::getDate, DEFAULT_EMPTY_VALUE),0,9) );
         mapValues.put("settlementDate", mapperUtil.getFieldValue(transactionContext.getSettlementService().getSettlementServiceDates(), SettlementServiceDatesDTO::getSettlementDate, DEFAULT_EMPTY_VALUE));
         mapValues.put("captureDate", mapperUtil.getFieldValue(transactionContext, TransactionContextDTO::getCaptureDate, DEFAULT_EMPTY_VALUE));
         mapValues.put("merchantType", mapperUtil.getFieldValue(transactionContext, TransactionContextDTO::getMerchantCategoryCode, DEFAULT_EMPTY_VALUE));
 
         // --- Point Service Context ---
-        mapValues.put("pointServiceEntryMode", mapperUtil.getFieldValue(posContext, PointOfServiceContextDTO::getCardDataEntryMode, DEFAULT_EMPTY_VALUE));
+        //TODO Recuperar el valor original del campo 22
+        // === FIELD CAMPO 22 ===
+        String pointServiceEntryMode = posContext.getAdditionalData().stream()
+                .filter(dto -> "UNKNOWN".equals(dto.getKey()))
+                .map(AdditionalDataDTO::getValue)
+                .findFirst()
+                .orElse(DEFAULT_EMPTY_VALUE);
+        mapValues.put("pointServiceEntryMode", pointServiceEntryMode);
 
         // --- Sale Context ---
         String campaignData = saleContext.getAdditionalData().stream()

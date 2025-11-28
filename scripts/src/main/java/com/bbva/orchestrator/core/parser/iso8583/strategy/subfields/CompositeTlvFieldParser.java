@@ -8,7 +8,7 @@ import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchestrator.core.fields.definitions.subfields.ISOSubFieldDefinitions;
 import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
-import com.bbva.orchlib.parser.ParserException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

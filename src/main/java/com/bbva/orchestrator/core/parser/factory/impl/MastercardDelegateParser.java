@@ -1,10 +1,11 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
+import com.bbva.orchestrator.core.network.mastercard.MastercardProcessField;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.utils.ParserUtil;
-import com.bbva.orchestrator.core.network.mastercard.MastercardProcessField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 @Component
@@ -34,9 +35,6 @@ public class MastercardDelegateParser implements ISO8583DelegateParser {
 
     private String unParserPlainTextPCI(Map<String, String> mapFieldsValue) {
 
-        //TODO : Colocar una variable de entorno para definir el flujo de masking
-        //if (ISOUtil.getEnvVariableOrDefault("MASK_SENSITIVE_DATA") != null) {
-        //      return mapFieldsValue.get("messageType");
         if (mapFieldsValue.get("messageType").startsWith("08") || mapFieldsValue.get("messageType").startsWith("019")) {
             return mapFieldsValue.get("messageType");
         }
@@ -44,6 +42,7 @@ public class MastercardDelegateParser implements ISO8583DelegateParser {
             Map<String, String> maskedFields = ParserUtil.maskSensitiveFields(mapFieldsValue);
             return mastercardProcessField.unMapFieldsPlainText(maskedFields);
         }catch (Exception e){
+            //SI HAY ERROR EN EL UNPARSER DEL PLAIN TEXT PCI, SE DEVUELVE SOLO EL MESSAGE TYPE
             return mapFieldsValue.get("messageType");
         }
 

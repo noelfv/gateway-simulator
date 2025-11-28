@@ -1,15 +1,16 @@
 package com.bbva.orchestrator.core.logic.process;
 
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.utils.FieldUtil;
-import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MastercardProcessSubField  {
 
-    private final CommonsProcessSubField defaultISOSubFieldParser;
+    private final CommonsProcessSubField commonsProcessSubField;
     private final MastercardHandlerField mastercardHandlerField;
 
     /**
@@ -41,7 +42,7 @@ public class MastercardProcessSubField  {
             return allParsedSubfields;
         }
 
-        allParsedSubfields = defaultISOSubFieldParser.parseSubfields(iso8583);
+        allParsedSubfields = commonsProcessSubField.parseSubfields(iso8583);
 
         Map<String, String> mapSubField48 = processField48(iso8583);
         allParsedSubfields.putAll(mapSubField48);

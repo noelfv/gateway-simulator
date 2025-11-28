@@ -1,9 +1,10 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
-import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.network.visa.VisaProcessField;
+import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 @Component
@@ -47,9 +48,16 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
         // Lista de claves a procesar
         String[] currencyKeys = {
                 "acquirerCountryCode",
+                "primaryAccountNumberCountryCode",
+                "forwardingInstitutionCountryCode",
+                "cardSequenceNumber",
+                "networkInternationalId",
                 "transactionCurrencyCode",
                 "settlementCurrencyCode",
-                "cardholderBillingCurrencyCode"
+                "cardholderBillingCurrencyCode",
+                "receivingInstitutionCountryCode",
+                "settlementInstitutionCountryCode",
+                "networkManagementInformationCode"
         };
 
         for (String key : currencyKeys) {
@@ -60,6 +68,4 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
             }
         }
     }
-
-
 }

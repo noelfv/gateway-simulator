@@ -24,6 +24,7 @@ public class VisaHandlerField implements NetworkHandlerField {
         ISODataType dataType = fieldDefinition.getTypeData();
         return switch (dataType) {
             case ALPHA_NUMERIC, HEXADECIMAL -> lengthDecode * 2;
+            case NUMERIC_ODD_VARIABLE -> ISOUtil.alignToEvenLength(lengthDecode);
             default -> lengthDecode;
         };
 
@@ -69,8 +70,8 @@ public class VisaHandlerField implements NetworkHandlerField {
             case NUMERIC_ODD -> "0" + processedDataSegment;
             case ALPHA_NUMERIC -> ISOUtil.stringToEBCDICHex(processedDataSegment);
             case BINARY_STRING -> ISOUtil.convertBITMAPtoHEX(processedDataSegment);
+            case NUMERIC_ODD_VARIABLE -> ISOUtil.prefixZeroIfOdd(processedDataSegment);
             default -> processedDataSegment;
         };
     }
-
 }

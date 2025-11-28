@@ -12,6 +12,7 @@ import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +72,6 @@ public class VisaProcessField {
                         LogsTraces.writeInfo("Campo no permitido: " + i + ". No hay mapeo disponible.");
                         throw new ParserException(ParserUtil.createMessageError(i));
                     }
-
                     position = processFieldData(field, isoMessage, position, valuesMap);
                 }
             }
@@ -111,6 +111,7 @@ public class VisaProcessField {
 
                 // Usar la estrategia de unparse
                 String isoValueHex = field.getParserStrategy().build(value, field,visaFieldDefinition);
+
                 isoValues.append(isoValueHex);
 
                 // Verificar si se necesita bitmap secundario

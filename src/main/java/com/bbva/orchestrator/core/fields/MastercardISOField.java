@@ -1,9 +1,9 @@
 package com.bbva.orchestrator.core.fields;
 
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -118,7 +118,7 @@ public enum MastercardISOField implements ISOField {
     RECEIVING_INSTITUTION_IDENTIFICATION_CODE(100, "receivingInstitutionIdentificationCode", ISODataType.NUMERIC, true, 2, new LlvarLengthPrefixParser(new NumericFieldParser())),
     FILE_NAME(101, "fileName", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     ACCOUNT_IDENTIFICATION_1(102, "accountIdentification1", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
-    ACCOUNT_IDENTIFICATION(103, "accountIdentification", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
+    ACCOUNT_IDENTIFICATION_2(103, "accountIdentification2", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     TRANSACTION_DATA(104, "transactionData",ISODataType.ALPHA_NUMERIC,true,3,new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     DOUBLE_LENGTH_DES_KEY(105, "doubleLengthDesKey", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     FLEET_SERVICE_DATA(106, "fleetServiceData", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),

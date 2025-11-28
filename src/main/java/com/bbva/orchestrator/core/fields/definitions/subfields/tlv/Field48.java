@@ -48,6 +48,7 @@ public enum Field48 implements ISOSubField {
     SF_48_51("51", "AdditionalDataRetailer.51", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_55("55", "AdditionalDataRetailer.55", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    SF_48_58("58", "AdditionalDataRetailer.58", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_60("60", "AdditionalDataRetailer.60", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
     SF_48_62("62", "AdditionalDataRetailer.62", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
@@ -57,6 +58,7 @@ public enum Field48 implements ISOSubField {
     SF_48_71("71", "AdditionalDataRetailer.71", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     SF_48_72("72", "AdditionalDataRetailer.72", ISODataType.HEXADECIMAL, false, 1, new HexadecimalFieldParser()),
     SF_48_75("75", "AdditionalDataRetailer.75", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
+    SF_48_92("92", "AdditionalDataRetailer.92", ISODataType.NUMERIC, false, 1, new NumericFieldParser()),
 
     // Subcampos compuestos (con isVariable = true, que tienen sub-subcampos)
     //SF_48_33("33", "AdditionalDataRetailer.33", ISODataType.NUMERIC, true, 0, new CompositeSubFieldParser("48.33")),
@@ -75,7 +77,6 @@ public enum Field48 implements ISOSubField {
     SF_48_53("53", "AdditionalDataRetailer.53", ISODataType.NUMERIC, true, 2, null), // Inicializado a null
     //SF_48_56("56", "AdditionalDataRetailer.56", ISODataType.ALPHA_NUMERIC, true, 2, null),// Inicializado a null
     SF_48_57("57", "AdditionalDataRetailer.57", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
-    SF_48_58("58", "AdditionalDataRetailer.58", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     // SF_48_61("61", "AdditionalDataRetailer.61", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_64("64", "AdditionalDataRetailer.64", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null
     SF_48_65("65", "AdditionalDataRetailer.65", ISODataType.ALPHA_NUMERIC, true, 2, null), // Inicializado a null

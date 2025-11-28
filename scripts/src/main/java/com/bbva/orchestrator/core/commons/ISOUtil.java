@@ -1,8 +1,6 @@
 package com.bbva.orchestrator.core.commons;
 
 
-import com.bbva.orchlib.parser.ParserException;
-
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;

@@ -1,9 +1,12 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
-import com.bbva.gateway.dto.iso20022.*;
+import com.bbva.gateway.dto.iso20022.AdditionalDataCustomDataLocalDTO;
+import com.bbva.gateway.dto.iso20022.CustomDataLocalDTO;
+import com.bbva.gateway.dto.iso20022.RequestDTO;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,20 +28,30 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
                 .key("MSGTYPE")
                 .value(input.getMessageType())
                 .build();
-        additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
-                .request(msgTypeRequest)
-                .build());
-
         // 2. Crear y añadir el segundo par (ISO8583)
         RequestDTO iso8583Request = RequestDTO.builder()
                 .key("ISO8583")
                 .value(input.getPlainTextPCI())
                 .build();
+        // 3. Guardar el campo 48 original
+        RequestDTO iso8583AdditionalData_DE48 = RequestDTO.builder()
+                .key("DE_48")
+                .value(input.getAdditionalDataRetailer())
+                .build();
+
         additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
                 .request(iso8583Request)
                 .build());
 
-        // 3. Construir el DTO final con la lista poblada
+        additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
+                .request(msgTypeRequest)
+                .build());
+
+        additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
+                .request(iso8583AdditionalData_DE48)
+                .build());
+
+        // 4. Construir el DTO final con la lista poblada
         return CustomDataLocalDTO.builder()
                 .additionalData(additionalDataCustomDataLocalList)
                 .build();

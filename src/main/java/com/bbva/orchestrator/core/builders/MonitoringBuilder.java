@@ -1,6 +1,9 @@
 package com.bbva.orchestrator.core.builders;
 
-import com.bbva.gateway.dto.iso20022.*;
+import com.bbva.gateway.dto.iso20022.ContextDTO;
+import com.bbva.gateway.dto.iso20022.EnvironmentDTO;
+import com.bbva.gateway.dto.iso20022.MonitoringDTO;
+import com.bbva.gateway.dto.iso20022.TransactionDTO;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.ChannelOperator;
@@ -22,11 +25,12 @@ import java.util.Optional;
 public class MonitoringBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringBuilder.class);
-    private static final List<String> MTI_INPUT = List.of("0100", "0120", "0400", "0420");
     private static final List<String> MTI_OUTPUT = List.of("0110", "0130", "0410", "0430");
     private static final String BIN_ADQUIRENTE_P2P = "420829";
-    private static final String APPROVED = "Approved";
-    private static final String DENIED = "Denied";
+    private static final String APPROVED = "Approved"; //Se recibió una respuesta positiva.
+    private static final String DENIED = "Denied";//Se recibió una respuesta negativa.
+    private static final String PENDING = "Pending";//La solicitud ha sido enviada y se espera una respuesta.
+    private static final String TIMEOUT = "Timeout";// FALLIDA (o TIMEOUT): La operación no pudo completarse debido a un error de
     private final ApplicationDataCache applicationDataCache;
 
 
@@ -43,21 +47,21 @@ public class MonitoringBuilder {
         String envAcceptorId = input.getCardAcceptorIdentificationCode();
         String merchantCategory = input.getMerchantType();
         try {
-
+            String currentTime = String.valueOf(Instant.now().toEpochMilli());
             if(FieldUtil.requiredProcess(input.getMessageType())){
                 String binCode = extractBinCode(input.getPrimaryAccountNumber());
                 String merchantName = extractMerchantName(envAcceptorNameAndLocation);
-                long endDate = Instant.now().toEpochMilli();
-                String currentTime = String.valueOf(endDate);
+
                 monitoring.setStartDateMs(currentTime);
                 monitoring.setBinCode(binCode);
                 monitoring.setBinDescription(applicationDataCache.getBinDescription(networkName, binCode));
                 monitoring.setMerchantNameAceptor(merchantName.trim());
                 monitoring.setMerchantCategoryDescription(applicationDataCache.getCustomValue("merchant_type", merchantCategory));
-                monitoring.setChannelFilter(channelFilterDescription(context.getPointOfServiceContext().getEcommerceIndicator(), environment.getTerminal().getKey()));
                 monitoring.setOperationFilter(FilterOperator.getFilterOperator(transaction.getTransactionType()));
                 monitoring.setTransactionTypeDescription(TransactionType.getTransactionType(transaction.getTransactionType()));
                 monitoring.setCountryDate(getCurrentDatePeru());
+                monitoring.setTransactionStatus(PENDING);//Indicador para saber que la transacción no obtuvo respuesta.
+                monitoring.setChannelFilter(channelFilterDescription(context.getPointOfServiceContext().getEcommerceIndicator(), environment.getTerminal().getKey()));
 
                 if (BIN_ADQUIRENTE_P2P.equals(envAcquirerId)) {
                     monitoring.setP2pType(envAcceptorNameAndLocation.substring(0, 4));
@@ -66,6 +70,7 @@ public class MonitoringBuilder {
                 }
             } else {
                 if (MTI_OUTPUT.contains(input.getMessageType())) {
+                    monitoring.setEndDateMs(currentTime);
                     monitoring.setTransactionStatus("00".equals(input.getResponseCode()) ? APPROVED : DENIED);
                 } else {
                     LOGGER.info("No requiere generar bloque monitoreo messageType= {}", input.getMessageType());

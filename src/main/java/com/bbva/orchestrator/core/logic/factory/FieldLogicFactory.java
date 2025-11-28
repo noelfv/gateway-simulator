@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.core.logic.factory;
 
-import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,19 +36,8 @@ public class FieldLogicFactory {
         }
 
         String network = PEER_TO_NETWORK.get(peerId.toLowerCase());
-        System.out.println(delegateFieldLogic);
         return delegateFieldLogic.getOrDefault(network, getDefaultFieldLogic());
     }
-
-    /**
-     * Obtiene el parser adecuado según el peerId del contexto de GrpcHeadersInfo
-     * Si no se encuentra, devuelve el parser por defecto
-     */
-    public NetworkDelegateFieldLogic getDelegateFieldLogic() {
-        String peerId= GrpcHeadersInfo.getNetwork();
-        return getDelegateFieldLogic(peerId);
-    }
-
 
     private NetworkDelegateFieldLogic getDefaultFieldLogic() {
         return delegateFieldLogic.getOrDefault("default",

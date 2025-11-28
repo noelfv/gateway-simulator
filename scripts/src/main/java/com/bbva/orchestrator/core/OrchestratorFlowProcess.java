@@ -8,7 +8,6 @@ import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
-import com.bbva.orchlib.parser.IParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.Map;

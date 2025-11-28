@@ -6,7 +6,6 @@ import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
-import com.bbva.orchestrator.core.network.mastercard.MastercardProcessField;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.NoArgsConstructor;
 

@@ -2,6 +2,7 @@ package com.bbva.orchlib.configuration;
 
 
 import com.bbva.orchlib.featuretoggle.businessdata.BusinessData;
+import com.bbva.orchlib.utils.BusinessDataUtils;
 import com.bbva.orchlib.validations.ValidationsGlobal;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,5 +27,6 @@ public class BusinessDataLoad {
     @PostConstruct
     public void businessData() {
         ValidationsGlobal.setBusinessData(data);
+        BusinessDataUtils.setBusinessData(data);
     }
 }

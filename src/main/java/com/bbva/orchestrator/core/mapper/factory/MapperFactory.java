@@ -2,6 +2,7 @@ package com.bbva.orchestrator.core.mapper.factory;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.validations;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
-import com.bbva.orchlib.validations.IValidationsLocalErr;
 import org.springframework.stereotype.Component;
 
 @Component

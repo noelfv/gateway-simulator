@@ -10,11 +10,11 @@ import com.bbva.orchlib.featuretoggle.rulesglobal.RulesGlobalsPreLoad;
 import com.bbva.orchlib.featuretoggle.ruleslocal.ConditionLocal;
 import com.bbva.orchlib.featuretoggle.ruleslocal.RulesLocalsListPreLoad;
 import com.bbva.orchlib.featuretoggle.ruleslocal.RulesLocalsPreLoad;
+import com.bbva.orchlib.utils.RulesLocalUtils;
 
 import java.util.*;
 
 import static com.bbva.gateway.rules.RulesCommon.extractValueByMethodSequence;
-
 
 
 public class RulesCommon {
@@ -25,28 +25,34 @@ public class RulesCommon {
     private static RulesLocalsListPreLoad rulesOrchLocalsList;
     private static Map<String, String> filterLabelsLocals;
     private static Map<String, String> filterLabelsGlobals;
+
     private RulesCommon() {
     }
 
     public static void setRulesGlobalLoadList(RulesGlobalsListPreLoad rulesGlobalsList) {
-        RulesCommon.rulesGlobalsList = rulesGlobalsList;
+        if (rulesGlobalsList == null) return;
+        RulesCommon.rulesGlobalsList = new RulesGlobalsListPreLoad(rulesGlobalsList.getRulesList());
     }
 
     public static void setRulesValidationsLocalLoadList(RulesLocalsListPreLoad rulesValidationsLocalsList) {
-        RulesCommon.rulesValidationsLocalsList = rulesValidationsLocalsList;
+        if (rulesValidationsLocalsList == null) return;
+        RulesCommon.rulesValidationsLocalsList = new RulesLocalsListPreLoad(rulesValidationsLocalsList.getRulesList());
     }
+
     public static void setRulesOrchLocalLoadList(RulesLocalsListPreLoad rulesOrchLocalsList) {
-        RulesCommon.rulesOrchLocalsList = rulesOrchLocalsList;
+        if (rulesOrchLocalsList == null) return;
+        RulesCommon.rulesOrchLocalsList = new RulesLocalsListPreLoad(rulesOrchLocalsList.getRulesList());
     }
 
     public static void setFilterLabelsLocal(Map<String, String> filterLabelsLocals) {
-        RulesCommon.filterLabelsLocals = filterLabelsLocals;
+        if (filterLabelsLocals == null) return;
+        RulesCommon.filterLabelsLocals = new HashMap<>(filterLabelsLocals);
     }
 
     public static void setFilterLabelsGlobal(Map<String, String> filterLabelsGlobals) {
-        RulesCommon.filterLabelsGlobals = filterLabelsGlobals;
+        if (filterLabelsGlobals == null) return;
+        RulesCommon.filterLabelsGlobals = new HashMap<>(filterLabelsGlobals);
     }
-
 
 
     /**
@@ -82,9 +88,8 @@ public class RulesCommon {
     public static RulesGlobalsListPreLoad filterRulesGlobalsListByNetwork(String network) {
         List<RulesGlobalsPreLoad> filteredRules = rulesGlobalsList.getRulesList();
         List<RulesGlobalsPreLoad> filtered = filterRulesListByNetwork(filteredRules, network);
-        RulesGlobalsListPreLoad filteredRulesList = new RulesGlobalsListPreLoad();
-        filteredRulesList.setRulesList(filtered);
-        return filteredRulesList;
+        // Retorna nueva instancia con una "deep copy" de las reglas
+        return new RulesGlobalsListPreLoad(filtered);
     }
 
 
@@ -98,19 +103,17 @@ public class RulesCommon {
      */
     public static RulesLocalsListPreLoad filterRulesLocalsListByNetwork(String network, RuleType ruleType) {
         List<RulesLocalsPreLoad> filteredRules = null;
-        if(ruleType == RuleType.ORCHESTRATIONS){
+        if (ruleType == RuleType.ORCHESTRATIONS) {
             filteredRules = rulesOrchLocalsList.getRulesList();
-        }else if(ruleType == RuleType.VALIDATIONS){
+        } else if (ruleType == RuleType.VALIDATIONS) {
             filteredRules = rulesValidationsLocalsList.getRulesList();
         }
 
         assert filteredRules != null;
         List<RulesLocalsPreLoad> filtered = filterRulesListByNetwork(filteredRules, network);
-        RulesLocalsListPreLoad filteredRulesList = new RulesLocalsListPreLoad();
-        filteredRulesList.setRulesList(filtered);
-        return filteredRulesList;
+        // Retorna nueva instancia con una "deep copy" de las reglas
+        return new RulesLocalsListPreLoad(filtered);
     }
-
 
 
     /**
@@ -118,7 +121,7 @@ public class RulesCommon {
      * Este método procesa las condiciones de cada regla local en la lista proporcionada
      * y actualiza los resultados de las condiciones procesadas en las reglas locales.
      *
-     * @param iso20022 el objeto ISO20022 al que se aplicarán las condiciones de las reglas locales
+     * @param iso20022  el objeto ISO20022 al que se aplicarán las condiciones de las reglas locales
      * @param rulesList la lista de reglas locales que se aplicarán al objeto ISO20022
      * @return la lista de reglas locales original con los resultados de las condiciones actualizados
      */
@@ -136,13 +139,12 @@ public class RulesCommon {
     }
 
 
-
     /**
      * Aplica las condiciones de las reglas globales a un objeto ISO20022.
      * Este método procesa las condiciones de cada regla global en la lista proporcionada
      * y actualiza los resultados de las condiciones procesadas en las reglas globales.
      *
-     * @param iso20022 el objeto ISO20022 al que se aplicarán las condiciones de las reglas globales
+     * @param iso20022  el objeto ISO20022 al que se aplicarán las condiciones de las reglas globales
      * @param rulesList la lista de reglas globales que se aplicarán al objeto ISO20022
      * @return la lista de reglas globales original con los resultados de las condiciones actualizados
      */
@@ -162,11 +164,11 @@ public class RulesCommon {
     /**
      * Recupera el resultado para una condición dada desde el mapa conditionResults o lo calcula basándose en el mapa filterLabels.
      *
-     * @param iso20022          El objeto ISO20022 que contiene los datos a ser utilizados para la evaluación.
-     * @param conditionResults  Un mapa que contiene los resultados precalculados para las condiciones.
-     * @param condition         La condición para la cual se desea recuperar el resultado.
-     * @param filterLabels      Un mapa que contiene etiquetas para extraer valores del objeto ISO20022.
-     * @return                  El resultado de la evaluación de la condición, o null si no se encuentra o no se puede calcular.
+     * @param iso20022         El objeto ISO20022 que contiene los datos a ser utilizados para la evaluación.
+     * @param conditionResults Un mapa que contiene los resultados precalculados para las condiciones.
+     * @param condition        La condición para la cual se desea recuperar el resultado.
+     * @param filterLabels     Un mapa que contiene etiquetas para extraer valores del objeto ISO20022.
+     * @return El resultado de la evaluación de la condición, o null si no se encuentra o no se puede calcular.
      */
     private static String getResultForCondition(ISO20022 iso20022, Map<String, String> conditionResults, Object condition, Map<String, String> filterLabels) {
         String conditionName = getConditionName(condition);
@@ -189,7 +191,6 @@ public class RulesCommon {
     }
 
 
-
     /**
      * Obtiene el nombre de la condición proporcionada.
      *
@@ -204,8 +205,6 @@ public class RulesCommon {
             return conditionGlobal.getName();
         }
     }
-
-
 
 
     /**
@@ -237,10 +236,10 @@ public class RulesCommon {
      * cada regla y extrayendo los nombres de las funciones si se cumplen dichas condiciones. Los nombres
      * de las funciones extraídas se añaden a la lista de funciones proporcionada.
      *
-     * @param rules una lista de reglas de tipo genérico.
+     * @param rules     una lista de reglas de tipo genérico.
      * @param functions una lista de cadenas donde se añadirán los nombres de funciones extraídos.
-     * @param isLocal un booleano que indica si las reglas son locales o globales.
-     *                Si es true, se trata de reglas locales; si es false, son reglas globales.
+     * @param isLocal   un booleano que indica si las reglas son locales o globales.
+     *                  Si es true, se trata de reglas locales; si es false, son reglas globales.
      */
     private static void addFunctionsFromRulesList(List<?> rules, List<String> functions, boolean isLocal) {
         for (Object rule : rules) {
@@ -250,7 +249,7 @@ public class RulesCommon {
             if (isLocal) {
                 RulesLocalsPreLoad localRule = (RulesLocalsPreLoad) rule;
                 conditionsMet = evaluateAllConditionsLocal(localRule.getCondition());
-                function = localRule.getFunction();
+                function = localRule.getFunction(); 
             } else {
                 RulesGlobalsPreLoad globalRule = (RulesGlobalsPreLoad) rule;
                 conditionsMet = evaluateAllConditionsGlobal(globalRule.getCondition());
@@ -260,6 +259,7 @@ public class RulesCommon {
             if (conditionsMet) {
                 String[] splitFunctions = function.split(",");
                 Collections.addAll(functions, splitFunctions);
+                RulesLocalUtils.setOrchestrations(function);
                 break;
             }
         }
@@ -297,7 +297,6 @@ public class RulesCommon {
         }
         return true;
     }
-
 
 
     /**

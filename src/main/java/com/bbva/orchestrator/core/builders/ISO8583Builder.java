@@ -1,6 +1,7 @@
 package com.bbva.orchestrator.core.builders;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,7 +112,7 @@ public class ISO8583Builder {
                 .receivingInstitutionIdentificationCode(getValue("receivingInstitutionIdentificationCode", mapValues))
                 .fileName(getValue("fileName", mapValues))
                 .accountIdentification1(getValue("accountIdentification1", mapValues))
-                .accountIdentification(getValue("accountIdentification", mapValues))
+                .accountIdentification2(getValue("accountIdentification2", mapValues))
                 .transactionData(getValue("transactionData", mapValues))
                 .doubleLengthDesKey(getValue("doubleLengthDesKey", mapValues))
                 .fleetServiceData(getValue("fleetServiceData", mapValues))
@@ -239,7 +240,7 @@ public class ISO8583Builder {
         mapValues.put("receivingInstitutionIdentificationCode", iso8583.getReceivingInstitutionIdentificationCode());
         mapValues.put("fileName", iso8583.getFileName());
         mapValues.put("accountIdentification1", iso8583.getAccountIdentification1());
-        mapValues.put("accountIdentification", iso8583.getAccountIdentification());
+        mapValues.put("accountIdentification2", iso8583.getAccountIdentification2());
         mapValues.put("transactionData", iso8583.getTransactionData());
         mapValues.put("doubleLengthDesKey", iso8583.getDoubleLengthDesKey());
         mapValues.put("fleetServiceData", iso8583.getFleetServiceData());

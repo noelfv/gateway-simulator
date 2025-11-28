@@ -1,12 +1,10 @@
 package com.bbva.orchestrator.core.utils;
 
-import com.bbva.orchestrator.core.fields.MastercardISOField;
-import com.bbva.orchlib.parser.ParserException;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +13,7 @@ public class FieldUtil {
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     public static boolean requiredProcess(String messageType) {
-        return Set.of("0100","0120","0400","0420").contains(messageType);
+        return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
     }
     /**
      * Parsea un String a Double, devuelve null si es nulo, vacío o inválido.
@@ -67,7 +65,6 @@ public class FieldUtil {
             DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             LocalDateTime localDateTime = LocalDateTime.parse(fullDate, inputFormatter);
             Instant instant = localDateTime.atZone(ZoneOffset.UTC).toInstant();
-
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
             return outputFormatter.withZone(ZoneOffset.UTC).format(instant);
@@ -95,31 +92,47 @@ public class FieldUtil {
         }
     }
 
-    public static String convertToLastDayOfMonth(String dateStr) {
-        if (dateStr == null || dateStr.length() != 4) {
+
+    public static String convertFormatDateExpiration(String dateExpiration) {
+        if (dateExpiration == null || dateExpiration.isEmpty()) {
             return null;
         }
 
         try {
-            // Extraer el año y el mes de la cadena de entrada
-            int year = 2000 + Integer.parseInt(dateStr.substring(0, 2)); // "25" -> 2025
-            int month = Integer.parseInt(dateStr.substring(2, 4)); // "04" -> abril
+            // Se usa YearMonth para parsear directamente y manejar la lógica de fechas
+            YearMonth yearMonth = YearMonth.parse("20"+dateExpiration, DateTimeFormatter.ofPattern("yyyyMM"));
 
-            if (month < 1 || month > 12) {
-                return null; // Validar que el mes esté en el rango válido
-            }
-
-            // Crear el último día del mes
-            YearMonth yearMonth = YearMonth.of(year, month);
+            // Obtener el último día del mes
             LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
-            // Formatear la salida como "yyyy-MM-dd"
-            return lastDayOfMonth.format(DateTimeFormatter.ofPattern(DATE_FORMAT));
-        } catch (NumberFormatException e) {
-            return null; // Manejar errores de formato
+            // Formatear la fecha a YYYY-MM-DD
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return lastDayOfMonth.format(formatter);
+
+        } catch (DateTimeParseException e) {
+            return null;
         }
     }
 
+    public static String reConvertFormatExpiryDate(String dateExpiration) {
+        if (dateExpiration == null || dateExpiration.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Se define el formato de entrada
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            // Se parsea la cadena a un objeto LocalDate
+            LocalDate date = LocalDate.parse(dateExpiration, inputFormatter);
+            // Se define el formato de salida
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyMM");
+            // Se formatea el objeto LocalDate al formato deseado
+            return date.format(outputFormatter);
+
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
 
     /**
      * Valida tasa de conversión: si es 000000, devuelve null.
@@ -129,38 +142,6 @@ public class FieldUtil {
         return (value != null && value == 0.0) ? null : value;
     }
 
-    /**
-     * Formatea fecha de expiración MMyy → MMyy
-     */
-    public static String convertFormatExpiryDate(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMM");
-            YearMonth yearMonth = YearMonth.parse(value, formatter);
-            return yearMonth.toString();
-
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static String reConvertFormatExpiryDate(String value) {
-        if (value == null || value.isEmpty()) {
-            return "";
-        }
-        try {
-            // Parsear la fecha en formato yyyy-MM
-            YearMonth ym = YearMonth.parse(value);
-
-            // Formatear a yyMM
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMM");
-            return ym.format(formatter);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     //TODO REVISAR LA FUNCIONALIDAD
     public static String convertEffectiveExchangeRate(String value) {
@@ -203,6 +184,7 @@ public class FieldUtil {
         String amountCents = amount.substring(amount.length() - 2);
         return amountGeneral + "." + amountCents;
     }
+
     public static String revertValidAmount(String amount) {
         String revertedAmount = amount;
         if (amount.contains(",") || amount.contains(".")) {
@@ -245,16 +227,10 @@ public class FieldUtil {
                 originalString.substring(endPosition);
     }
 
-    public static String getEnvVariableOrDefault(String name, String defaultValue) {
-        String value = System.getenv(name);
-        return (value != null) ? value : defaultValue;
-    }
-
     public static String getValue(String fieldName, Map<String, String> values) {
         if (values.containsKey(fieldName)) {
             return values.get(fieldName);
         }
         return "";
     }
-
 }

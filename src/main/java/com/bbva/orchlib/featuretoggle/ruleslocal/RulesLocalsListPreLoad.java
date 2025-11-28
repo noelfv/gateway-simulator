@@ -15,4 +15,16 @@ public class RulesLocalsListPreLoad {
     public RulesLocalsListPreLoad() {
         this.rulesList = new ArrayList<>();
     }
+
+    /**
+     * Constructor de copia para deep copy
+     *
+     * @param rulesList la otra lista de RulesLocalsPreLoad de la que copiar
+     */
+    public RulesLocalsListPreLoad(List<RulesLocalsPreLoad> rulesList) {
+        this.rulesList = new ArrayList<>();
+        for (RulesLocalsPreLoad rulesLocalsPreLoad : rulesList) {
+            this.rulesList.add(new RulesLocalsPreLoad(rulesLocalsPreLoad));
+        }
+    }
 }

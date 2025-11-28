@@ -3,15 +3,16 @@ package com.bbva.orchestrator.core.mapper.factory.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.orchestrator.core.builders.MonitoringBuilder;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.MessageFunction;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
-import com.bbva.orchestrator.core.mapper.iso20022.strategy.impl.*;
-import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
-import com.bbva.orchestrator.core.builders.MonitoringBuilder;
+import com.bbva.orchestrator.core.mapper.iso20022.strategy.impl.*;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 @Service
@@ -76,6 +77,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                     .transaction(transaction)
                     .environment(environment)
                     .addendumData(addendumData)
+                    .iccRelatedData(input.getIntegratedCircuitCard())
                     .customDataLocal(customDataLocal)//se deberia eliminar este bloque en el sensitiveData del flowhandler
                     .monitoring(monitoring);//Esto se deberia de setear en el mapper de la respuesta
 
@@ -114,7 +116,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     @Override
     public Map<String, String> unMapper(ISO20022 input) {
 
-        Map<String,String> addendumData = addendumDataStrategy.unMapper(input.getNetworkName(),input.getAddendumData());
+        Map<String,String> processingResult = processingResultMappingStrategy.unMapper(input.getNetworkName(),input.getProcessingResult());
         Map<String,String> environment = environmentStrategy.unMapper(input.getNetworkName(),input.getEnvironment());
         Map<String,String> transaction = transactionStrategy.unMapper(input.getNetworkName(),input.getTransaction());
         Map<String,String> context = contextStrategy.unMapper(input.getNetworkName(),input.getContext());
@@ -122,8 +124,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
         Map<String,String> securityTrailer = securityTrailerStrategy.unMapper(input.getNetworkName(),input.getSecurityTrailer());
         Map<String,String> traceData = traceDataStrategy.unMapper(input.getNetworkName(),input.getTraceData());
         Map<String,String> supplementaryData = supplementaryDataStrategy.unMapper(input.getNetworkName(),input.getSupplementaryData());
-        Map<String,String> processingResult = processingResultMappingStrategy.unMapper(input.getNetworkName(),input.getProcessingResult());
-
+        Map<String,String> addendumData = addendumDataStrategy.unMapper(input.getNetworkName(),input.getAddendumData());
 
         Map<String,String> mapValues=new HashMap<>();
 
@@ -138,8 +139,8 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
         mapValues.putAll(processingResult);
 
         // momentaneo para limpiar los en blanco
-        mapValues.values().removeIf(String::isEmpty);
-
+        //mapValues.values().removeIf(String::isEmpty);
+        mapValues.put("integratedCircuitCard", input.getIccRelatedData());
         mapValues.put("messageType", MessageFunction.convertTypeMessageResponse(input.getMessageFunction())); // Mientras no nos den la marca para saber que tipo de respuesta es.
         mapValues.put("networkName", input.getNetworkName());
 
@@ -154,19 +155,26 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
         //EnvironmentDTO environment = EnvironmentDTO.builder().build();
         EnvironmentDTO environment = environmentStrategy.mapper(input, subFields);
-        AddendumDataDTO addendumData = addendumDataStrategy.mapper(input, subFields);
-        MonitoringDTO monitoring=monitoringService.build(input, null,null,null);
-        //TransactionDTO transaction= transactionStrategy.mapper(input, subFields);//Campos mandatorios
-        //ContextDTO context = contextStrategy.mapper(input, subFields);//Campos mandatorios
+        AddendumDataDTO addendumData = addendumDataStrategy.mapper_response(input, subFields);
+        TransactionDTO transaction= transactionStrategy.mapper(input, subFields);//Campos mandatorios
+        ContextDTO context = contextStrategy.mapper_response(input, subFields);//Campos mandatorios
+        MonitoringDTO monitoring=monitoringService.build(input, transaction,null,null);
         //TODO: No aplica para el mensaje 0800 y 0302 validar que  ocurriria
         ProcessingResultDTO processingResultDTO = mapperUtil.createProcessingResult(input);
+
+        LogsTraces.writeInfo("requestMessage %s|%s"
+                .formatted(input.getPlainTextPCI(),
+                        transaction.getTransactionId().getTransactionReference()));
+
         return ISO20022.builder()
+                .monitoring(monitoring)
+                .context(context)
+                .environment(environment)
                 .networkName(input.getNetworkName())
                 .messageFunction(MessageFunction.convertMessageFunction(input.getMessageType()))
-                .environment(environment)
+                .transaction(transaction)
                 .addendumData(addendumData)//Contiene el mensaje de respuesta del host
                 .processingResult(processingResultDTO)
-                .monitoring(monitoring)
                 .build();
     }
 
@@ -174,7 +182,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     // Metodo auxiliar para verificar si es un mensaje de respuesta
     private boolean isResponseHost(String messageType) {
         if (messageType == null || messageType.length() < 4) return false;
-        return Set.of("0110","0130","0410","0430","0210","0810","0312").contains(messageType); //Validar si hay que incluir el 0130
+        return Set.of("0110","0130","0410","0430","0210","0810","0312","0800").contains(messageType); //Validar si hay que incluir el 0130
     }
 
 
@@ -196,7 +204,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                                         .value(input.getOriginalMessage())
                                         .build(),
                                 AdditionalDataDTO.builder()
-                                        .key("MSGTYPE")
+                                        .key("UNSP")
                                         .value(input.getMessageType())
                                         .build()
                         ))

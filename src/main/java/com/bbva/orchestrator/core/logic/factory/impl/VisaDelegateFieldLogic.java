@@ -6,6 +6,7 @@ import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeFixedFieldParser;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ public class VisaDelegateFieldLogic implements NetworkDelegateFieldLogic {
         allParsedSubfields.putAll(mapSubField22);
         allParsedSubfields.putAll(mapSubField54);
         allParsedSubfields.putAll(mapSubField61);
+
         return allParsedSubfields;
     }
 
@@ -70,6 +72,6 @@ public class VisaDelegateFieldLogic implements NetworkDelegateFieldLogic {
     }
 
     private boolean requiredProcessSubFields(String messageType) {
-        return Set.of("0100","0120","0400","0420").contains(messageType);
+        return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
     }
 }

@@ -10,4 +10,19 @@ public class ConditionGlobal {
     private String operation;
     private String value;
     private String filterLabelProcess;
+
+    public ConditionGlobal() {
+    }
+
+    /**
+     * Constructor de copia para deep copy
+     *
+     * @param other el otro ConditionGlobal del que copiar
+     */
+    public ConditionGlobal(ConditionGlobal other) {
+        this.name = other.getName();
+        this.operation = other.getOperation();
+        this.value = other.getValue();
+        this.filterLabelProcess = other.getFilterLabelProcess();
+    }
 }
