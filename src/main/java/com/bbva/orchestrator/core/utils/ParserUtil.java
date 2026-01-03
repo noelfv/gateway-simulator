@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.core.utils;
 
-import com.bbva.gateway.sensitivedata.SensitiveDataHandler;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
@@ -72,7 +71,7 @@ public class ParserUtil {
         for (String fieldName : sensitiveFields) {
             mapMaskedValues.computeIfPresent(fieldName, (key, value) -> {
                 if (PRIMARY_ACCOUNT_NUMBER.equals(key)) {
-                    return SensitiveDataHandler.obfuscate(value, "left", MASK_CHAR, 6, 6);
+                    return obfuscate(value, "left", MASK_CHAR, 6, 6);
                 } else {
                     return maskWithDefaultChar(value);
                 }
@@ -84,5 +83,24 @@ public class ParserUtil {
 
     private static  String maskWithDefaultChar(String value) {
         return value == null ? null : DEFAULT_MASK_CHAR.repeat(value.length());
+    }
+
+    public static String obfuscate(String value, String direction, String character, int startPosition, int numberOfChars) {
+        if (value == null) return "";
+
+        character = character.substring(0, 1); // Only 1 character for obfuscation needed
+        StringBuilder obfuscatedString = new StringBuilder(value);
+
+        if (direction.equals("left")) {
+            int start = Math.max(startPosition, 0);
+            int end = Math.min(start + numberOfChars, obfuscatedString.length());
+            obfuscatedString.replace(start, end, character.repeat(end - start));
+        } else {
+            int end = Math.max(obfuscatedString.length() - startPosition, 0);
+            int start = Math.max(end - numberOfChars, 0);
+            obfuscatedString.replace(start, end, character.repeat(end - start));
+        }
+
+        return obfuscatedString.toString();
     }
 }

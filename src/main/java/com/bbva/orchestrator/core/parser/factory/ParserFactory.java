@@ -41,15 +41,6 @@ public class ParserFactory {
     }
 
 
-    /**
-     * Obtiene el parser adecuado según el peerId del contexto de GrpcHeadersInfo
-     * Si no se encuentra, devuelve el parser por defecto
-     */
-    public ISO8583DelegateParser getDelegateParser() {
-        String peerId= GrpcHeadersInfo.getNetwork();
-        return getDelegateParser(peerId);
-    }
-
 
     private ISO8583DelegateParser getDefaultParser() {
         return parsers.getOrDefault("default",

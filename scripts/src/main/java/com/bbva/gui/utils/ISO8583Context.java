@@ -1,7 +1,6 @@
 package com.bbva.gui.utils;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
-import com.bbva.gateway.sensitivedata.SensitiveDataHandler;
 import com.bbva.orchestrator.core.builders.ISO8583;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 

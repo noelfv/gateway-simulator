@@ -41,15 +41,6 @@ public class MapperFactory {
     }
 
 
-    /**
-     * Obtiene el parser adecuado según el peerId del contexto de GrpcHeadersInfo
-     * Si no se encuentra, devuelve el parser por defecto
-     */
-    public ISO20022DelegateMapper getDelegateMapper() {
-        String peerId= GrpcHeadersInfo.getNetwork();
-        return getDelegateMapper(peerId);
-    }
-
 
     private ISO20022DelegateMapper getDefaultMapper() {
         return mappers.getOrDefault("default",
