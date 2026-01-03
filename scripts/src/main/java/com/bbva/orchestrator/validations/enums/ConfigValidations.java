@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.validations.enums;
 
-import com.bbva.orchestrator.validations.ValidationsLocal;
 import lombok.Getter;
 
 @Getter

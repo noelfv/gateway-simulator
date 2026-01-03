@@ -151,7 +151,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     private ISO20022 createISO20022ResponseFromHost(ISO8583 input, Map<String, String> subFields) {
         //TODO: Validar si es necesario llamar al uncrypto en el flujo HOST
         //TODO: Construir los objetos mandatorios del iso200022 segun el catalogo para no tener error de nullPointer
-        // Incluir siempre el PAN por que se tiene uso dentro de las reglas de orquestacion del application-local.yml
+        // Incluir siempre el PAN por que se tiene uso dentro de las reglas de orquestacion del
 
         //EnvironmentDTO environment = EnvironmentDTO.builder().build();
         EnvironmentDTO environment = environmentStrategy.mapper(input, subFields);

@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.grpcclient;
 
-import com.bbva.orchlib.grpcclient.IGrpcControlDialogoClient;
 import org.springframework.stereotype.Component;
 
 /**

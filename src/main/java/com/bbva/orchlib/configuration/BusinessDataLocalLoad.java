@@ -3,7 +3,6 @@ package com.bbva.orchlib.configuration;
 
 import com.bbva.orchlib.featuretoggle.businessdatalocal.BusinessDataLocal;
 import com.bbva.orchlib.rules.RulesOrchestrator;
-import com.bbva.orchlib.validations.ValidationsGlobal;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -26,6 +25,6 @@ public class BusinessDataLocalLoad {
     @PostConstruct
     public void businessDatalocal() {
         RulesOrchestrator.setBusinessDataLocalList(datalocal);
-        ValidationsGlobal.setBusinessDataLocalList(datalocal);
+       // ValidationsGlobal.setBusinessDataLocalList(datalocal);
     }
 }

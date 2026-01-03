@@ -1,8 +1,5 @@
 package com.bbva.orchestrator.validations;
 
-import com.bbva.orchestrator.validations.enums.ConfigMessageFunctions;
-import com.bbva.orchestrator.validations.enums.ConfigValidations;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
