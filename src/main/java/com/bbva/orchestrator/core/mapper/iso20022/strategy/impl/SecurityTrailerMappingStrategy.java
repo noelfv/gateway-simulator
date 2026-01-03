@@ -45,7 +45,7 @@ public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<Se
     }
 
     @Override
-    public Map<String, String> unMapper(String networkName,SecurityTrailerDTO input) {
+    public Map<String, String> unMapper(String networkName, SecurityTrailerDTO input) {
         Map<String, String> mapValues = new HashMap<>();
 
         /*MacDataDTO macData = input.getMacData();

@@ -1,7 +1,5 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
-import com.bbva.gateway.dto.iso20022.MacDataDTO;
-import com.bbva.gateway.dto.iso20022.SecurityTrailerDTO;
 import com.bbva.orchestrator.core.builders.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;

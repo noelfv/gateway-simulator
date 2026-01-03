@@ -1,8 +1,7 @@
 package com.bbva.gui.components.panels;
 
-import com.bbva.gui.commons.ISO8583Processor;
+import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.gui.components.PanelDoggy;
-import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.UtilGUI;
-import com.bbva.gateway.dto.iso20022.ISO20022;
 import lombok.Setter;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 import javax.swing.*;
@@ -278,7 +276,8 @@ public class ParseViewerPanel extends JPanel {
                 mapValues = delegateParser.parser(inputMessage);
             }else {
                 System.out.println("Mensaje en formato ASCII");
-                mapValues= ISO8583Processor.createMapFieldsISO8583(inputMessage);
+                mapValues = delegateParser.parser(inputMessage);
+                //mapValues= ISO8583Processor.createMapFieldsISO8583(inputMessage);
             }
 
             ParseResult result = ParseGUI.process(mapValues);

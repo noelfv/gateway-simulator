@@ -2,9 +2,9 @@ package com.bbva.orchestrator.core.parser.factory.impl;
 
 import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
+import com.bbva.orchestrator.core.utils.ParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 @Component
@@ -19,7 +19,7 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
         Map<String,String> mappedFields = fieldParser.mapFields(originalMessage);
         adjustFields(mappedFields);
         mappedFields.put("networkName",NETWORK_VISA);
-        //mappedFields.put("plainTextPCI", ParserUtil.unParserPlainTextPCI(mappedFields,fieldParser));
+        mappedFields.put("plainTextPCI", unParserPlainTextPCI(mappedFields));
         return mappedFields;
     }
 
@@ -32,11 +32,6 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
     public String unParserPlainText(Map<String, String> mappedFields) {
         return fieldParser.unMapFieldsPlainText(mappedFields);
     }
-
-    //@Override
-    //public Map<String, String> parserSubFields(ISO8583 iso8583) {
-      //  return subFieldParser.parseSubfields(iso8583);
-    //}
 
     /**
      * Ajusta los campos específicos en el mapa de valores.
@@ -67,5 +62,20 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
                 mapValues.put(key, value.substring(1, 4));
             }
         }
+    }
+
+    private String unParserPlainTextPCI(Map<String, String> mapFieldsValue) {
+
+        if (mapFieldsValue.get("messageType").startsWith("08") || mapFieldsValue.get("messageType").startsWith("019")) {
+            return mapFieldsValue.get("messageType");
+        }
+        try{
+            Map<String, String> maskedFields = ParserUtil.maskSensitiveFields(mapFieldsValue);
+            return fieldParser.unMapFieldsPlainText(maskedFields);
+        }catch (Exception e){
+            //SI HAY ERROR EN EL UNPARSER DEL PLAIN TEXT PCI, SE DEVUELVE SOLO EL MESSAGE TYPE
+            return mapFieldsValue.get("messageType");
+        }
+
     }
 }

@@ -10,8 +10,8 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApprovalEntityDTO implements Serializable {
+public class ContactInformationDTO implements Serializable {
     @Serial
-    private static final long serialVersionUID = 5743749290124783248L;
-    private String id;
+    private static final long serialVersionUID = 1782096436217919801L;
+    private String personalEmailAddress;
 }

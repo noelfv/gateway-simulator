@@ -147,7 +147,7 @@ public class ConverterTramaViewerPanel extends JPanel {
                 currentMappedFieldsByDescription = delegateParser.parser(inputMessage);
                 clear=true;
             }else {
-                currentMappedFieldsByDescription = ISO8583Processor.createMapFieldsISO8583(inputMessage);
+                currentMappedFieldsByDescription = ISO8583Processor.createMapFieldsISO8583Mastercard(inputMessage);
             }
 
             result = ParseGUI.process(currentMappedFieldsByDescription);

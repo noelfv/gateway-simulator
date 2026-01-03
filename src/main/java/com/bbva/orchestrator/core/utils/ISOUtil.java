@@ -26,10 +26,16 @@ public class ISOUtil {
             Map.entry('8', "1000"),
             Map.entry('9', "1001"),
             Map.entry('A', "1010"),
+            Map.entry('a', "1010"),
             Map.entry('B', "1011"),
+            Map.entry('b', "1011"),
             Map.entry('C', "1100"),
+            Map.entry('c', "1100"),
             Map.entry('D', "1101"),
+            Map.entry('d', "1101"),
             Map.entry('E', "1110"),
+            Map.entry('e', "1110"),
+            Map.entry('f', "1111"),
             Map.entry('F', "1111")
     );
 

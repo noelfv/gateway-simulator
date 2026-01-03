@@ -233,4 +233,25 @@ public class FieldUtil {
         }
         return "";
     }
+
+    public static String extractSegment(String cadena, boolean containsSecondaryBitmap) {
+        final int PRIMARIO_CORTE = 64;
+        final int PRIMARIO_OFFSET = 82;
+        final int SECUNDARIO_CORTE = 80;
+        final int SECUNDARIO_OFFSET = 98;
+
+        if (cadena == null) {
+            return "La cadena no puede ser nula.";
+        }
+
+        int corte = containsSecondaryBitmap ? SECUNDARIO_CORTE : PRIMARIO_CORTE;
+        int offset = containsSecondaryBitmap ? SECUNDARIO_OFFSET : PRIMARIO_OFFSET;
+
+        if (cadena.length() < offset) {
+            return "Longitud de la cadena " + cadena.length() + " offset :" + offset;
+        }
+
+        // Extrae desde el inicio hasta 'corte', y desde 'offset' hasta el final
+        return cadena.substring(0, corte) + cadena.substring(offset);
+    }
 }

@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.grpcclient;
 
-import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.orchlib.grpcclient.IGrpcControlDialogoClient;
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,5 @@
 package com.bbva.orchestrator.core.commons;
 
-import com.bbva.gateway.dto.iso20022.ActionDTO;
-import com.bbva.gateway.dto.iso20022.AdditionalInformationDTO;
-import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
-import com.bbva.gateway.dto.iso20022.ResultDataDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.builders.ISO8583;
 

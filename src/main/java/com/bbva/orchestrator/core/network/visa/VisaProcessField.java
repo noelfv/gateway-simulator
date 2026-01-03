@@ -76,8 +76,10 @@ public class VisaProcessField {
                 }
             }
         } catch (ParserException e) {
+            LogsTraces.writeError("parserError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
             throw e;
         } catch (Exception e) {
+            LogsTraces.writeError("messageError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
             throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
         }
         return valuesMap;

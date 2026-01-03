@@ -1,7 +1,5 @@
 package com.bbva.gui.dto;
 
-import com.bbva.gateway.dto.iso20022.FeeAmountDTO;
-import com.bbva.gateway.dto.iso20022.FeeReconciliationAmountDTO;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

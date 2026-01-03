@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class CardholderBillingAmountDTO implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 3499965191409678444L;
-    private Double amount;
-    private String currency;
-    private String effectiveExchangeRate;
+	private Double amount;
+	private String currency;
+	private String effectiveExchangeRate;
 }

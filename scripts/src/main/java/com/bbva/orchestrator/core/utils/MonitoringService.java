@@ -1,8 +1,5 @@
 package com.bbva.orchestrator.core.utils;
 
-import com.bbva.gateway.dto.iso20022.EnvironmentDTO;
-import com.bbva.gateway.dto.iso20022.MonitoringDTO;
-import com.bbva.gateway.dto.iso20022.TransactionDTO;
 import com.bbva.orchestrator.core.builders.ISO8583;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,5 @@
 package com.bbva.orchestrator.validations;
 
-import com.bbva.gateway.dto.iso20022.ISO20022;
-
 import java.util.Optional;
 
 public class PassThroughValidator {

@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.core.utils;
 
-import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
 import com.bbva.orchestrator.core.builders.ISO8583;

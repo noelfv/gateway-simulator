@@ -29,6 +29,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConverterIso20022ViewerPanel extends JPanel {
@@ -226,8 +227,12 @@ public class ConverterIso20022ViewerPanel extends JPanel {
             String trama=delegateParser.unParserPlainText(fieldsValues);
             LOGGER.info("Trama generada: [{}]", trama);
             outputTextArea.setText(trama );
-
-            Map<String,String> mapValues=ISO8583Processor.createMapFieldsISO8583(trama);
+            Map<String,String> mapValues=new HashMap<>();
+            if (inputObject.getNetworkName().equalsIgnoreCase("PEER02")) {
+                mapValues=ISO8583Processor.createMapFieldsISO8583Mastercard(trama);
+            }else{
+                mapValues=ISO8583Processor.createMapFieldsISO8583Visa(trama);
+            }
 
             result = ParseGUI.process(mapValues);
             ParseGUI.updateTreeView(treeModel, resultTree, result);

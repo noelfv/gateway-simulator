@@ -110,16 +110,27 @@ public class CompositeTlvFieldParser implements FieldParserStrategy {
                 LogsTraces.writeWarning("Subcampo no definido: " + compositeFieldId + "." + tag);
                 continue;
             }
+            Map<String, Field48> subSubFields = TLVFieldLoadStructure.getSubFieldDefinitionsForComposite(tag);
 
-            // === 5. Si es variable (TLV anidado), parsear recursivamente y agregar al mapa ===
-            if (subFieldDef.isVariable()) {
-                parseNestedVariableSubField(tag, valueHex, parsedSubFieldsMap);
+            // === 5. Verificamos si es un campo con hijos (Complex/Composite) ===
+            if (!subSubFields.isEmpty()) {
+
+                // TRUCO: Miramos la definición del PRIMER hijo para decidir la estrategia del grupo.
+                // Si el primer hijo (ej: 61.01) es FIJO (false), asumimos que el bloque es posicional.
+                // Si el primer hijo (ej: 33.01) es VARIABLE (true), asumimos que el bloque es TLV anidado.
+                Field48 firstChild = subSubFields.values().iterator().next();
+
+                if (firstChild.isVariable()) {
+                    // Caso TLV Anidado (Busca Tags internos)
+                    parseNestedVariableSubField(tag, valueHex, parsedSubFieldsMap);
+                } else {
+                    // Caso Posicional Concatenado (Corta por longitud fija definida)
+                    parseNestedFixedSubField(tag, valueHex, parsedSubFieldsMap, networkHandlerField, subSubFields);
+                }
+
             } else {
-                // === 6. Si es fijo, delegar al parserStrategy ===
-                //ParsedFieldResult result = subFieldDef.getParserStrategy().parse(valueHex, valueLengthInHex, subFieldDef);
-                //ParsedFieldResult result = subFieldDef.getParserStrategy().parse(valueHex, subFieldDef,networkProfile);
-                String result=networkHandlerField.decode(valueHex,subFieldDef.getTypeData());
-                //parsedSubFieldsMap.put(compositeFieldId + "." + tag, result.value());
+                // === 6. Si es fijo simple (Hoja), decodificamos directamente ===
+                String result = networkHandlerField.decode(valueHex, subFieldDef.getTypeData());
                 parsedSubFieldsMap.put(compositeFieldId + "." + tag, result);
             }
         }
@@ -163,6 +174,51 @@ public class CompositeTlvFieldParser implements FieldParserStrategy {
             // === 5. Guardar resultado en el contenedor (ej: "48.33.01") ===
             String fullKey = compositeFieldId + "." + parentTag + "." + subTag;
             resultContainer.put(fullKey, decodedValue.trim());
+        }
+    }
+
+    /**
+     * Maneja subcampos que son concatenaciones fijas (Ej: 48.61).
+     * Trama: [Dato61.01][Dato61.02][Dato61.03]... (Sin tags ni longitudes intermedias).
+     */
+    private void parseNestedFixedSubField(String parentTag, String valueHex, Map<String, String> resultContainer,
+                                          NetworkHandlerField networkHandlerField, Map<String, Field48> subSubFields) {
+
+        if (subSubFields == null || subSubFields.isEmpty()) {
+            LogsTraces.writeWarning("No hay definiciones para hijos de: " + parentTag);
+            return;
+        }
+
+        int offset = 0;
+
+        // 2. Iterar en orden (01, 02, 03...)
+        for (Map.Entry<String, Field48> entry : subSubFields.entrySet()) {
+            String subTag = entry.getKey();      // ej: "01"
+            Field48 subDef = entry.getValue();   // ej: SF_48_61_01
+
+            // 3. Calcular tamaño a cortar BASADO EN LA DEFINICIÓN
+            // Como subDef.getLength() retorna bytes, multiplicamos por 2 para Hex.
+            int lengthToCut = subDef.getLength() * 2;
+
+            // 4. Validar que no nos pasemos del final de la cadena
+            if (offset + lengthToCut > valueHex.length()) {
+                LogsTraces.writeWarning("Datos insuficientes en campo " + parentTag + " para leer subcampo " + subTag + ". Se requiere: " + lengthToCut + ", Queda: " + (valueHex.length() - offset));
+                break;
+            }
+
+            // 5. Cortar (Substring puro)
+            String subValueHex = valueHex.substring(offset, offset + lengthToCut);
+
+            // 6. Decodificar (Hex -> ASCII/EBCDIC)
+            String decodedValue = networkHandlerField.decode(subValueHex, subDef.getTypeData());
+
+            // 7. Guardar resultado
+            // Clave resultante: "48.61.01"
+            String fullKey = compositeFieldId + "." + parentTag + "." + subTag;
+            resultContainer.put(fullKey, decodedValue);
+
+            // 8. Avanzar el cursor para el siguiente hijo
+            offset += lengthToCut;
         }
     }
 }

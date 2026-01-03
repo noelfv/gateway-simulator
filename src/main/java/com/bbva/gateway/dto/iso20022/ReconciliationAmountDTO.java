@@ -14,8 +14,8 @@ import java.io.Serializable;
 public class ReconciliationAmountDTO implements Serializable {
 	@Serial
 	private static final long serialVersionUID = -6264859555050322634L;
-    private Double amount;
-    private String currency;
-    private String effectiveExchangeRate;
-    private String conversionDate;
+	private Double amount;
+	private String currency;
+	private String effectiveExchangeRate;
+	private String conversionDate;
 }

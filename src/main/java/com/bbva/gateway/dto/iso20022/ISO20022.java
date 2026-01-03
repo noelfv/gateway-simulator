@@ -1,10 +1,6 @@
 package com.bbva.gateway.dto.iso20022;
 
-import com.bbva.gui.dto.MappingMetadata;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ISO20022 implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 8509839842943411890L;
@@ -36,11 +33,8 @@ public class ISO20022 implements Serializable {
 	private RecipientPartyDTO recipientParty;
 	private Boolean isSimulation;
 	private AddendumDataDTO addendumData;
-	private CustomDataLocalDTO customDataLocal;
 	private MonitoringDTO monitoring;
 	private String socketIp;
-	private MappingMetadata mappingMetadata;
-
-	public ISO20022() {
-	}
+	private String socketClusterPort;
+	private CustomDataLocalDTO customDataLocal;
 }

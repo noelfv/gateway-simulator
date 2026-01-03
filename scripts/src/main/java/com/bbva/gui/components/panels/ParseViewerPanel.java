@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bbva.gui.utils.ParseGUI;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.utils.UtilGUI;
-import com.bbva.gateway.dto.iso20022.ISO20022;
 import lombok.Setter;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
 import javax.swing.*;

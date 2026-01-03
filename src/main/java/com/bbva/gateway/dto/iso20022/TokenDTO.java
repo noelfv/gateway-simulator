@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Builder
 @Getter
@@ -15,5 +16,9 @@ public class TokenDTO implements Serializable {
     private static final long serialVersionUID = -4362892030421851280L;
 
     private String paymentToken;
-
+    private String tokenExpiryDate;
+    private List<AdditionalDataDTO> additionalData;
+    private String tokenAssuranceMethod;
+    private String tokenRequestorIdentification;
+    private String storageLocation;
 }

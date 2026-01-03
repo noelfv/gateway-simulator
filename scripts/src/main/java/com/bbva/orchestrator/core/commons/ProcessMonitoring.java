@@ -1,6 +1,5 @@
 package com.bbva.orchestrator.core.commons;
 
-import com.bbva.gateway.dto.iso20022.MonitoringDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.configuration.monitoring.FieldDto;
 import com.bbva.orchestrator.core.builders.ISO8583;

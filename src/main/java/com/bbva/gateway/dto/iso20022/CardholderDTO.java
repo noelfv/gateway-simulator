@@ -17,4 +17,5 @@ public class CardholderDTO implements Serializable {
     private static final long serialVersionUID = 6453296436707921907L;
     private CardholderNameDTO cardholderName;
     private List<IdentificationCardholderDTO> identification;
+    private ContactInformationDTO contactInformation;
 }
