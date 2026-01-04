@@ -1,6 +1,6 @@
 package com.bbva.gui.spring;
 
-import com.bbva.gui.components.views.MastercardParserGUI6;
+import com.bbva.gui.ParserGUIMain;
 import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
@@ -10,7 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import javax.swing.*;
 
-@Component
+//@Component
 public class GuiStarter implements ApplicationRunner {
 
     private final ConfigurableApplicationContext context;// ← Inyectado por Spring
@@ -41,8 +41,8 @@ public class GuiStarter implements ApplicationRunner {
             beanProviderInstance=new BeanProviderInstance(parserFactory,mapperFactory, fieldLogicFactory);
             System.out.println("ParserFactory bean obtenido: " + parserFactory);
             //MastercardParserGUI6 gui = new MastercardParserGUI6();
-            MastercardParserGUI6 gui = new MastercardParserGUI6(beanProviderInstance);
-            gui.setVisible(true);
+            //ParserGUIMain gui = new ParserGUIMain(beanProviderInstance);
+           // gui.setVisible(true);
         });
     }
 }

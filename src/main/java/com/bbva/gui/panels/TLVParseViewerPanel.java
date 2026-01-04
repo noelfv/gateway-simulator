@@ -1,4 +1,4 @@
-package com.bbva.gui.components.panels;
+package com.bbva.gui.panels;
 
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.dto.ParseResult;

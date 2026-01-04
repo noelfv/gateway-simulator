@@ -13,6 +13,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,18 +45,18 @@ public class ParseGUI {
 
             // Categorizar campos
             if (field.equals("0")) {
-                fieldNode.setUserObject("bitmap_primary : " + ISOUtil.convertBITMAPtoHEX(value));
+                fieldNode.setUserObject("P000: " + "["+ ISOUtil.convertBITMAPtoHEX(value)+ "]");
                 bitmapNode1.add(fieldNode);
-         /*   }if (field.equals("0")) {
-                fieldNode.setUserObject("bitmap_prymary : " + ISOUtil.convertBITMAPtoHEX(value));
-                bitmapNode1.add(fieldNode);*/
+           }else if (field.equals("1")) {
+                fieldNode.setUserObject("P001: " + "["+ ISOUtil.convertBITMAPtoHEX(value)+ "]");
+                bitmapNode1.add(fieldNode);
             }else {
                 // Para campos numéricos, intentar convertir a entero
                 try {
                     int fieldNumber = Integer.parseInt(field);
                     if (fieldNumber < 65) {
                         // Campos del bitmap primario (1-64)
-                        String bitmap1=(String)fieldNode.getUserObject();
+                       // String bitmap1=(String)fieldNode.getUserObject();
                         sortedFieldsBitmap1.put(fieldNumber, fieldNode);
                     } else {
                         sortedFieldsBitmap2.put(fieldNumber, fieldNode);

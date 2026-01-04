@@ -1,9 +1,9 @@
-package com.bbva.gui.components.views;
+package com.bbva.gui;
 
 import com.bbva.gateway.utils.LogsTraces;
+import com.bbva.gui.panels.*;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
-import com.bbva.gui.components.panels.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.*;
@@ -13,20 +13,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-public class MastercardParserGUI6 extends JFrame {
+public class ParserGUIMain extends JFrame {
 
-    private static final Logger logger = LoggerFactory.getLogger(MastercardParserGUI6.class);
-    private JMenuBar menuBar;
-    private JMenu parseMenu;
-    private JMenu conversionMenu;
+    private static final Logger logger = LoggerFactory.getLogger(ParserGUIMain.class);
     private JMenuItem parseMenuItem;
     private JMenuItem generarTramaMenuItem;
     private JMenuItem convertirTramaMenuItem;
     private JMenuItem convertirIso20022MenuItem;
     private JMenuItem campo48MenuItem;
-    private BeanProviderInstance beanProviderInstance;
+    private final BeanProviderInstance beanProviderInstance;
 
-    public MastercardParserGUI6(BeanProviderInstance beanProviderInstance) {
+    public ParserGUIMain(BeanProviderInstance beanProviderInstance) {
         this.beanProviderInstance = beanProviderInstance;
         initializeComponents();
         actionsMenu();
@@ -46,12 +43,12 @@ public class MastercardParserGUI6 extends JFrame {
         EmptyBorder itemPadding = new EmptyBorder(5, 10, 5, 30);
 
         //Crear barra de menú
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
         // Crear items de menú
-        parseMenu = new JMenu("Menu");
+        JMenu parseMenu = new JMenu("Menu");
         parseMenu.setFont(menuFont);
         parseMenu.setBorder(itemPadding);
-        conversionMenu = new JMenu("Conversion");
+        JMenu conversionMenu = new JMenu("Conversion");
         conversionMenu.setFont(menuFont);
         conversionMenu.setBorder(itemPadding);
         // Crear sub items
@@ -75,7 +72,6 @@ public class MastercardParserGUI6 extends JFrame {
     }
 
     private void actionsMenu() {
-        System.out.println("Configurando acciones del menú");
        // addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(), "Parsear mensaje");
         addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(beanProviderInstance), "Parsear mensaje");
         //addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaViewerPanel(), "Convertir mensaje");

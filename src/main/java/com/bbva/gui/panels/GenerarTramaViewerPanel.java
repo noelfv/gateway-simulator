@@ -1,4 +1,4 @@
-package com.bbva.gui.components.panels;
+package com.bbva.gui.panels;
 
 
 import javax.swing.*;

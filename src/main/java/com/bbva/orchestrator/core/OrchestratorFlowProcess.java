@@ -35,7 +35,7 @@ public class OrchestratorFlowProcess implements IParser {
         ISO8583 iso8583 = ISO8583Builder.buildISO8583(originalMessage, fieldsValues);
         NetworkDelegateFieldLogic delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic(iso8583.getNetworkName());
         Map<String, String> subFieldsValues = delegateFieldLogic.parseSubfields(iso8583);
-        ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper();
+        ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper(iso8583.getNetworkName());
 
         return delegateMapper.mapper(iso8583, subFieldsValues);
     }
@@ -55,11 +55,11 @@ public class OrchestratorFlowProcess implements IParser {
                 return extractMessageOriginal(iso20022);
             }else{
                 //TODO Este bloque solo genera la trama de respuesta para el flujo sincrono(PAP)
-                ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper();
+                ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper(iso20022.getNetworkName());
                 Map<String, String> fieldsValues = delegateMapper.unMapper(iso20022);
                 NetworkDelegateFieldLogic delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic(iso20022.getNetworkName());
                 Map<String, String> fieldsValuesResponse = delegateFieldLogic.applyLogicFields(fieldsValues);
-                ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser();
+                ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser(iso20022.getNetworkName());
 
                 return delegateParser.unParser(fieldsValuesResponse);
             }

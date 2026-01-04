@@ -1,4 +1,4 @@
-package com.bbva.gui.components.panels;
+package com.bbva.gui.panels;
 
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.PanelDoggy;
@@ -63,8 +63,8 @@ public class ConverterTramaViewerPanel extends JPanel {
     }
 
     private void createPanelsLayout() {
-        //MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
-        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), createOutputPanel());
+        MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        //MyDoggyToolWindowManager toolWindowManager= PanelDoggy.setupStructureMyDoggy(createMainPanel(), createOutputPanel());
         add(toolWindowManager, BorderLayout.CENTER);
     }
 

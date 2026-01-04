@@ -104,6 +104,9 @@ datalocal:
         - { name: "blocked_account", value: "62" }
         - { name: "closed_account", value: "62" }
         - { name: "account_blocked", value: "62" }
+        - { name: "by_revisarJ", value: " J" }
+        - { name: "by_revisar10", value: "10" }
+        - { name: "by_revisar65", value: "65" }
         - { name: "exceeded_pin_retry", value: "75" }
         - { name: "card_not_delivered", value: "78" }
         - { name: "annuled_authorization", value: "79" }

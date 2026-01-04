@@ -151,6 +151,9 @@ public class ISO8583Processor {
             int fieldLength = isoField.getLength();
 
             if (isoField.isVariable()) {
+                if(isoField.getId()==123){ //TODO revisar con el equipo gateway ya que este campo su cabecera pasa los dos digitos
+                    fieldLength=3;
+                }
                 String header = isoMessage.substring(position, position + fieldLength);
                 position += fieldLength;
                 fieldLength = Integer.parseInt(header);
