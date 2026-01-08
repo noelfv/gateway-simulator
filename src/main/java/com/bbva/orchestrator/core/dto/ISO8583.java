@@ -98,7 +98,7 @@ public class ISO8583 {
     private String debitsAmount;
     private String debitsReversalAmount;
     private String originalDataElements;
-    private String issuerFileUpdateCode;
+    private String fileUpdateCode;
     private String fileSecurityCode;
     private String responseIndicator;
     private String serviceIndicator;

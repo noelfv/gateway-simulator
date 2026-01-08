@@ -1,14 +1,12 @@
 package com.bbva.orchestrator.core.fields;
 
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
-import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.bbva.orchestrator.core.fields.definitions.ISODataType.HEXADECIMAL;
 
@@ -106,7 +104,7 @@ public enum MastercardISOField implements ISOField {
     DEBITS_AMOUNT(88, "debitsAmount", ISODataType.NUMERIC, false, 16, new NumericFieldParser()),
     DEBITS_REVERSAL_AMOUNT(89, "debitsReversalAmount", ISODataType.NUMERIC, false, 16, new NumericFieldParser()),
     ORIGINAL_DATA_ELEMENTS(90, "originalDataElements", ISODataType.NUMERIC, false, 42, new NumericFieldParser()),
-    ISSUER_FILE_UPDATE_CODE(91, "issuerFileUpdateCode", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
+    ISSUER_FILE_UPDATE_CODE(91, "fileUpdateCode", ISODataType.ALPHA_NUMERIC, false, 1, new AlphaNumericFieldParser()),
     FILE_SECURITY_CODE(92, "fileSecurityCode", ISODataType.ALPHA_NUMERIC, false, 2, new AlphaNumericFieldParser()),
     RESPONSE_INDICATOR(93, "responseIndicator", ISODataType.NUMERIC, false, 5, new NumericFieldParser()),
     SERVICE_INDICATOR(94, "serviceIndicator", ISODataType.ALPHA_NUMERIC, false, 7, new AlphaNumericFieldParser()),
@@ -186,9 +184,6 @@ public enum MastercardISOField implements ISOField {
         return BY_ID.get(id);
     }
 
-    public static Optional<MastercardISOField> findById(int id) {
-        return Arrays.stream(values())
-                .filter(f -> f.id == id)
-                .findFirst();
-    }
+
+
 }

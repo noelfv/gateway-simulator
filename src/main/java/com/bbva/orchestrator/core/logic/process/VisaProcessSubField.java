@@ -1,11 +1,11 @@
 package com.bbva.orchestrator.core.logic.process;
 
-import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.VisaHandlerField;
 import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class VisaProcessSubField {
 
-    private final CommonsProcessSubField defaultISOSubFieldParser;
+    private final CommonsProcessSubField commonsProcessSubField;
 
     /**
      * Parsea los subcampos de campos variables específicos (como el Campo 48)
@@ -36,7 +36,11 @@ public class VisaProcessSubField {
             return allParsedSubfields;
         }
 
-        allParsedSubfields = defaultISOSubFieldParser.parseSubfields(iso8583);
+        allParsedSubfields = commonsProcessSubField.parseSubfields(iso8583);
+
+        //TODO: Validar de ser necesario el tratamiento del campo 48 para Visa
+        //FIXME Si se agrega se debe de validar ya que el formatodel 48 de visa es diferente al de mastercard
+
 
         return allParsedSubfields;
     }

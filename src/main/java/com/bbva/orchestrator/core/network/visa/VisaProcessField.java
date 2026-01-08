@@ -12,7 +12,6 @@ import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,11 +75,13 @@ public class VisaProcessField {
                 }
             }
         } catch (ParserException e) {
-            LogsTraces.writeError("parserError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
-            throw e;
+            //LogsTraces.writeError("parserError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
+            //throw e;
+            return valuesMap;
         } catch (Exception e) {
-            LogsTraces.writeError("messageError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
-            throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
+            //LogsTraces.writeError("messageError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
+            //throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
+            return valuesMap;
         }
         return valuesMap;
     }

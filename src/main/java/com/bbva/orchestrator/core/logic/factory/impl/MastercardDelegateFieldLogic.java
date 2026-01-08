@@ -7,8 +7,11 @@ import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.logic.process.MastercardProcessSubField;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
@@ -23,13 +26,7 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
 
     @Override
     public Map<String, String> parseSubfields(ISO8583 iso8583) {
-        Map<String, String> allParsedSubfields = new HashMap<>();
-        if(!requiredProcessSubFields(iso8583.getMessageType())){
-            return allParsedSubfields;
-        }
-        allParsedSubfields=mastercardISOSubFieldParser.parseSubfields(iso8583);
-
-        return allParsedSubfields;
+        return mastercardISOSubFieldParser.parseSubfields(iso8583);
     }
 
 
@@ -54,7 +51,8 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
             if ("M".equals(condition) && !mapValues.containsKey(fieldName)) {
                 // Lanza una excepción o maneja el error como necesites.
                 //throw new MandatoryFieldsException();
-                LogsTraces.writeError("Error: Campo mandatorio faltante: " + fieldName + " (ID: " + fieldId + ")");
+                //LogsTraces.writeError("Error: Campo mandatorio faltante: " + fieldName + " (ID: " + fieldId + ")");
+                System.out.println("Error: Campo mandatorio faltante: " + fieldName + " (ID: " + fieldId + ")");
             }
         }
 
@@ -162,10 +160,6 @@ public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {
 
         return resultMap;
 
-    }
-
-    private boolean requiredProcessSubFields(String messageType) {
-        return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
     }
 
 }

@@ -8,7 +8,6 @@ import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrateg
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
     public ContextDTO mapper(ISO8583 input, Map<String, String> subFields) {
         // === TRANSACTION CONTEXT ===
 
-        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input.getNetworkName(), subFields);
+        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input.getNetworkName(), subFields, input.getPointServiceConditionCode());
         String channelTPVIndicator = mapperUtil.channelTPVIndicator(input, subFields);
         String dateValue = input.getAmountTransactionProcessingFee();
 

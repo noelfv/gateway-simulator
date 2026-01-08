@@ -2,14 +2,13 @@ package com.bbva.orchestrator.core.parser.iso8583.strategy.subfields;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.utils.ISOUtil;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -66,159 +65,177 @@ public class CompositeTlvFieldParser implements FieldParserStrategy {
         Map<String, String> parsedSubFieldsMap = new LinkedHashMap<>();
         int currentOffset = 0;
 
-        // Caso especial: subcampo fijo 48.01
-        if ("48".equals(compositeFieldId)) {
-            Field48 sf01Def = subFieldDefinitions.get("01");
-            if (sf01Def != null && !sf01Def.isVariable() && sf01Def.getLength() > 0) {
-                int lenHex = sf01Def.getLength() * 2;
-                if (currentOffset + lenHex <= rawDataSegment.length()) {
+        try {
+            // --- 1. Caso especial: subcampo fijo 48.01 (Si aplica) ---
+            if ("48".equals(compositeFieldId)) {
+                Field48 sf01Def = subFieldDefinitions.get("01");
+                if (sf01Def != null && !sf01Def.isVariable() && sf01Def.getLength() > 0) {
+                    int lenHex = sf01Def.getLength() * 2;
+                    // Validación rápida: si no alcanza, lanzamos excepción para ir al catch
+                    if (currentOffset + lenHex > rawDataSegment.length()) {
+                        throw new ParserException("Campo 48.01 truncado.");
+                    }
                     String valueHex = rawDataSegment.substring(currentOffset, currentOffset + lenHex);
-                    ParsedFieldResult result = sf01Def.getParserStrategy().parse(valueHex, sf01Def,networkHandlerField);
-                    parsedSubFieldsMap.put(compositeFieldId+".01", result.value());
+                    ParsedFieldResult result = sf01Def.getParserStrategy().parse(valueHex, sf01Def, networkHandlerField);
+                    parsedSubFieldsMap.put(compositeFieldId + ".01", result.value());
                     currentOffset += lenHex;
                 }
             }
-        }
 
-        // Parsear el resto como TLV: Tag (2B) + Length (2B) + Value
-        while (currentOffset < rawDataSegment.length()) {
-            // === 1. Leer Tag (4 hex chars) ===
-            if (currentOffset + TAG_LENGTH_HEX > rawDataSegment.length()) break;
-            String tagHex = rawDataSegment.substring(currentOffset, currentOffset + TAG_LENGTH_HEX);
-            String tag = ISOUtil.ebcdicToString(tagHex).trim();
-            currentOffset += TAG_LENGTH_HEX;
+            // --- 2. Bucle Principal TLV ---
+            while (currentOffset < rawDataSegment.length()) {
 
-            // === 2. Leer Longitud (4 hex chars, EBCDIC) ===
-            if (currentOffset + LENGTH_PREFIX_HEX > rawDataSegment.length()) {
-                throw new ParserException("Falta longitud para subcampo " + compositeFieldId + "." + tag);
-            }
-            String lenHex = rawDataSegment.substring(currentOffset, currentOffset + LENGTH_PREFIX_HEX);
-            int valueLengthInBytes = Integer.parseInt(ISOUtil.ebcdicToString(lenHex));
-            int valueLengthInHex = valueLengthInBytes * 2;
-            currentOffset += LENGTH_PREFIX_HEX;
+                // VALIDACIÓN DE BORDES (Un solo chequeo preventivo)
+                // Si queda basura al final (menos de 4 chars para un tag), salimos limpiamente.
+                if (currentOffset + TAG_LENGTH_HEX > rawDataSegment.length()) break;
 
-            // === 3. Validar que hay suficientes datos ===
-            if (currentOffset + valueLengthInHex > rawDataSegment.length()) {
-                throw new ParserException("Datos insuficientes para el valor del subcampo " + compositeFieldId + "." + tag);
-            }
-            String valueHex = rawDataSegment.substring(currentOffset, currentOffset + valueLengthInHex);
-            currentOffset += valueLengthInHex;
+                // A. Leer TAG
+                String tagHex = rawDataSegment.substring(currentOffset, currentOffset + TAG_LENGTH_HEX);
+                String tag = ISOUtil.ebcdicToString(tagHex).trim();
+                currentOffset += TAG_LENGTH_HEX;
 
-            // === 4. Buscar definición del subcampo ===
-            Field48 subFieldDef = subFieldDefinitions.get(tag);
-            if (subFieldDef == null) {
-                LogsTraces.writeWarning("Subcampo no definido: " + compositeFieldId + "." + tag);
-                continue;
-            }
-            Map<String, Field48> subSubFields = TLVFieldLoadStructure.getSubFieldDefinitionsForComposite(tag);
+                // B. Leer LONGITUD
+                // Si falla substring o parseInt, se va al catch general
+                String lenHex = rawDataSegment.substring(currentOffset, currentOffset + LENGTH_PREFIX_HEX);
+                int valueLengthInBytes = Integer.parseInt(ISOUtil.ebcdicToString(lenHex));
+                int valueLengthInHex = valueLengthInBytes * 2;
+                currentOffset += LENGTH_PREFIX_HEX;
 
-            // === 5. Verificamos si es un campo con hijos (Complex/Composite) ===
-            if (!subSubFields.isEmpty()) {
+                // C. Leer VALOR
+                // Si substring falla por overflow, se va al catch general
+                String valueHex = rawDataSegment.substring(currentOffset, currentOffset + valueLengthInHex);
+                currentOffset += valueLengthInHex;
 
-                // TRUCO: Miramos la definición del PRIMER hijo para decidir la estrategia del grupo.
-                // Si el primer hijo (ej: 61.01) es FIJO (false), asumimos que el bloque es posicional.
-                // Si el primer hijo (ej: 33.01) es VARIABLE (true), asumimos que el bloque es TLV anidado.
-                Field48 firstChild = subSubFields.values().iterator().next();
-
-                if (firstChild.isVariable()) {
-                    // Caso TLV Anidado (Busca Tags internos)
-                    parseNestedVariableSubField(tag, valueHex, parsedSubFieldsMap);
-                } else {
-                    // Caso Posicional Concatenado (Corta por longitud fija definida)
-                    parseNestedFixedSubField(tag, valueHex, parsedSubFieldsMap, networkHandlerField, subSubFields);
+                // D. Procesar Subcampo
+                Field48 subFieldDef = subFieldDefinitions.get(tag);
+                if (subFieldDef == null) {
+                    LogsTraces.writeWarning("Subcampo desconocido ignorado: " + compositeFieldId + "." + tag);
+                    continue;
                 }
 
-            } else {
-                // === 6. Si es fijo simple (Hoja), decodificamos directamente ===
-                String result = networkHandlerField.decode(valueHex, subFieldDef.getTypeData());
-                parsedSubFieldsMap.put(compositeFieldId + "." + tag, result);
+                Map<String, Field48> subSubFields = TLVFieldLoadStructure.getSubFieldDefinitionsForComposite(tag);
+
+                if (!subSubFields.isEmpty()) {
+                    // Estrategia compuesta (Nested)
+                    Field48 firstChild = subSubFields.values().iterator().next();
+                    if (firstChild.isVariable()) {
+                        parseNestedVariableSubField(tag, valueHex, parsedSubFieldsMap);
+                    } else {
+                        parseNestedFixedSubField(tag, valueHex, parsedSubFieldsMap, networkHandlerField, subSubFields);
+                    }
+                } else {
+                    // Estrategia simple (Hoja)
+                    String result = networkHandlerField.decode(valueHex, subFieldDef.getTypeData());
+                    parsedSubFieldsMap.put(compositeFieldId + "." + tag, result);
+                }
             }
+
+        } catch (Exception e) {
+            // === LA RED DE SEGURIDAD ÚNICA ===
+            // Captura: IndexOutOfBoundsException, NumberFormatException, ParserException, etc.
+            LogsTraces.writeWarning("Parseo del Campo 48 interrumpido por error de formato/longitud. Se retorna resultado parcial. Detalle: " + e.getMessage());
         }
 
+        // Retornamos lo que hayamos logrado capturar hasta el error
         return parsedSubFieldsMap;
     }
 
     /**
-     * Maneja subcampos variables (TLV anidado) como 48.33
-     * Agrega los resultados directamente al mapa pasado como parámetro.
+     * Maneja subcampos variables (TLV anidado) como 48.33.
+     * Este método trabaja sobre un 'valueHex' ya aislado, por lo que un error aquí
+     * no debería afectar a otros tags hermanos en el nivel superior.
      */
     private void parseNestedVariableSubField(String parentTag, String valueHex, Map<String, String> resultContainer) {
         int offset = 0;
 
-        while (offset < valueHex.length()) {
-            // === 1. Leer Tag del sub-subcampo (4 hex chars) ===
-            if (offset + TAG_LENGTH_HEX > valueHex.length()) break;
-            String subTagHex = valueHex.substring(offset, offset + TAG_LENGTH_HEX);
-            String subTag = ISOUtil.ebcdicToString(subTagHex).trim();
-            offset += TAG_LENGTH_HEX;
+        try {
+            while (offset < valueHex.length()) {
 
-            // === 2. Leer Longitud (4 hex chars, EBCDIC) ===
-            if (offset + LENGTH_PREFIX_HEX > valueHex.length()) {
-                throw new ParserException("Falta longitud para sub-subcampo " + parentTag + "." + subTag);
+                // 1. LEER TAG
+                // Si no hay suficientes caracteres para el tag, substring lanza IndexOutOfBounds -> catch
+                if (offset + TAG_LENGTH_HEX > valueHex.length()) break; // Salida limpia si sobra basura mínima
+
+                String subTagHex = valueHex.substring(offset, offset + TAG_LENGTH_HEX);
+                String subTag = ISOUtil.ebcdicToString(subTagHex).trim();
+                offset += TAG_LENGTH_HEX;
+
+                // 2. LEER LONGITUD
+                // Si falta data o no es número, lanza Excepción -> catch
+                String lenHex = valueHex.substring(offset, offset + LENGTH_PREFIX_HEX);
+                int valueLengthInBytes = Integer.parseInt(ISOUtil.ebcdicToString(lenHex));
+                int valueLengthInHex = valueLengthInBytes * 2;
+                offset += LENGTH_PREFIX_HEX;
+
+                // 3. LEER VALOR
+                // Si el valor calculado excede la trama disponible, substring lanza Excepción -> catch
+                String subValueHex = valueHex.substring(offset, offset + valueLengthInHex);
+                offset += valueLengthInHex;
+
+                // 4. DECODIFICAR Y GUARDAR
+                String decodedValue = ISOUtil.ebcdicToString(subValueHex);
+                String fullKey = compositeFieldId + "." + parentTag + "." + subTag;
+                resultContainer.put(fullKey, decodedValue.trim());
             }
-            String lenHex = valueHex.substring(offset, offset + LENGTH_PREFIX_HEX);
-            int valueLengthInBytes = Integer.parseInt(ISOUtil.ebcdicToString(lenHex));
-            int valueLengthInHex = valueLengthInBytes * 2;
-            offset += LENGTH_PREFIX_HEX;
 
-            // === 3. Leer Valor ===
-            if (offset + valueLengthInHex > valueHex.length()) {
-                throw new ParserException("Datos insuficientes para el valor del sub-subcampo " + parentTag + "." + subTag);
-            }
-            String subValueHex = valueHex.substring(offset, offset + valueLengthInHex);
-            offset += valueLengthInHex;
-
-            // === 4. Decodificar valor (EBCDIC) ===
-            String decodedValue = ISOUtil.ebcdicToString(subValueHex);
-
-            // === 5. Guardar resultado en el contenedor (ej: "48.33.01") ===
-            String fullKey = compositeFieldId + "." + parentTag + "." + subTag;
-            resultContainer.put(fullKey, decodedValue.trim());
+        } catch (Exception e) {
+            // === LA RED DE SEGURIDAD LOCAL ===
+            // Si el contenido interno del Tag 33 (por ejemplo) está corrupto,
+            // logueamos el warning y terminamos este método.
+            // El bucle principal (parseToMap) NO SE ENTERA y puede seguir con el Tag 34.
+            LogsTraces.writeWarning("Sub-subcampo variable " + parentTag + " corrupto o truncado. Se detiene el procesamiento de este subcampo." );
         }
     }
 
+
     /**
-     * Maneja subcampos que son concatenaciones fijas (Ej: 48.61).
-     * Trama: [Dato61.01][Dato61.02][Dato61.03]... (Sin tags ni longitudes intermedias).
+     * Maneja subcampos de CONCATENACIÓN FIJA (Posicionales) anidados dentro de un Tag padre.
+     * Ejemplo: Campo 48.61 (Concatenación simple) o 48.71 (Bloques Repetitivos).
      */
     private void parseNestedFixedSubField(String parentTag, String valueHex, Map<String, String> resultContainer,
                                           NetworkHandlerField networkHandlerField, Map<String, Field48> subSubFields) {
-
-        if (subSubFields == null || subSubFields.isEmpty()) {
-            LogsTraces.writeWarning("No hay definiciones para hijos de: " + parentTag);
-            return;
-        }
-
         int offset = 0;
+        int blockIndex = 0;
+        int blockSize = subSubFields.size();
 
-        // 2. Iterar en orden (01, 02, 03...)
-        for (Map.Entry<String, Field48> entry : subSubFields.entrySet()) {
-            String subTag = entry.getKey();      // ej: "01"
-            Field48 subDef = entry.getValue();   // ej: SF_48_61_01
+        try {
+            // Bucle para bloques repetitivos
+            while (offset < valueHex.length()) {
 
-            // 3. Calcular tamaño a cortar BASADO EN LA DEFINICIÓN
-            // Como subDef.getLength() retorna bytes, multiplicamos por 2 para Hex.
-            int lengthToCut = subDef.getLength() * 2;
+                // Iterar definiciones (01, 02, 03...)
+                for (Map.Entry<String, Field48> entry : subSubFields.entrySet()) {
+                    String originalSubTag = entry.getKey();
+                    Field48 subDef = entry.getValue();
 
-            // 4. Validar que no nos pasemos del final de la cadena
-            if (offset + lengthToCut > valueHex.length()) {
-                LogsTraces.writeWarning("Datos insuficientes en campo " + parentTag + " para leer subcampo " + subTag + ". Se requiere: " + lengthToCut + ", Queda: " + (valueHex.length() - offset));
-                break;
+                    int lengthToCut = subDef.getLength() * 2;
+
+                    // CORTAR Y DECODIFICAR
+                    // Si 'offset + lengthToCut' se pasa del largo, substring() lanza IndexOutOfBoundsException
+                    String subValueHex = valueHex.substring(offset, offset + lengthToCut);
+                    String decodedValue = networkHandlerField.decode(subValueHex, subDef.getTypeData());
+
+                    // CALCULAR ID VIRTUAL
+                    String finalSubTag;
+                    try {
+                        int idNum = Integer.parseInt(originalSubTag);
+                        int virtualId = idNum + (blockIndex * blockSize);
+                        finalSubTag = String.format("%02d", virtualId);
+                    } catch (NumberFormatException e) {
+                        finalSubTag = (blockIndex == 0) ? originalSubTag : originalSubTag + "_" + blockIndex;
+                    }
+
+                    // GUARDAR
+                    String fullKey = compositeFieldId + "." + parentTag + "." + finalSubTag;
+                    resultContainer.put(fullKey, decodedValue);
+
+                    offset += lengthToCut;
+                }
+                blockIndex++;
             }
 
-            // 5. Cortar (Substring puro)
-            String subValueHex = valueHex.substring(offset, offset + lengthToCut);
-
-            // 6. Decodificar (Hex -> ASCII/EBCDIC)
-            String decodedValue = networkHandlerField.decode(subValueHex, subDef.getTypeData());
-
-            // 7. Guardar resultado
-            // Clave resultante: "48.61.01"
-            String fullKey = compositeFieldId + "." + parentTag + "." + subTag;
-            resultContainer.put(fullKey, decodedValue);
-
-            // 8. Avanzar el cursor para el siguiente hijo
-            offset += lengthToCut;
+        } catch (Exception e) {
+            // === LA RED DE SEGURIDAD ===
+            // Si falta un byte, si el formato está mal, o cualquier error:
+            LogsTraces.writeWarning("Subcampo anidado " + parentTag + " truncado o malformado. Se detiene el procesamiento de este subcampo.");
         }
     }
 }

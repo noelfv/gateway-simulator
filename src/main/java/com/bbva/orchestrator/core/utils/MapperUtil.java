@@ -1,19 +1,15 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
-import com.bbva.gateway.dto.iso20022.AdditionalInformationDTO;
-import com.bbva.gateway.dto.iso20022.ProcessingResultDTO;
-import com.bbva.gateway.dto.iso20022.ResultDataDTO;
+import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
-import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.enums.ResultaDataType;
 import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.network.visa.VisaAxisOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
@@ -22,50 +18,20 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MapperUtil {
 
-    private static final String NETWORK_PEER01 = "PEER01";
-    private static final String NETWORK_PEER02 = "PEER02";
-    private static final String APPROVED = "Approved";
-    private static final String DENIED = "Denied";
-    private static final String CODE_00 = "00";
-    private static final String RESPONSE_CODE_SECTION  = "response_code";
-    private static final List<String> MTI_OUTPUT = List.of("0110", "0130", "0410", "0430","0120", "0420", "0312");
+    private static final Set<String> LIST_CODE_APPROVED = Set.of("00", "10", "11");
+    private static final Set<String> MTI_OUTPUT = Set.of("0110", "0130", "0410", "0430","0120", "0420", "0312");
     private final ApplicationDataCache applicationDataCache;
     private final ApplicationDataLocalCache applicationDataLocalCache;
 
-    public ProcessingResultDTO createProcessingResult(ISO8583 inputObject) {
-
-        if (MTI_OUTPUT.contains(inputObject.getMessageType())) {
-            String result = ResultaDataType.convertResultDataType(inputObject.getMessageType());
-            String otherResult = applicationDataLocalCache.getCustomValue(inputObject.getNetworkName(), "response_code", inputObject.getResponseCode());
-            String additionalValue = additionalInfoValue(inputObject.getResponseCode());
-
-            ResultDataDTO resultData = ResultDataDTO.builder()
-                    // ======== FIELD 39 (RESPONSE CODE) ========
-                    .result(result)
-                    .otherResult(otherResult)
-                    .otherResultDetails(inputObject.getResponseCode())
-                    .build();
-
-            AdditionalInformationDTO additionalInformation = AdditionalInformationDTO.builder()
-                    .key("transaction")
-                    .value(additionalValue)
-                    .build();
-
-            List<AdditionalInformationDTO> additionalInformationList = new ArrayList<>();
-            additionalInformationList.add(additionalInformation);
-
-            return ProcessingResultDTO.builder()
-                    .resultData(resultData)
-                    // ======== FIELD 38 (AUTHORIZATION IDENTIFICATION RESPONSE) ========
-                    .approvalCode(inputObject.getAuthorizationIdentificationResponse())
-                    .additionalInformation(additionalInformationList)
-                    .build();
-        }
-        return null;
+    public boolean isOutputMti(String mti) {
+        return mti != null && MTI_OUTPUT.contains(mti);
     }
 
-    public static String additionalInfoValue(String responseCode){
-        return CODE_00.equals(responseCode) ? APPROVED : DENIED;
+    public  String getAdditionalInfoValue(String responseCode){
+        if(LIST_CODE_APPROVED.contains(responseCode)){
+            return "Approved";
+        }
+        return "Denied";
     }
     // currencyId=604 -> currencyCode=PEN
     public String convertCurrencyIdToCurrencyCode(String currencyId) {
@@ -80,12 +46,17 @@ public class MapperUtil {
         return applicationDataCache.getBinDescription(network,bin);
     }
 
-    public String convertResultDataToResponseCode(String network,String resultData) {
-        return applicationDataLocalCache.getCustomValue(network,RESPONSE_CODE_SECTION,resultData);
+    public String convertLabelDataToResponseCode(String network,String labelData) {
+        return applicationDataLocalCache.getCustomValue(network,"response_code",labelData);
     }
 
-    public String convertResponseCodeToResultData(String network,String responseCode) {
-        return applicationDataLocalCache.getCustomValue(network,RESPONSE_CODE_SECTION,responseCode);
+    public String convertResponseCodeToLabelData(String network, String responseCode) {
+        String labelData=applicationDataLocalCache.getCustomValue(network,"response_code",responseCode);
+        if (labelData==null){
+            LogsTraces.writeWarning("responseCode no encontrado: "+responseCode+" en la red: "+network);
+            return "NO_FOUND_"+responseCode;
+        }
+        return labelData;
     }
 
     public String convertEffectiveExchangeRate(String conversionRate) {
@@ -95,8 +66,6 @@ public class MapperUtil {
     public String convertConversionRate(String effectiveExchangeRate) {
         return FieldUtil.convertConversionRate(effectiveExchangeRate);
     }
-
-
 
     public Double convertAmountDouble(String amount) {
         return FieldUtil.convertAmountDouble(amount);
@@ -149,17 +118,17 @@ public class MapperUtil {
             case "00" -> "PURCHASE";
             case "01" -> "WTHDMON";
             case "20" -> "REFUND";
+            case "26" -> "P2P_TRANSFER";
             default -> null;
         };
     }
-    public String generateTransactionReferenceFromSeed(String seed){
 
+    public String generateTransactionReferenceFromSeed(String seed) {
         byte[] bytes = seed.getBytes(StandardCharsets.UTF_8);
-        byte[] truncate = Arrays.copyOf(bytes, 16);
 
-        UUID uuid= UUID.nameUUIDFromBytes(truncate);
-
-        return uuid.toString().substring(0,35);
+        // nameUUIDFromBytes genera un UUID Versión 3
+        String uuid = UUID.nameUUIDFromBytes(bytes).toString();
+        return uuid.replaceFirst("-", "");
     }
 
     public String validValue(String value) {
@@ -189,26 +158,17 @@ public class MapperUtil {
     public  String createTransactionReference(ISO8583 inputObject, Map<String, String> subFields, String networkName){
         StringBuilder transactionReference = new StringBuilder();
 
-        String field11 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
-        String field32 = isNullOrEmpty(inputObject.getAcquiringInstitutionIdentificationCode());
-        String field37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());
-        String field41 = isNullOrEmpty(inputObject.getCardAcceptorTerminalIdentification());
-        String field63 = isNullOrEmpty(inputObject.getNetworkData());
-        String field63Part1 = subFields.get("63.01");
+        String P07 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
+        String P11 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
+        String P32 = isNullOrEmpty(inputObject.getAcquiringInstitutionIdentificationCode());
+        String P37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());
+        String P41 = isNullOrEmpty(inputObject.getCardAcceptorTerminalIdentification());
 
-        if (networkName.equalsIgnoreCase(NETWORK_PEER01)) {
-            transactionReference.append(field11)
-                    .append(field32)
-                    .append(field37)
-                    .append(field41)
-                    .append(field63Part1);
-        } else if (networkName.equalsIgnoreCase(NETWORK_PEER02)) {
-            transactionReference.append(field11)
-                    .append(field32)
-                    .append(field37)
-                    .append(field41)
-                    .append(field63);
-        }
+        transactionReference.append(P07)
+                    .append(P11)
+                    .append(P32)
+                    .append(P37)
+                    .append(P41);
 
         return transactionReference.toString();
     }
@@ -224,11 +184,11 @@ public class MapperUtil {
         }
     }
 
-    public Boolean channelECommerceIndicator(String networkName, Map<String, String> subFields) {
+    public Boolean channelECommerceIndicator(String networkName, Map<String, String> subFields, String pointServiceConditionCode) {
         if("peer02".equalsIgnoreCase(networkName)){
             return MastercardAxisOperator.channelECommerceIndicator(subFields);
         }else {
-            return VisaAxisOperator.channelECommerceIndicator(subFields);
+            return VisaAxisOperator.channelECommerceIndicator(subFields,pointServiceConditionCode);
         }
     }
 

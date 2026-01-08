@@ -5,13 +5,10 @@ import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.enums.MessageFunction;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
+import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class TransactionMappingStrategy implements SectionMappingStrategy<TransactionDTO> {

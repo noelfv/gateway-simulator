@@ -4,9 +4,8 @@ import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeFixedFieldParser;
+import com.bbva.orchestrator.core.logic.process.VisaProcessSubField;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,30 +14,16 @@ import java.util.Set;
 public class VisaDelegateFieldLogic implements NetworkDelegateFieldLogic {
 
     private final ApplicationDataLocalCache applicationDataLocalCache;
-    private final CompositeFixedFieldParser compositeFieldParser;
+    private final VisaProcessSubField visaProcessSubField;
 
-    public VisaDelegateFieldLogic(ApplicationDataLocalCache applicationDataLocalCache, CompositeFixedFieldParser compositeFieldParser) {
+    public VisaDelegateFieldLogic(ApplicationDataLocalCache applicationDataLocalCache, VisaProcessSubField visaProcessSubField) {
         this.applicationDataLocalCache = applicationDataLocalCache;
-        this.compositeFieldParser = compositeFieldParser;
+        this.visaProcessSubField = visaProcessSubField;
     }
 
     @Override
     public Map<String, String> parseSubfields(ISO8583 iso8583) {
-        Map<String, String> allParsedSubfields = new HashMap<>();
-        if(!requiredProcessSubFields(iso8583.getMessageType())){
-            return allParsedSubfields;
-        }
-        //TODO: Validar el tratamiento de subcampos por tipo de mensaje si es necesario
-        Map<String, String> mapSubField03 = compositeFieldParser.buildSubFieldsSpecific("03", iso8583.getProcessingCode());
-        Map<String, String> mapSubField22 = compositeFieldParser.buildSubFieldsSpecific("22", iso8583.getPointServiceEntryMode());
-        Map<String, String> mapSubField54 = compositeFieldParser.buildSubFieldsSpecific("54", iso8583.getAdditionalAmounts());
-        Map<String, String> mapSubField61 = compositeFieldParser.buildSubFieldsSpecific("61", iso8583.getPosCardIssuer());
-        allParsedSubfields.putAll(mapSubField03);
-        allParsedSubfields.putAll(mapSubField22);
-        allParsedSubfields.putAll(mapSubField54);
-        allParsedSubfields.putAll(mapSubField61);
-
-        return allParsedSubfields;
+        return visaProcessSubField.parseSubfields(iso8583);
     }
 
 
@@ -71,7 +56,4 @@ public class VisaDelegateFieldLogic implements NetworkDelegateFieldLogic {
         return mapValuesResponse;
     }
 
-    private boolean requiredProcessSubFields(String messageType) {
-        return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
-    }
 }

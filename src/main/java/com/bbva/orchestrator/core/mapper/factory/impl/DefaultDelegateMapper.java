@@ -3,16 +3,15 @@ package com.bbva.orchestrator.core.mapper.factory.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.core.builders.MonitoringBuilder;
-import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.MessageFunction;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
-import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.impl.*;
+import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
+import com.bbva.orchestrator.core.builders.MonitoringBuilder;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service
@@ -96,7 +95,8 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
             //  Solo agregar processingResult si es un mensaje de respuesta
             if (input.getMessageType().equals("0120") || input.getMessageType().equals("0420")) {
-                iso20022Builder.processingResult(mapperUtil.createProcessingResult(input));
+                iso20022Builder.processingResult(processingResultMappingStrategy.mapper(input, subFields));
+               //iso20022Builder.processingResult(mapperUtil.createProcessingResult(input));
             }
 
             return iso20022Builder.build();
@@ -151,7 +151,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
     private ISO20022 createISO20022ResponseFromHost(ISO8583 input, Map<String, String> subFields) {
         //TODO: Validar si es necesario llamar al uncrypto en el flujo HOST
         //TODO: Construir los objetos mandatorios del iso200022 segun el catalogo para no tener error de nullPointer
-        // Incluir siempre el PAN por que se tiene uso dentro de las reglas de orquestacion del
+        // Incluir siempre el PAN por que se tiene uso dentro de las reglas de orquestacion del application-local.yml
 
         //EnvironmentDTO environment = EnvironmentDTO.builder().build();
         EnvironmentDTO environment = environmentStrategy.mapper(input, subFields);
@@ -160,7 +160,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
         ContextDTO context = contextStrategy.mapper_response(input, subFields);//Campos mandatorios
         MonitoringDTO monitoring=monitoringService.build(input, transaction,null,null);
         //TODO: No aplica para el mensaje 0800 y 0302 validar que  ocurriria
-        ProcessingResultDTO processingResultDTO = mapperUtil.createProcessingResult(input);
+        ProcessingResultDTO processingResultDTO = processingResultMappingStrategy.mapper(input,subFields);
 
         LogsTraces.writeInfo("requestMessage %s|%s"
                 .formatted(input.getPlainTextPCI(),

@@ -7,7 +7,6 @@ import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,6 +84,16 @@ public class ParserUtil {
         return value == null ? null : DEFAULT_MASK_CHAR.repeat(value.length());
     }
 
+    /**
+     * Obfuscate a string by replacing characters with a specified character
+     *
+     * @param value         The original string
+     * @param direction     The direction to start obfuscation ("left" or "right")
+     * @param character     The character to use for obfuscation
+     * @param startPosition The position to start obfuscation
+     * @param numberOfChars The number of characters to obfuscate
+     * @return The obfuscated string
+     */
     public static String obfuscate(String value, String direction, String character, int startPosition, int numberOfChars) {
         if (value == null) return "";
 
@@ -103,4 +112,5 @@ public class ParserUtil {
 
         return obfuscatedString.toString();
     }
+
 }

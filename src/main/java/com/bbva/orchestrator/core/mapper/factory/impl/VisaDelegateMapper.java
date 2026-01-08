@@ -4,7 +4,6 @@ import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 @Component

@@ -10,8 +10,6 @@ import java.util.Set;
 
 public class FieldUtil {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-
     public static boolean requiredProcess(String messageType) {
         return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
     }

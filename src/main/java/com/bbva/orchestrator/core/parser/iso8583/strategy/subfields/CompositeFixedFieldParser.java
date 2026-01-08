@@ -1,14 +1,10 @@
 package com.bbva.orchestrator.core.parser.iso8583.strategy.subfields;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.orchestrator.core.fields.definitions.subfields.fixed.CompositeFieldDefinition;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedSubFieldResult;
+import com.bbva.orchestrator.core.fields.definitions.subfields.fixed.CompositeFieldDefinition;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component

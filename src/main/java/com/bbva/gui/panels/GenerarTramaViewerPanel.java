@@ -212,7 +212,7 @@ public class GenerarTramaViewerPanel extends JPanel {
             Map<String, String> mapData = new HashMap<>();
             if (value != null && !value.isBlank()) {
 
-                MastercardISOField.findById(fieldId).ifPresent(field -> {
+               /* MastercardISOField.findById(fieldId).ifPresent(field -> {
                     ISOFieldInfo fieldInfo = new ISOFieldInfo(
                             field.getName(),
                             data.getValue()
@@ -220,7 +220,7 @@ public class GenerarTramaViewerPanel extends JPanel {
                     mapData.put(field.getName(),data.getValue());
                     System.out.println("tamaño " + mapData.size());
                     System.out.println("data " + mapData);
-                });
+                });*/
 
                 output.append(indent)
                         .append(data.getLabel())
@@ -252,10 +252,10 @@ public class GenerarTramaViewerPanel extends JPanel {
             if (value != null && !value.isBlank()) {
                 int fieldId = UtilGUI.extractFieldIdFromLabel(label);
 
-                MastercardISOField.findById(fieldId).ifPresent(field -> {
+               /* MastercardISOField.findById(fieldId).ifPresent(field -> {
                     mapData.put(field.getName(), value);
                     System.out.println("Map actualizado: " + mapData);
-                });
+                });*/
 
                 output.append(indent)
                         .append(label)

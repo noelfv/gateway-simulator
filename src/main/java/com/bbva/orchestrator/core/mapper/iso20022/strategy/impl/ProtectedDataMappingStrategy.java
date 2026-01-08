@@ -6,7 +6,6 @@ import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 
 

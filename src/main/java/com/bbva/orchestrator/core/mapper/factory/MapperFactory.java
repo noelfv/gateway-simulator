@@ -2,7 +2,6 @@ package com.bbva.orchestrator.core.mapper.factory;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +39,15 @@ public class MapperFactory {
         return mappers.getOrDefault(network, getDefaultMapper());
     }
 
+
+    /**
+     * Obtiene el parser adecuado según el peerId del contexto de GrpcHeadersInfo
+     * Si no se encuentra, devuelve el parser por defecto
+     */
+    public ISO20022DelegateMapper getDelegateMapper() {
+        String peerId= GrpcHeadersInfo.getNetwork();
+        return getDelegateMapper(peerId);
+    }
 
 
     private ISO20022DelegateMapper getDefaultMapper() {

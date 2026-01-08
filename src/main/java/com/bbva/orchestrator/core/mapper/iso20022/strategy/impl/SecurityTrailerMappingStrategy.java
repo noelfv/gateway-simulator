@@ -6,7 +6,6 @@ import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<Se
     }
 
     @Override
-    public Map<String, String> unMapper(String networkName, SecurityTrailerDTO input) {
+    public Map<String, String> unMapper(String networkName,SecurityTrailerDTO input) {
         Map<String, String> mapValues = new HashMap<>();
 
         /*MacDataDTO macData = input.getMacData();

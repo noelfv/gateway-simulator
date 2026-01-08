@@ -1,12 +1,9 @@
 package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 
-import com.bbva.gateway.dto.iso20022.AdditionalDataCustomDataLocalDTO;
-import com.bbva.gateway.dto.iso20022.CustomDataLocalDTO;
-import com.bbva.gateway.dto.iso20022.RequestDTO;
+import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

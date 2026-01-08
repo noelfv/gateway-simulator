@@ -1,10 +1,10 @@
 package com.bbva.orchestrator.core.parser.iso8583.strategy.fields;
 
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 
 /**
  * Implementación de la estrategia de parsing para campos hexadecimales.

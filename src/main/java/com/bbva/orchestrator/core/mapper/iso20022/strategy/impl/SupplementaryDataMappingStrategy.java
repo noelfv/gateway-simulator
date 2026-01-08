@@ -5,7 +5,6 @@ import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +72,7 @@ public class SupplementaryDataMappingStrategy implements SectionMappingStrategy<
         addIfNotNull(list, "creditsReversalAmount", input.getCreditsReversalAmount());
         addIfNotNull(list, "debitsAmount", input.getDebitsAmount());
         addIfNotNull(list, "debitsReversalAmount", input.getDebitsReversalAmount());
-        addIfNotNull(list, "issuerFileUpdateCode", input.getIssuerFileUpdateCode());
+        addIfNotNull(list, "fileUpdateCode", input.getFileUpdateCode());
         addIfNotNull(list, "fileSecurityCode", input.getFileSecurityCode());
         addIfNotNull(list, "responseIndicator", input.getResponseIndicator());
         addIfNotNull(list, "replacementAmounts", input.getReplacementAmounts());

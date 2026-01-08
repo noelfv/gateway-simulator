@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.core.utils;
 
 import com.bbva.orchlib.parser.ParserException;
-
 import java.nio.charset.Charset;
 import java.util.HexFormat;
 import java.util.Map;
@@ -35,8 +34,8 @@ public class ISOUtil {
             Map.entry('d', "1101"),
             Map.entry('E', "1110"),
             Map.entry('e', "1110"),
-            Map.entry('f', "1111"),
-            Map.entry('F', "1111")
+            Map.entry('F', "1111"),
+            Map.entry('f', "1111")
     );
 
     public static final Map<String, Character> binChart = Map.ofEntries(

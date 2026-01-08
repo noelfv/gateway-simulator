@@ -1,7 +1,6 @@
 package com.bbva.orchestrator.core.builders;
 
 import com.bbva.orchestrator.core.dto.ISO8583;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,7 +99,7 @@ public class ISO8583Builder {
                 .debitsAmount(getValue("debitsAmount", mapValues))
                 .debitsReversalAmount(getValue("debitsReversalAmount", mapValues))
                 .originalDataElements(getValue("originalDataElements", mapValues))
-                .issuerFileUpdateCode(getValue("issuerFileUpdateCode", mapValues))
+                .fileUpdateCode(getValue("fileUpdateCode", mapValues))
                 .fileSecurityCode(getValue("fileSecurityCode", mapValues))
                 .responseIndicator(getValue("responseIndicator", mapValues))
                 .serviceIndicator(getValue("serviceIndicator", mapValues))
@@ -228,7 +227,7 @@ public class ISO8583Builder {
         mapValues.put("debitsAmount", iso8583.getDebitsAmount());
         mapValues.put("debitsReversalAmount", iso8583.getDebitsReversalAmount());
         mapValues.put("originalDataElements", iso8583.getOriginalDataElements());
-        mapValues.put("issuerFileUpdateCode", iso8583.getIssuerFileUpdateCode());
+        mapValues.put("fileUpdateCode", iso8583.getFileUpdateCode());
         mapValues.put("fileSecurityCode", iso8583.getFileSecurityCode());
         mapValues.put("responseIndicator", iso8583.getResponseIndicator());
         mapValues.put("serviceIndicator", iso8583.getServiceIndicator());

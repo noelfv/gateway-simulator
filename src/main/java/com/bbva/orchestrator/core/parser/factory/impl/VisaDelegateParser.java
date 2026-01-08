@@ -1,7 +1,7 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
-import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
+import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.utils.ParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,6 +32,11 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
     public String unParserPlainText(Map<String, String> mappedFields) {
         return fieldParser.unMapFieldsPlainText(mappedFields);
     }
+
+    //@Override
+    //public Map<String, String> parserSubFields(ISO8583 iso8583) {
+      //  return subFieldParser.parseSubfields(iso8583);
+    //}
 
     /**
      * Ajusta los campos específicos en el mapa de valores.

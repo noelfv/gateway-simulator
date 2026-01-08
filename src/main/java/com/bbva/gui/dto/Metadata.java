@@ -93,7 +93,7 @@ public class Metadata {
         mappingMetadata.addFieldOrigin("[P087][" + inputObject.getCreditsReversalAmount()+"]","supplementaryData[creditsReversalAmount]");
         mappingMetadata.addFieldOrigin("[P088][" + inputObject.getDebitsAmount()+"]","supplementaryData[debitsAmount]");
         mappingMetadata.addFieldOrigin("[P089][" + inputObject.getDebitsReversalAmount()+"]","supplementaryData[debitsReversalAmount]");
-        mappingMetadata.addFieldOrigin("[P091][" + inputObject.getIssuerFileUpdateCode()+"]","supplementaryData[issuerFileUpdateCode]");
+        mappingMetadata.addFieldOrigin("[P091][" + inputObject.getFileUpdateCode()+"]","supplementaryData[issuerFileUpdateCode]");
         mappingMetadata.addFieldOrigin("[P092][" + inputObject.getFileSecurityCode()+"]","supplementaryData[fileSecurityCode]");
         mappingMetadata.addFieldOrigin("[P093][" + inputObject.getResponseIndicator()+"]","supplementaryData[responseIndicator]");
         mappingMetadata.addFieldOrigin("[P095][" + inputObject.getReplacementAmounts()+"]","supplementaryData[replacementAmounts]");

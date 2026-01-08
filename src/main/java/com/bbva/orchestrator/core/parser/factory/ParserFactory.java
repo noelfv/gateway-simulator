@@ -2,7 +2,6 @@ package com.bbva.orchestrator.core.parser.factory;
 
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +39,15 @@ public class ParserFactory {
         return parsers.getOrDefault(network, getDefaultParser());
     }
 
+
+    /**
+     * Obtiene el parser adecuado según el peerId del contexto de GrpcHeadersInfo
+     * Si no se encuentra, devuelve el parser por defecto
+     */
+    public ISO8583DelegateParser getDelegateParser() {
+        String peerId= GrpcHeadersInfo.getNetwork();
+        return getDelegateParser(peerId);
+    }
 
 
     private ISO8583DelegateParser getDefaultParser() {
