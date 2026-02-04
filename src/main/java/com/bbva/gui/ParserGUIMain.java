@@ -11,13 +11,16 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class ParserGUIMain extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(ParserGUIMain.class);
     private JMenuItem parseMenuItem;
-    private JMenuItem generarTramaMenuItem;
+    private JMenuItem importarConfiguracionMenuItem;
     private JMenuItem generarTramaEspecificaMenuItem;
     private JMenuItem convertirTramaMenuItem;
     private JMenuItem convertirIso20022MenuItem;
@@ -52,10 +55,14 @@ public class ParserGUIMain extends JFrame {
         JMenu conversionMenu = new JMenu("Conversion");
         conversionMenu.setFont(menuFont);
         conversionMenu.setBorder(itemPadding);
+        /*JMenu configuracionMenu = new JMenu("Configuración");
+        configuracionMenu.setFont(menuFont);
+        configuracionMenu.setBorder(itemPadding);*/
+
         // Crear sub items
         parseMenuItem = new JMenuItem("Parsear mensaje");
-        generarTramaMenuItem = new JMenuItem("Generar trama");
-        generarTramaEspecificaMenuItem = new JMenuItem("Generar trama específica");
+        //importarConfiguracionMenuItem = new JMenuItem("Importar Campos (JSON)");
+        generarTramaEspecificaMenuItem = new JMenuItem("Generar trama");
         convertirTramaMenuItem = new JMenuItem("Convertir trama");
         convertirIso20022MenuItem = new JMenuItem("Convertir Objeto");
         campo48MenuItem = new JMenuItem("Campo 48");
@@ -64,12 +71,15 @@ public class ParserGUIMain extends JFrame {
         parseMenu.add(parseMenuItem);
         conversionMenu.add(convertirTramaMenuItem);
         conversionMenu.add(convertirIso20022MenuItem);
-        conversionMenu.add(generarTramaMenuItem);
         conversionMenu.add(generarTramaEspecificaMenuItem);
         conversionMenu.add(campo48MenuItem);
+
+       // configuracionMenu.add(importarConfiguracionMenuItem);
+
         // Agregar a la barra de menú
         menuBar.add(parseMenu);
         menuBar.add(conversionMenu);
+        menuBar.add(crearMenuConfiguracion());
         // Establecer la barra de menú en el frame
         setJMenuBar(menuBar);
     }
@@ -80,11 +90,10 @@ public class ParserGUIMain extends JFrame {
         //addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaViewerPanel(), "Convertir mensaje");
         addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel(beanProviderInstance), "Convertir mensaje");
         addInternalFrameMenuAction(convertirIso20022MenuItem, new ConverterIso20022ViewerPanel(beanProviderInstance), "Convertir Objeto");
-        addInternalFrameMenuAction(generarTramaMenuItem, new GenerarTramaViewerPanel(), "Generar Trama");
+      //  addInternalFrameMenuAction(importarConfiguracionMenuItem, new GenerarTramaViewerPanel(), "Generar Trama");
         addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new frmGenerator(beanProviderInstance), "Generar Trama Especifica");
         addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(beanProviderInstance), "Parsear TLV");
     }
-
 
     private void addInternalFrameMenuAction(JMenuItem menuItem, JPanel panel, String title) {
         menuItem.addActionListener(new ActionListener() {
@@ -116,6 +125,50 @@ public class ParserGUIMain extends JFrame {
                 }
             }
         });
+    }
+
+    public JMenuBar crearMenuConfiguracion() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menuArchivo = new JMenu("Configuración");
+        JMenuItem itemCargar = new JMenuItem("Importar Campos (JSON)...");
+        itemCargar.addActionListener(e -> importarConfiguracionCampos());
+        menuArchivo.add(itemCargar);
+        menuBar.add(menuArchivo);
+        return menuBar;
+    }
+
+
+    private void importarConfiguracionCampos() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar Configuración de Campos (JSON)");
+
+        int selection = fileChooser.showOpenDialog(this);
+        if (selection == JFileChooser.APPROVE_OPTION) {
+            File archivo = fileChooser.getSelectedFile();
+            try {
+                // Leer el contenido del archivo
+                String content = new String(java.nio.file.Files.readAllBytes(archivo.toPath()));
+
+                // Parsear JSON manual (si no tienes GSON)
+                // Espera: {"listCampos": "1,2,3,4,5,6,7,8,9"}
+                String valores = content.split(":")[1].replace("\"", "").replace("}", "").trim();
+
+                List<Integer> nuevaLista = Arrays.stream(valores.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .collect(java.util.stream.Collectors.toList());
+
+                // Actualizar lista y refrescar UI
+                //this.camposPermitidos = nuevaLista;
+                //refreshUI(); // Método para reconstruir los paneles
+
+                JOptionPane.showMessageDialog(this, "Configuración cargada: " + nuevaLista.size() + " campos.");
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al leer el archivo JSON: " + e.getMessage(),
+                        "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
 }

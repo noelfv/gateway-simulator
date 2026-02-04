@@ -11,27 +11,26 @@ import org.noos.xing.mydoggy.DockedTypeDescriptor;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
 
-public class frmGenerator extends JPanel {
+public class frmGenerator1 extends JPanel {
 
     // Usamos estructuras de datos para evitar declarar 192 variables manuales
     private final Map<Integer, JCheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, JTextField> textFields = new TreeMap<>();
     private final Map<Integer, JRadioButton> radioButtons = new TreeMap<>();
-    private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14,15,16,18,20,22,26,32,35,37,38,39,41,42,43,48,49,50,51,52,54,55,60,61,62,63,73,95,112,120,127);
+    private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14);
     private final JButton procesarButton = new JButton("Procesar");
     private final JTextArea inputTextArea = new JTextArea(4, 40);
     private final ParserFactory parserFactory;
@@ -41,8 +40,7 @@ public class frmGenerator extends JPanel {
     public static final Color BBVA_LIGHT_GRAY = new Color(244, 244, 244);
     public static final Color BBVA_ACCENT_BLUE = new Color(18, 190, 255); // Azul brillante para acentos
 
-
-    public frmGenerator(BeanProviderInstance beanProviderInstance) {
+    public frmGenerator1(BeanProviderInstance beanProviderInstance) {
         this.parserFactory = beanProviderInstance.parserFactory();
         initializeComponents();
         setupEventHandlers();
@@ -53,23 +51,9 @@ public class frmGenerator extends JPanel {
     private void initializeComponents() {
         // 1. Crear el panel de campos usando TableLayout
         JPanel panelCampos = new JPanel(new GridLayout(1, 3, 10, 0));
-        // Distribuir campos equitativamente en 3 columnas
-        int totalCampos = camposPermitidos.size();
-        int camposPorColumna = (int) Math.ceil(totalCampos / 3.0);
-
-        for (int col = 0; col < 3; col++) {
-            int inicio = col * camposPorColumna;
-            int fin = Math.min(inicio + camposPorColumna, totalCampos);
-
-            if (inicio < totalCampos) {
-                // Obtener los campos correspondientes a esta columna
-                List<Integer> camposColumna = camposPermitidos.subList(inicio, fin);
-                panelCampos.add(crearColumnaTableLayout(
-                        String.format("Bloque %d", col + 1),
-                        camposColumna
-                ));
-            }
-        }
+        panelCampos.add(crearColumnaTableLayout("-", 2, 23));
+        panelCampos.add(crearColumnaTableLayout("-", 24, 45));
+        panelCampos.add(crearColumnaTableLayout("-", 46, 65));
 
         // 2. Panel superior para acciones
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -82,65 +66,128 @@ public class frmGenerator extends JPanel {
         mainContent.add(new JScrollPane(panelCampos), BorderLayout.CENTER);
 
         // 4. Inyectar en MyDoggy para manejo de ventanas pro
-        setupMyDoggy(mainContent);
+        setupMyDoggy2(mainContent);
     }
 
-    private JPanel crearColumnaTableLayout(String titulo, List<Integer> campos) {
-        if (campos.isEmpty()) return new JPanel();
 
+    private JPanel crearColumnaTableLayout(String titulo, int inicio, int fin) {
+
+        // Calculamos cuántas filas necesitamos realmente basándonos en los permitidos
+        long filasVisibles = IntStream.rangeClosed(inicio, fin)
+                .filter(camposPermitidos::contains)
+                .count();
+
+        if (filasVisibles == 0) return new JPanel();
+
+        // Definición de columnas: Check(35), Input(160), Radio(80)
         double[][] size = {
                 {55, 160, 80},
-                new double[campos.size()]
+                new double[(int) filasVisibles]
         };
+        // Altura de fila de 30px
         Arrays.fill(size[1], 25);
 
         JPanel panel = new JPanel(new TableLayout(size));
         panel.setBackground(BBVA_WHITE);
 
+        // Título con estilo BBVA
         TitledBorder border = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(BBVA_NAVY, 1), titulo);
         border.setTitleColor(BBVA_NAVY);
         border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
         panel.setBorder(border);
 
+
         int row = 0;
-        for (int i : campos) {
-            String fieldName = String.format("P%02d", i);
+        for (int i = inicio; i <= fin; i++) {
 
-            JCheckBox chk = new JCheckBox(fieldName, false);
-            chk.setBackground(BBVA_WHITE);
-            chk.setForeground(BBVA_NAVY);
-            checkBoxes.put(i, chk);
+            if (camposPermitidos.contains(i)) {
 
-            JTextField txt = new JTextField(getDefaultValue(i));
-            txt.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                    BorderFactory.createEmptyBorder(2, 5, 2, 5)));
-            txt.setDisabledTextColor(BBVA_NAVY);
-            txt.setBackground(BBVA_ACCENT_BLUE);
-            txt.setEnabled(false);
-            txt.setEditable(false);
-            textFields.put(i, txt);
+                String fieldName = String.format("P%02d", i);
 
-            JRadioButton rb = new JRadioButton("Edit", false);
-            rb.setBackground(BBVA_WHITE);
-            rb.setFont(new Font("SansSerif", Font.PLAIN, 10));
-            radioButtons.put(i, rb);
+                // Crear CheckBox
+                JCheckBox chk = new JCheckBox(fieldName, false);
+                chk.setBackground(BBVA_WHITE);
+                chk.setForeground(BBVA_NAVY);
+                checkBoxes.put(i, chk);
 
-            rb.addActionListener(e -> {
-                txt.setEditable(rb.isSelected());
-                txt.setEnabled(rb.isSelected());
-            });
+                // Crear TextField con valores por defecto específicos
+                JTextField txt = new JTextField(getDefaultValue(i));
+                txt.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                        BorderFactory.createEmptyBorder(2, 5, 2, 5)));
+                txt.setDisabledTextColor(BBVA_NAVY);
+                txt.setBackground(BBVA_ACCENT_BLUE);
+                txt.setEnabled(false);
+                txt.setEditable(false);
+                textFields.put(i, txt);
 
-            panel.add(chk, "0, " + row);
-            panel.add(txt, "1, " + row);
-            panel.add(rb, "2, " + row);
-            row++;
+                // Crear RadioButton (Toggle Editable)
+                JRadioButton rb = new JRadioButton("Edit", true);
+                rb.setBackground(BBVA_WHITE);
+                rb.setFont(new Font("SansSerif", Font.PLAIN, 10));
+                rb.setSelected(false);
+                radioButtons.put(i, rb);
+
+                // Evento para habilitar/deshabilitar edición
+                rb.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (rb.isSelected()) {
+                            txt.setEditable(true);
+                            txt.setEnabled(true);
+                        } else {
+                            txt.setEditable(false);
+                            txt.setEnabled(false);
+                        }
+                    }
+                });
+
+                panel.add(chk, "0, " + row);
+                panel.add(txt, "1, " + row);
+                panel.add(rb, "2, " + row);
+
+                // Guardar en los mapas (textFields, checkBoxes, etc.)
+                row++;
+            }
         }
 
         return panel;
     }
 
+    private void setupMyDoggy(JPanel mainContent) {
+        MyDoggyToolWindowManager windowManager = new MyDoggyToolWindowManager();
+
+        // Configuración del área de texto (Consola)
+        inputTextArea.setBackground(new Color(30, 30, 30)); // Fondo oscuro tipo terminal
+        // inputTextArea.setBackground(BBVA_WHITE); // Fondo oscuro tipo terminal
+        inputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
+        inputTextArea.setCaretColor(Color.WHITE);
+        inputTextArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        inputTextArea.setLineWrap(true);
+        inputTextArea.setWrapStyleWord(true);
+
+        ToolWindow toolWindow = windowManager.registerToolWindow(
+                "TRAMA_ISO", "Output Trama ISO-8583", null,
+                new JScrollPane(inputTextArea), ToolWindowAnchor.BOTTOM
+        );
+
+        // toolWindow.getTypeDescriptor(DockedTypeDescriptor.class).setEnabled(true);
+        DockedTypeDescriptor descriptor = (DockedTypeDescriptor) toolWindow.getTypeDescriptor(DockedTypeDescriptor.class);
+        if (descriptor != null) {
+            descriptor.setDockLength(450); // Altura del panel
+            descriptor.setPopupMenuEnabled(true);
+        }
+        toolWindow.setActive(true);
+
+        // El panel principal ahora se añade al ContentManager de MyDoggy
+        windowManager.getContentManager().addContent("Generador", "Visa/Mastercard", null, mainContent);
+
+        // Añadir el manager al panel principal
+        this.setLayout(new BorderLayout());
+        this.add(windowManager, BorderLayout.CENTER);
+
+    }
 
     private void setupEventHandlers() {
         procesarButton.addActionListener(this::procesarTrama);
@@ -258,7 +305,7 @@ public class frmGenerator extends JPanel {
     }
 
 
-    private void setupMyDoggy(JPanel mainContent) {
+    private void setupMyDoggy2(JPanel mainContent) {
         MyDoggyToolWindowManager windowManager = new MyDoggyToolWindowManager();
 
         // --- PANEL DE CONSOLA PERSONALIZADO ---
@@ -273,10 +320,6 @@ public class frmGenerator extends JPanel {
 
         // Botón de Copiar con estilo BBVA
         JButton btnCopiar = new JButton("Copiar Trama");
-        // Puedes cargar un icono pequeño de una carpeta de recursos
-        // btnCopiar.setIcon(new ImageIcon(getClass().getResource("/icons/copy.png")));
-        btnCopiar.setToolTipText("Copiar trama al portapapeles");
-        //btnCopiar.setPreferredSize(new Dimension(25, 25));
         btnCopiar.setBackground(BBVA_NAVY);
         btnCopiar.setForeground(BBVA_WHITE);
         btnCopiar.addActionListener(e -> copiarAlPortapapeles());
@@ -318,20 +361,98 @@ public class frmGenerator extends JPanel {
         windowManager.getContentManager().addContent("Generador", "Campos Visa", null, mainContent);
     }
 
+
+
     private void copiarAlPortapapeles() {
         String trama = inputTextArea.getText();
         if (!trama.isEmpty()) {
             java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(trama);
-            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
 
             // Opcional: Mostrar un feedback visual rápido
             JOptionPane.showMessageDialog(this, "Trama copiada al portapapeles", "BBVA Generator", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
+
     private void limpiar() {
         inputTextArea.setText("");
     }
 
+    private JPanel crearColumnaTableLayout2(String titulo, int inicio, int fin) {
 
+
+        // Definición de columnas: Check(35), Input(160), Radio(80)
+        double[][] size = {
+                {50, 180, 80},
+                new double[(fin - inicio) + 1]
+        };
+
+        // Altura de fila de 30px
+        Arrays.fill(size[1], 25);
+
+        JPanel panel = new JPanel(new TableLayout(size));
+        panel.setBackground(BBVA_WHITE);
+
+        // Título con estilo BBVA
+        TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(BBVA_NAVY, 1), titulo);
+        border.setTitleColor(BBVA_NAVY);
+        border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
+        panel.setBorder(border);
+
+
+        int row = 0;
+        for (int i = inicio; i <= fin; i++) {
+            String fieldName = String.format("P%02d", i);
+
+            // Crear CheckBox
+            JCheckBox chk = new JCheckBox(fieldName, false);
+            chk.setBackground(BBVA_WHITE);
+            chk.setForeground(BBVA_NAVY);
+            checkBoxes.put(i, chk);
+
+            // Crear TextField con valores por defecto específicos
+            JTextField txt = new JTextField(getDefaultValue(i));
+            txt.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(2, 5, 2, 5)));
+            txt.setDisabledTextColor(BBVA_NAVY);
+            txt.setBackground(BBVA_ACCENT_BLUE);
+            txt.setEnabled(false);
+            txt.setEditable(false);
+            textFields.put(i, txt);
+
+            // Crear RadioButton (Toggle Editable)
+            JRadioButton rb = new JRadioButton("Edit", true);
+            rb.setBackground(BBVA_WHITE);
+            rb.setFont(new Font("SansSerif", Font.PLAIN, 10));
+            rb.setSelected(false);
+            radioButtons.put(i, rb);
+
+            // Evento para habilitar/deshabilitar edición
+            rb.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (rb.isSelected()) {
+                        txt.setEditable(true);
+                        txt.setEnabled(true);
+                    } else {
+                        txt.setEditable(false);
+                        txt.setEnabled(false);
+                    }
+                }
+            });
+
+            panel.add(chk, "0, " + row);
+            panel.add(txt, "1, " + row);
+            panel.add(rb, "2, " + row);
+
+            // Guardar en los mapas (textFields, checkBoxes, etc.)
+            row++;
+        }
+
+
+        return panel;
+    }
 }

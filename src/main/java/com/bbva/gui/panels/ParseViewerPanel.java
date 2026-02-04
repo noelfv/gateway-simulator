@@ -44,6 +44,12 @@ public class ParseViewerPanel extends JPanel {
     private JButton copiarRespuestaButton;
     private JRadioButton optionMastercard;
     private JRadioButton optionVisa;
+    // Paleta de colores oficial
+    public static final Color BBVA_NAVY = new Color(0, 68, 129);  // Azul principal
+    public static final Color BBVA_WHITE = new Color(255, 255, 255);
+    public static final Color BBVA_LIGHT_GRAY = new Color(244, 244, 244);
+    public static final Color BBVA_ACCENT_BLUE = new Color(18, 190, 255); // Azul brillante para acentos
+
     @Setter
     private JInternalFrame parentFrame;
     private  ISO8583DelegateParser delegateParser;
@@ -74,13 +80,13 @@ public class ParseViewerPanel extends JPanel {
         inputTextArea = new JTextArea(12, 60);
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
-        inputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
         inputTextArea.setText(inputMessage);
 
         outputTextArea = new JTextArea(12, 60);
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
-        outputTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        outputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
         outputTextArea.setEditable(false);
 
         parseButton = new JButton("Parser");
@@ -96,7 +102,7 @@ public class ParseViewerPanel extends JPanel {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Mensaje Parseado");
         treeModel = new DefaultTreeModel(root);
         resultTree = new JTree(treeModel);
-        //resultTree.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        //resultTree.setFont(new Font("SansSerif"v Font.PLAIN, 12));
         //resultTree.setCellRenderer(new NoIconTreeCellRenderer());
         resultTree.setRootVisible(true);
     }
