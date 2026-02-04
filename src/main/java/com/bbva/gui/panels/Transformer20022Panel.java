@@ -27,12 +27,11 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 
-public class ConverterIso20022ViewerPanel extends JPanel {
+public class Transformer20022Panel extends JPanel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConverterIso20022ViewerPanel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Transformer20022Panel.class);
     private JTextArea inputTextArea;
     private JTextArea outputTextArea;
     private JButton convertirTramaButton;
@@ -49,7 +48,7 @@ public class ConverterIso20022ViewerPanel extends JPanel {
     private ISO8583DelegateParser delegateParser;
     private ISO20022DelegateMapper delegateMapper;
 
-    public ConverterIso20022ViewerPanel(BeanProviderInstance beanProviderInstance) {
+    public Transformer20022Panel(BeanProviderInstance beanProviderInstance) {
         initializeComponents();
         createPanelsLayout();
         setupEventHandlers();

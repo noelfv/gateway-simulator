@@ -4,12 +4,13 @@ import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
-import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.network.visa.VisaAxisOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
@@ -118,7 +119,7 @@ public class MapperUtil {
             case "00" -> "PURCHASE";
             case "01" -> "WTHDMON";
             case "20" -> "REFUND";
-            case "26" -> "P2P_TRANSFER";
+            case "10", "26" -> "P2P_TRANSFER";
             default -> null;
         };
     }
@@ -158,7 +159,7 @@ public class MapperUtil {
     public  String createTransactionReference(ISO8583 inputObject, Map<String, String> subFields, String networkName){
         StringBuilder transactionReference = new StringBuilder();
 
-        String P07 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
+        String P07 = isNullOrEmpty(inputObject.getTransmissionDateTime());
         String P11 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
         String P32 = isNullOrEmpty(inputObject.getAcquiringInstitutionIdentificationCode());
         String P37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());

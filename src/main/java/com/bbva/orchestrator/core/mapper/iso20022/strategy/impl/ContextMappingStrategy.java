@@ -4,6 +4,7 @@ import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardDataEntryMode;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.MapperUtil;
@@ -23,160 +24,167 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
 
     @Override
     public ContextDTO mapper(ISO8583 input, Map<String, String> subFields) {
-        // === TRANSACTION CONTEXT ===
 
-        Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input.getNetworkName(), subFields, input.getPointServiceConditionCode());
-        String channelTPVIndicator = mapperUtil.channelTPVIndicator(input, subFields);
-        String dateValue = input.getAmountTransactionProcessingFee();
+        try{
+            // === TRANSACTION CONTEXT ===
 
-        ReconciliationDTO reconciliation = ReconciliationDTO.builder()
-                .date(mapperUtil.validValue(dateValue))
-                .build();
+            Boolean isECommerceIndicator= mapperUtil.channelECommerceIndicator(input.getNetworkName(), subFields, input.getPointServiceConditionCode());
+            String channelTPVIndicator = mapperUtil.channelTPVIndicator(input, subFields);
+            String dateValue = input.getAmountTransactionProcessingFee();
 
-        SettlementServiceDatesDTO settlementServiceDates = SettlementServiceDatesDTO.builder()
-                .settlementDate(input.getSettlementDate())
-                .build();
+            ReconciliationDTO reconciliation = ReconciliationDTO.builder()
+                    .date(mapperUtil.validValue(dateValue))
+                    .build();
 
-        SettlementServiceDTO settlementService = SettlementServiceDTO.builder()
-                .settlementServiceDates(settlementServiceDates)
-                .build();
+            SettlementServiceDatesDTO settlementServiceDates = SettlementServiceDatesDTO.builder()
+                    .settlementDate(input.getSettlementDate())
+                    .build();
 
-        String cardDataEntryModeValue = CardDataEntryMode.convertCardDataEntryMode(
-                subFields.getOrDefault("22.01",null));
+            SettlementServiceDTO settlementService = SettlementServiceDTO.builder()
+                    .settlementServiceDates(settlementServiceDates)
+                    .build();
 
-        String entryMode = mapperUtil.entryModeValue(input, subFields, cardDataEntryModeValue);
+            String cardDataEntryModeValue = CardDataEntryMode.convertCardDataEntryMode(
+                    subFields.getOrDefault("22.01",null));
 
-        String operationType = mapperUtil.operationTypeValue(
-                FieldUtil.isNullOrEmptySubstring(input.getProcessingCode(), 0, 2)
-        );
+            String entryMode = mapperUtil.entryModeValue(input, subFields, cardDataEntryModeValue);
 
-        String channel = mapperUtil.channelValue(
-                isECommerceIndicator,
-                channelTPVIndicator,
-                input.getPosTerminalData()
-        );
+            String operationType = mapperUtil.operationTypeValue(
+                    FieldUtil.isNullOrEmptySubstring(input.getProcessingCode(), 0, 2)
+            );
 
-        String owner = mapperUtil.ownerValue(channel);
+            String channel = mapperUtil.channelValue(
+                    isECommerceIndicator,
+                    channelTPVIndicator,
+                    input.getPosTerminalData()
+            );
 
-        List<AdditionalDataDTO> transactionContextAdditionalData = List.of(
-                AdditionalDataDTO.builder()
-                        .key("ENTRY_MODE")
-                        .value(entryMode)
-                        .build(),
-                AdditionalDataDTO.builder()
-                        .key("OPERATION_TYPE")
-                        .value(operationType)
-                        .build(),
-                AdditionalDataDTO.builder()
-                        .key("CHANNEL")
-                        .value(channel)
-                        .build(),
-                AdditionalDataDTO.builder()
-                        .key("OWNER")
-                        .value(owner)
-                        .build()
-        );
+            String owner = mapperUtil.ownerValue(channel);
 
-        String captureDateValue = input.getCaptureDate();
+            List<AdditionalDataDTO> transactionContextAdditionalData = List.of(
+                    AdditionalDataDTO.builder()
+                            .key("ENTRY_MODE")
+                            .value(entryMode)
+                            .build(),
+                    AdditionalDataDTO.builder()
+                            .key("OPERATION_TYPE")
+                            .value(operationType)
+                            .build(),
+                    AdditionalDataDTO.builder()
+                            .key("CHANNEL")
+                            .value(channel)
+                            .build(),
+                    AdditionalDataDTO.builder()
+                            .key("OWNER")
+                            .value(owner)
+                            .build()
+            );
 
-        TransactionContextDTO transactionContext = TransactionContextDTO.builder()
-                .merchantCategoryCode(input.getMerchantType())
-                .merchantCategorySpecificData("NATIONAL")
-                .reconciliation(reconciliation)
-                .settlementService(settlementService)
-                .captureDate(mapperUtil.validValue(captureDateValue))
-                .additionalData(transactionContextAdditionalData)
-                .build();
+            String captureDateValue = input.getCaptureDate();
 
-        // === POINT OF SERVICE CONTEXT ===
+            TransactionContextDTO transactionContext = TransactionContextDTO.builder()
+                    .merchantCategoryCode(input.getMerchantType())
+                    .merchantCategorySpecificData("NATIONAL")
+                    .reconciliation(reconciliation)
+                    .settlementService(settlementService)
+                    .captureDate(mapperUtil.validValue(captureDateValue))
+                    .additionalData(transactionContextAdditionalData)
+                    .build();
 
-        Map<String, String> posCardHolderPresence = CardholderVerificationCapability.mapPointOfServiceContext_CardDataEntryMode(
-                subFields.getOrDefault("61.04",null)
-        );
+            // === POINT OF SERVICE CONTEXT ===
 
-        //TODO Validar este campo ya que se usa de manera provisional para guardar el valor original del campo 22
-        // === FIELD CAMPO 22 ===
-        AdditionalDataDTO pointServiceEntryMode = AdditionalDataDTO.builder()
-                .key("UNKNOWN")
-                .value(input.getPointServiceEntryMode())
-                .build();
+            Map<String, String> posCardHolderPresence = CardholderVerificationCapability.mapPointOfServiceContext_CardDataEntryMode(
+                    subFields.getOrDefault("61.04",null)
+            );
 
-        PointOfServiceContextDTO pointOfServiceContext = PointOfServiceContextDTO.builder()
-                .cardDataEntryMode(cardDataEntryModeValue)
-                .ecommerceIndicator(CardholderVerificationCapability.mapPointOfServiceContext_EcommerceIndicator(
-                        subFields.getOrDefault("61.04",null),isECommerceIndicator))
-                .attendedIndicator(CardholderVerificationCapability.mapPointOfServiceContext_AttendedIndicator(
-                        subFields.getOrDefault("61.01",null)))
-                .unattendedLevelCategory(CardholderVerificationCapability.mapPointOfServiceContext_UnattendedLevelCategory(
-                        subFields.getOrDefault("61.01",null), subFields.getOrDefault("61.10",null)))
-                .cardholderPresent(mapperUtil.safeBooleanValueOf(
-                        posCardHolderPresence.getOrDefault("cardholderPresent",null)))
-                .motoCode(posCardHolderPresence.getOrDefault("MOTOCode",null))
-                .cardPresent(CardholderVerificationCapability.mapPointOfServiceContext_CardPresent(
-                        subFields.getOrDefault("61.05",null)))
-                .additionalData(List.of(pointServiceEntryMode))
-                .build();
+            //TODO Validar este campo ya que se usa de manera provisional para guardar el valor original del campo 22
+            // === FIELD CAMPO 22 ===
+            AdditionalDataDTO pointServiceEntryMode = AdditionalDataDTO.builder()
+                    .key("UNKNOWN")
+                    .value(input.getPointServiceEntryMode())
+                    .build();
 
-        // === VERIFICATION ===
-        PINDataDTO pinData = PINDataDTO.builder()
-                .encryptedPINBlock(input.getPinData())
-                .build();
+            PointOfServiceContextDTO pointOfServiceContext = PointOfServiceContextDTO.builder()
+                    .cardDataEntryMode(cardDataEntryModeValue)
+                    .ecommerceIndicator(CardholderVerificationCapability.mapPointOfServiceContext_EcommerceIndicator(
+                            subFields.getOrDefault("61.04",null),isECommerceIndicator))
+                    .attendedIndicator(CardholderVerificationCapability.mapPointOfServiceContext_AttendedIndicator(
+                            subFields.getOrDefault("61.01",null)))
+                    .unattendedLevelCategory(CardholderVerificationCapability.mapPointOfServiceContext_UnattendedLevelCategory(
+                            subFields.getOrDefault("61.01",null), subFields.getOrDefault("61.10",null)))
+                    .cardholderPresent(mapperUtil.safeBooleanValueOf(
+                            posCardHolderPresence.getOrDefault("cardholderPresent",null)))
+                    .motoCode(posCardHolderPresence.getOrDefault("MOTOCode",null))
+                    .cardPresent(CardholderVerificationCapability.mapPointOfServiceContext_CardPresent(
+                            subFields.getOrDefault("61.05",null)))
+                    .additionalData(List.of(pointServiceEntryMode))
+                    .build();
 
-        ValueDTO value = ValueDTO.builder()
-                .pinData(pinData)
-                .build();
+            // === VERIFICATION ===
+            PINDataDTO pinData = PINDataDTO.builder()
+                    .encryptedPINBlock(input.getPinData())
+                    .build();
 
-        VerificationInformationDTO verificationInfo = VerificationInformationDTO.builder()
-                .key("CVC")
-                .value(value)
-                .build();
+            ValueDTO value = ValueDTO.builder()
+                    .pinData(pinData)
+                    .build();
 
-        ValueDTO valueCVC2 = ValueDTO.builder()
-                .textValue(subFields.getOrDefault("48.92",null))
-                .build();
+            VerificationInformationDTO verificationInfo = VerificationInformationDTO.builder()
+                    .key("CVC")
+                    .value(value)
+                    .build();
 
-        //CAMPO 48 SUBCAMPO 92
-        VerificationInformationDTO verificationInfoCVC2 = VerificationInformationDTO.builder()
-                .key("CVV2")
-                .value(valueCVC2)
-                .build();
+            ValueDTO valueCVC2 = ValueDTO.builder()
+                    .textValue(subFields.getOrDefault("48.92",null))
+                    .build();
+
+            //CAMPO 48 SUBCAMPO 92
+            VerificationInformationDTO verificationInfoCVC2 = VerificationInformationDTO.builder()
+                    .key("CVV2")
+                    .value(valueCVC2)
+                    .build();
 
 
-        ResultDetailsDTO resultDetails = ResultDetailsDTO.builder()
-                //.key("CVC")
-                .key("PENDING")
-                //.value(subFields.getOrDefault("48.87",null))
-                .value("")
-                .build();
+            ResultDetailsDTO resultDetails = ResultDetailsDTO.builder()
+                    //.key("CVC")
+                    .key("PENDING")
+                    //.value(subFields.getOrDefault("48.87",null))
+                    .value("")
+                    .build();
 
-        VerificationResultDTO verificationResult = VerificationResultDTO.builder()
-                .key("card_validation_code_result")
-                .resultDetails(List.of(resultDetails))
-                .build();
+            VerificationResultDTO verificationResult = VerificationResultDTO.builder()
+                    .key("card_validation_code_result")
+                    .resultDetails(List.of(resultDetails))
+                    .build();
 
-        VerificationDTO verification = VerificationDTO.builder()
-                .verificationInformation(List.of(verificationInfo,verificationInfoCVC2))
-                .verificationResult(List.of(verificationResult))
-                .build();
+            VerificationDTO verification = VerificationDTO.builder()
+                    .verificationInformation(List.of(verificationInfo,verificationInfoCVC2))
+                    .verificationResult(List.of(verificationResult))
+                    .build();
 
-        List<VerificationDTO> verificationList = List.of(verification);
+            List<VerificationDTO> verificationList = List.of(verification);
 
-        // === SALE CONTEXT ===
-        AdditionalDataDTO campaignData = AdditionalDataDTO.builder()
-                .key("campaignData")
-                .value(input.getCampaignData())
-                .build();
+            // === SALE CONTEXT ===
+            AdditionalDataDTO campaignData = AdditionalDataDTO.builder()
+                    .key("campaignData")
+                    .value(input.getCampaignData())
+                    .build();
 
-        SaleContextDTO saleContext = SaleContextDTO.builder()
-                .additionalData(List.of(campaignData))
-                .build();
+            SaleContextDTO saleContext = SaleContextDTO.builder()
+                    .additionalData(List.of(campaignData))
+                    .build();
 
-        return ContextDTO.builder()
-                .transactionContext(transactionContext)
-                .pointOfServiceContext(pointOfServiceContext)
-                .verification(verificationList)
-                .saleContext(saleContext)
-                .build();
+            return ContextDTO.builder()
+                    .transactionContext(transactionContext)
+                    .pointOfServiceContext(pointOfServiceContext)
+                    .verification(verificationList)
+                    .saleContext(saleContext)
+                    .build();
+
+        } catch (RuntimeException e) {
+            // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear ContextDTO desde ISO8583", e);
+        }
     }
 
     public ContextDTO mapper_response(ISO8583 input, Map<String, String> subFields) {

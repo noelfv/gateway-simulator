@@ -47,9 +47,9 @@ public class ConverterTramaTextPlainViewerPanel extends JPanel {
 
        setLayout(new BorderLayout());
 
-       inputTextArea= ComponentsUtil.createTextArea();
+       inputTextArea= ComponentsUtil.createInputTextArea();
        inputTextArea.setText(SAMPLE_MESSAGE);
-       outputTextArea=ComponentsUtil.createTextArea();
+       outputTextArea=ComponentsUtil.createOutputTextArea();
 
        convertirTramaButton = new JButton("Convertir Trama");
        limpiarButton = new JButton("Limpiar");

@@ -1,9 +1,9 @@
 package com.bbva.orchestrator.core.fields;
 
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -183,7 +183,5 @@ public enum MastercardISOField implements ISOField {
     public static MastercardISOField getById(int id) {
         return BY_ID.get(id);
     }
-
-
 
 }

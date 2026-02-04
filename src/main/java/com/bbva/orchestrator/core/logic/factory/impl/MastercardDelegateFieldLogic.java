@@ -7,11 +7,11 @@ import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.logic.process.MastercardProcessSubField;
 import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class MastercardDelegateFieldLogic implements NetworkDelegateFieldLogic {

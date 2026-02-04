@@ -55,7 +55,7 @@ public class ProtectedDataMappingStrategy implements SectionMappingStrategy<List
             return protectedDataList;
         } catch (RuntimeException e) {
             // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
-            throw new MapperFieldsException("PGWP-00122", "Error al mapear ProtectedDataDTO desde ISO8583", e);
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear ProtectedDataDTO desde ISO8583", e);
         }
     }
 

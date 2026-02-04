@@ -3,6 +3,7 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.ResultaDataType;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,34 +21,38 @@ public class ProcessingResultMappingStrategy implements SectionMappingStrategy<P
     @Override
     public ProcessingResultDTO mapper(ISO8583 input, Map<String, String> subFields) {
 
-        if (input == null || !mapperUtil.isOutputMti(input.getMessageType())) {
-            return null;
+        try {
+            if (input == null || !mapperUtil.isOutputMti(input.getMessageType())) {
+                return null;
+            }
+
+            final String result = ResultaDataType.convertResultDataType(input.getMessageType());
+            final String otherResult = mapperUtil.convertResponseCodeToLabelData(
+                    input.getNetworkName(),
+                    input.getResponseCode()
+            );
+            final String additionalValue = mapperUtil.getAdditionalInfoValue(input.getResponseCode());
+
+            final ResultDataDTO resultData = ResultDataDTO.builder()
+                    .result(result)
+                    .otherResult(otherResult)
+                    .otherResultDetails(input.getResponseCode())
+                    .build();
+
+            final AdditionalInformationDTO additionalInformation = AdditionalInformationDTO.builder()
+                    .key("transaction")
+                    .value(additionalValue)
+                    .build();
+
+            return ProcessingResultDTO.builder()
+                    .resultData(resultData)
+                    .approvalCode(input.getAuthorizationIdentificationResponse())
+                    .additionalInformation(List.of(additionalInformation))
+                    .build();
+        } catch (RuntimeException e) {
+            // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear ProcessingResultDTO desde ISO8583", e);
         }
-
-        final String result = ResultaDataType.convertResultDataType(input.getMessageType());
-        final String otherResult = mapperUtil.convertResponseCodeToLabelData(
-                input.getNetworkName(),
-                input.getResponseCode()
-        );
-        final String additionalValue = mapperUtil.getAdditionalInfoValue(input.getResponseCode());
-
-        final ResultDataDTO resultData = ResultDataDTO.builder()
-                .result(result)
-                .otherResult(otherResult)
-                .otherResultDetails(input.getResponseCode())
-                .build();
-
-        final AdditionalInformationDTO additionalInformation = AdditionalInformationDTO.builder()
-                .key("transaction")
-                .value(additionalValue)
-                .build();
-
-        return ProcessingResultDTO.builder()
-                .resultData(resultData)
-                .approvalCode(input.getAuthorizationIdentificationResponse())
-                .additionalInformation(List.of(additionalInformation))
-                .build();
-
     }
 
     @Override

@@ -4,9 +4,9 @@ import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 
 
 public class AlphaNumericDecoratorFieldParser implements FieldParserStrategy {

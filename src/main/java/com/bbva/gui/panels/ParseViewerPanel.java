@@ -2,8 +2,8 @@ package com.bbva.gui.panels;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.gui.components.PanelDoggy;
-import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
+import com.bbva.gui.utils.ComponentsUtil;
 import com.bbva.gui.utils.SwingUtils;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
 import com.bbva.orchestrator.core.dto.ISO8583;
@@ -13,8 +13,6 @@ import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bbva.gui.utils.ParseGUI;
@@ -44,12 +42,6 @@ public class ParseViewerPanel extends JPanel {
     private JButton copiarRespuestaButton;
     private JRadioButton optionMastercard;
     private JRadioButton optionVisa;
-    // Paleta de colores oficial
-    public static final Color BBVA_NAVY = new Color(0, 68, 129);  // Azul principal
-    public static final Color BBVA_WHITE = new Color(255, 255, 255);
-    public static final Color BBVA_LIGHT_GRAY = new Color(244, 244, 244);
-    public static final Color BBVA_ACCENT_BLUE = new Color(18, 190, 255); // Azul brillante para acentos
-
     @Setter
     private JInternalFrame parentFrame;
     private  ISO8583DelegateParser delegateParser;
@@ -77,26 +69,19 @@ public class ParseViewerPanel extends JPanel {
     private void initializeComponents() {
 
         setLayout(new BorderLayout());
-        inputTextArea = new JTextArea(12, 60);
-        inputTextArea.setLineWrap(true);
-        inputTextArea.setWrapStyleWord(true);
-        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        inputTextArea = ComponentsUtil.createInputTextArea();
         inputTextArea.setText(inputMessage);
 
-        outputTextArea = new JTextArea(12, 60);
-        outputTextArea.setLineWrap(true);
-        outputTextArea.setWrapStyleWord(true);
-        outputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        outputTextArea.setEditable(false);
+        outputTextArea = ComponentsUtil.createOutputTextArea();
 
-        parseButton = new JButton("Parser");
-        limpiarButton = new JButton("Limpiar");
-        copiarRespuestaButton = new JButton("Copiar respuesta");
+        parseButton = ComponentsUtil.createButton("Parser");
+        limpiarButton = ComponentsUtil.createButton("Limpiar");
+        copiarRespuestaButton = ComponentsUtil.createButton("Copiar respuesta");
 
-        optionMastercard= new JRadioButton("Mastercard", true);
-        optionMastercard.setVisible(true);
-        optionVisa= new JRadioButton("Visa", false);
-        optionVisa.setVisible(true);
+        optionMastercard= ComponentsUtil.createRadioButton("Mastercard", true);
+       // optionMastercard.setVisible(true);
+        optionVisa= ComponentsUtil.createRadioButton("Visa", false);
+        //optionVisa.setVisible(true);
 
         // Inicializar el árbol jerárquico
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Mensaje Parseado");

@@ -89,9 +89,9 @@ public class ParserGUIMain extends JFrame {
         addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(beanProviderInstance), "Parsear mensaje");
         //addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaViewerPanel(), "Convertir mensaje");
         addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel(beanProviderInstance), "Convertir mensaje");
-        addInternalFrameMenuAction(convertirIso20022MenuItem, new ConverterIso20022ViewerPanel(beanProviderInstance), "Convertir Objeto");
+        addInternalFrameMenuAction(convertirIso20022MenuItem, new Transformer20022Panel(beanProviderInstance), "Convertir Objeto");
       //  addInternalFrameMenuAction(importarConfiguracionMenuItem, new GenerarTramaViewerPanel(), "Generar Trama");
-        addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new frmGenerator(beanProviderInstance), "Generar Trama Especifica");
+        addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new GenerateTramaISO8583Panel(beanProviderInstance), "Generar Trama Especifica");
         addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(beanProviderInstance), "Parsear TLV");
     }
 

@@ -7,6 +7,7 @@ import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.NoArgsConstructor;
+
 import java.util.HashMap;
 import java.util.Map;
 

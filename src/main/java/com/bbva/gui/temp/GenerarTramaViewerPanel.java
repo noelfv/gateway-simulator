@@ -1,4 +1,4 @@
-package com.bbva.gui.panels;
+package com.bbva.gui.temp;
 
 
 import javax.swing.*;
@@ -13,18 +13,14 @@ import com.bbva.gui.components.TextFieldTreeCellRenderer;
 import com.bbva.gui.components.TreeNodeData;
 import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.utils.UtilGUI;
-import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
-import com.bbva.orchestrator.core.fields.MastercardISOField;
-import com.bbva.orchestrator.core.mapper.factory.impl.MastercardDelegateMapper;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
-import com.bbva.orchestrator.core.parser.factory.impl.MastercardDelegateParser;
 import lombok.Setter;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

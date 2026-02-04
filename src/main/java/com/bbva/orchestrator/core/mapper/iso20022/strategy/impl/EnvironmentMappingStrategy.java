@@ -77,7 +77,6 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
             // ... resto del mapeo
             String type = mapperUtil.channelTPVIndicator(input, subFields);
-            String typeValue = type != null ? type.substring(0, 4) : null; //Punto de exception si type es menor de 4 digits
 
             Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapPosTerminalLocation(
                     subFields.getOrDefault("61.03", null),
@@ -86,7 +85,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
             TerminalDTO terminal = TerminalDTO.builder()
                     .capabilities(capabilities)
                     .terminalId(terminalId)
-                    .key(typeValue)
+                    .key(type)
                     .otherType(posTerminalLocation.getOrDefault("OtherType",null))
                     .offPremisesIndicator(mapperUtil.safeBooleanValueOf(
                             posTerminalLocation.getOrDefault("offPremisesIndicator",null)

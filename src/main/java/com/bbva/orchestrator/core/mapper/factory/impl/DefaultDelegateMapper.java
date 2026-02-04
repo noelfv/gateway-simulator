@@ -50,6 +50,8 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                 return createISO20022ResponseFromHost(input,subFields);
             }
 
+            LogsTraces.writeInfo("requestMessage %s".formatted(input.getPlainTextPCI()));
+
             // Mapeo paralelo (opcional, si necesitas alto rendimiento)
             EnvironmentDTO environment = environmentStrategy.mapper(input, subFields);
             TransactionDTO transaction = transactionStrategy.mapper(input, subFields);
@@ -62,9 +64,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
             CustomDataLocalDTO customDataLocal = customDataLocalStrategy.mapper(input, subFields);
             MonitoringDTO monitoring=monitoringService.build(input, transaction,environment,context);
 
-            LogsTraces.writeInfo("requestMessage %s|%s"
-                    .formatted(input.getPlainTextPCI(),
-                            transaction.getTransactionId().getTransactionReference()));
+            LogsTraces.writeInfo("transactionReference %s".formatted(transaction.getTransactionId().getTransactionReference()));
 
             // Construir el objeto ISO20022 final usando su builder, solo con objetos no nulos
             ISO20022.ISO20022Builder iso20022Builder = ISO20022.builder()
@@ -103,9 +103,11 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
 
         }catch (MapperFieldsException e) {
             //TODO: Que hacer si hay una excepcion de mapeo local ¿Que deberiamos hacer como flujo funcional?
+            LogsTraces.writeWarning(e.getCode() + " " + e.getDescription() + " " + e.getCause());
             return buildFallbackResponse(input); //Esto no deberia devolverse, lo correcto es lanzar una excepcion
         } catch (Exception e) {
             //TODO: Error no contemplado o controlados por temas de null pointer ¿Que deberiamos hacer como flujo funcional?
+            LogsTraces.writeWarning("PGWP-00121 - ExceptionError al mapear desde ISO8583: " +  e);
             return buildFallbackResponse(input); //Esto no deberia devolverse, lo correcto es lanzar una excepcion
         }
     }
@@ -209,6 +211,7 @@ public class DefaultDelegateMapper implements ISO20022DelegateMapper {
                                         .build()
                         ))
                         .build())
+                .monitoring(MonitoringDTO.builder().isNextGen(Boolean.FALSE).build())
                 .build();
     }
 }

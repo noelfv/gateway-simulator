@@ -3,7 +3,9 @@ package com.bbva.orchestrator.core.fields.definitions.subfields.tlv;
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
 import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.AlphaNumericFieldParser;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.HexadecimalFieldParser;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.NumericFieldParser;
 
 public enum Field48 implements ISOSubField {
 

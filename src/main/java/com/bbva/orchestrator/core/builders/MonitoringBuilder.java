@@ -1,33 +1,34 @@
 package com.bbva.orchestrator.core.builders;
 
-import com.bbva.gateway.dto.iso20022.*;
+import com.bbva.gateway.dto.iso20022.ContextDTO;
+import com.bbva.gateway.dto.iso20022.EnvironmentDTO;
+import com.bbva.gateway.dto.iso20022.MonitoringDTO;
+import com.bbva.gateway.dto.iso20022.TransactionDTO;
+import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.ChannelOperator;
 import com.bbva.orchestrator.core.enums.FilterOperator;
 import com.bbva.orchestrator.core.enums.TransactionType;
 import com.bbva.orchestrator.core.utils.FieldUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class MonitoringBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringBuilder.class);
     private static final Set<String> MTI_OUTPUT = Set.of("0110", "0130", "0410", "0430");
     private static final Set<String> LIST_CODE_APPROVED = Set.of("00", "10", "11");
     private static final String BIN_ADQUIRENTE_P2P = "420829";
     private static final String APPROVED = "Approved"; //Se recibió una respuesta positiva.
     private static final String DENIED = "Denied";//Se recibió una respuesta negativa.
     private static final String PENDING = "Pending";//La solicitud ha sido enviada y se espera una respuesta.
-    private static final String TIMEOUT = "Timeout";// FALLIDA (o TIMEOUT): La operación no pudo completarse debido a un error de
     private final ApplicationDataCache applicationDataCache;
 
 
@@ -72,13 +73,15 @@ public class MonitoringBuilder {
                         monitoring.setTransactionStatus(DENIED);
                     }
                 } else {
-                    LOGGER.info("No requiere generar bloque monitoreo messageType= {}", input.getMessageType());
+                    LogsTraces.writeInfo("No requiere generar bloque monitoreo messageType= "  + input.getMessageType());
+                    //TODO Validarlo en el tiempo, ya que se seteamos este valor para controlar el nullpointer para mensajes que no se estan monitoreando
+                    monitoring.setIsNextGen(false);
                     return monitoring;
                 }
             }
             return monitoring;
         } catch (RuntimeException e) {
-            LOGGER.error("Error creating monitoring: {} ", e.getMessage());
+            LogsTraces.writeError("Error creating monitoring: " + e.getMessage());
             return monitoring;
         }
     }
@@ -90,7 +93,7 @@ public class MonitoringBuilder {
             resultBinCode = primaryAccountNumber.substring(0, 6);
             return resultBinCode;
         } catch (Exception e) {
-            LOGGER.info("Error getting the binCode from the field primaryAccountNumber {} - {}  ", primaryAccountNumber, e.getMessage());
+            LogsTraces.writeWarning("Error getting the binCode from the field primaryAccountNumber  " +e.getMessage());
             return resultBinCode;
         }
     }
@@ -100,7 +103,7 @@ public class MonitoringBuilder {
         try {
             resultNameLocation = nameLocation.substring(0, 22);
         } catch (Exception e) {
-            LOGGER.info("Error getting AcceptorName {} - {} ", nameLocation, e.getMessage());
+            resultNameLocation = "MerchantName-NotFound";
         }
         return resultNameLocation;
     }

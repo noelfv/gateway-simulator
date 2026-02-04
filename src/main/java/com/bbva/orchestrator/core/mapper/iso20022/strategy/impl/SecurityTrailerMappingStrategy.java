@@ -3,6 +3,7 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 import com.bbva.gateway.dto.iso20022.MacDataDTO;
 import com.bbva.gateway.dto.iso20022.SecurityTrailerDTO;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
@@ -21,26 +22,32 @@ public class SecurityTrailerMappingStrategy implements SectionMappingStrategy<Se
     @Override
     public SecurityTrailerDTO mapper(ISO8583 input, Map<String, String> subFields) {
 
-        String secControlInformation = input.getSecurityControlInformation();
+        try {
+            String secControlInformation = input.getSecurityControlInformation();
 
-        if (secControlInformation == null || secControlInformation.isEmpty()) {
-            return null; // Retorna null si no hay información de control de seguridad
+            if (secControlInformation == null || secControlInformation.isEmpty()) {
+                return null; // Retorna null si no hay información de control de seguridad
+            }
+
+            MacDataDTO macData = MacDataDTO.builder()
+                    // 53.1 Security Format Code / Security Type Code
+                    .keyProtection(mapperUtil.isNullOrEmptySubstring(secControlInformation, 0, 2))
+                    // 53.2 PIN Encryption Code
+                    .algorithm(mapperUtil.isNullOrEmptySubstring(secControlInformation, 2, 4))
+                    // 53.3 PIN Block Format Code
+                    .derivedInformation(mapperUtil.isNullOrEmptySubstring(secControlInformation, 4, 6))
+                    // 53.4 Key Index Number
+                    .keyIndex(mapperUtil.isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
+                    .build();
+
+            return SecurityTrailerDTO.builder()
+                    .macData(macData)
+                    .build();
+
+        } catch (RuntimeException e) {
+            // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear SecurityTrailerDTO desde ISO8583", e);
         }
-
-        MacDataDTO macData = MacDataDTO.builder()
-                // 53.1 Security Format Code / Security Type Code
-                .keyProtection(mapperUtil.isNullOrEmptySubstring(secControlInformation, 0, 2))
-                // 53.2 PIN Encryption Code
-                .algorithm(mapperUtil.isNullOrEmptySubstring(secControlInformation, 2, 4))
-                // 53.3 PIN Block Format Code
-                .derivedInformation(mapperUtil.isNullOrEmptySubstring(secControlInformation, 4, 6))
-                // 53.4 Key Index Number
-                .keyIndex(mapperUtil.isNullOrEmptySubstring(secControlInformation, 6, secControlInformation.length()))
-                .build();
-
-        return SecurityTrailerDTO.builder()
-                .macData(macData)
-                .build();
     }
 
     @Override

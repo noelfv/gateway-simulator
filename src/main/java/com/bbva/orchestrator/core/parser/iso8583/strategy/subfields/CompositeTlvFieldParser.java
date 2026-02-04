@@ -2,13 +2,14 @@ package com.bbva.orchestrator.core.parser.iso8583.strategy.subfields;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.core.fields.definitions.IFieldDefinition;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
-import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

@@ -3,6 +3,7 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 import com.bbva.gateway.dto.iso20022.TraceDataDTO;
 import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.exception.MapperFieldsException;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -16,30 +17,35 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
     @Override
     public List<TraceDataDTO> mapper(ISO8583 input, Map<String, String> subFields) {
 
-        // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
-        TraceDataDTO posAdditionalData = TraceDataDTO.builder()
-                .key("posAdditionalData")
-                .value(input.getNetworkData())
-                .build();
+        try{
+            // ======== FIELD 63 (MAPPED AS POS ADDITIONAL DATA) ========
+            TraceDataDTO posAdditionalData = TraceDataDTO.builder()
+                    .key("posAdditionalData")
+                    .value(input.getNetworkData())
+                    .build();
 
-        // ======== HEADER OF ISO ========
-        TraceDataDTO originHeader = TraceDataDTO.builder()
-                .key("header")
-                .value(input.getHeader())
-                .build();
+            // ======== HEADER OF ISO ========
+            TraceDataDTO originHeader = TraceDataDTO.builder()
+                    .key("header")
+                    .value(input.getHeader())
+                    .build();
 
-        // ======== ID PURCHASE ========
-        TraceDataDTO traceDataDTO = TraceDataDTO.builder()
-                .key("PAYMENT_ID")
-                .value(GrpcHeadersInfo.getTraceId())
-                .build();
+            // ======== ID PURCHASE ========
+            TraceDataDTO traceDataDTO = TraceDataDTO.builder()
+                    .key("PAYMENT_ID")
+                    .value(GrpcHeadersInfo.getTraceId())
+                    .build();
 
-        List<TraceDataDTO> traceDataList = new ArrayList<>();
-        traceDataList.add(posAdditionalData);
-        traceDataList.add(originHeader);
-        traceDataList.add(traceDataDTO);
+            List<TraceDataDTO> traceDataList = new ArrayList<>();
+            traceDataList.add(posAdditionalData);
+            traceDataList.add(originHeader);
+            traceDataList.add(traceDataDTO);
 
-        return traceDataList;
+            return traceDataList;
+        } catch (RuntimeException e) {
+            // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
+            throw new MapperFieldsException("PGWP-00121", "Error al mapear TraceDataDTO desde ISO8583", e);
+        }
     }
 
     @Override
