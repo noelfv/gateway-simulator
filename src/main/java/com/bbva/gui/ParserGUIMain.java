@@ -18,6 +18,7 @@ public class ParserGUIMain extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(ParserGUIMain.class);
     private JMenuItem parseMenuItem;
     private JMenuItem generarTramaMenuItem;
+    private JMenuItem generarTramaEspecificaMenuItem;
     private JMenuItem convertirTramaMenuItem;
     private JMenuItem convertirIso20022MenuItem;
     private JMenuItem campo48MenuItem;
@@ -54,6 +55,7 @@ public class ParserGUIMain extends JFrame {
         // Crear sub items
         parseMenuItem = new JMenuItem("Parsear mensaje");
         generarTramaMenuItem = new JMenuItem("Generar trama");
+        generarTramaEspecificaMenuItem = new JMenuItem("Generar trama específica");
         convertirTramaMenuItem = new JMenuItem("Convertir trama");
         convertirIso20022MenuItem = new JMenuItem("Convertir Objeto");
         campo48MenuItem = new JMenuItem("Campo 48");
@@ -63,6 +65,7 @@ public class ParserGUIMain extends JFrame {
         conversionMenu.add(convertirTramaMenuItem);
         conversionMenu.add(convertirIso20022MenuItem);
         conversionMenu.add(generarTramaMenuItem);
+        conversionMenu.add(generarTramaEspecificaMenuItem);
         conversionMenu.add(campo48MenuItem);
         // Agregar a la barra de menú
         menuBar.add(parseMenu);
@@ -75,10 +78,10 @@ public class ParserGUIMain extends JFrame {
        // addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(), "Parsear mensaje");
         addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(beanProviderInstance), "Parsear mensaje");
         //addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaViewerPanel(), "Convertir mensaje");
-        addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaViewerPanel(beanProviderInstance), "Convertir mensaje");
+        addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel(beanProviderInstance), "Convertir mensaje");
         addInternalFrameMenuAction(convertirIso20022MenuItem, new ConverterIso20022ViewerPanel(beanProviderInstance), "Convertir Objeto");
         addInternalFrameMenuAction(generarTramaMenuItem, new GenerarTramaViewerPanel(), "Generar Trama");
-       // addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(), "Parsear TLV");
+        addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new frmGenerator(beanProviderInstance), "Generar Trama Especifica");
         addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(beanProviderInstance), "Parsear TLV");
     }
 
