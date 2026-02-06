@@ -21,4 +21,5 @@ public class TerminalDTO implements Serializable {
 	private String otherType;
 	private String geographicLocation;
 	private List<PoiComponentDTO> poiComponent;
+	private Boolean offPremisesIndicator;
 }

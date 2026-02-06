@@ -1,68 +1,159 @@
 package com.bbva.gui.commons;
 
-import com.bbva.orchestrator.parser.exception.ParserLocalException;
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.parser.common.ISOField;
-import com.bbva.orchestrator.parser.common.ISOUtil;
+
+import com.bbva.orchestrator.core.exception.ParserFieldsException;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.VisaISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import static com.bbva.orchestrator.core.fields.MastercardISOField.*;
+import static com.bbva.orchestrator.core.fields.definitions.ISODataType.*;
 
-import static com.bbva.orchestrator.network.mastercard.ISOFieldMastercard.*;
-import static com.bbva.orchestrator.parser.common.ISODataType.BINARY_STRING;
-import static com.bbva.orchestrator.parser.common.ISODataType.NUMERIC_DECIMAL;
 
 public class ISO8583Processor {
 
-    public static Map<String, String> createMapFieldsISO8583(String iso) {
+    public static String buildFromMap(Map<String, String> subFieldsMap) {
+        StringBuilder tlvBuilder = new StringBuilder();
+
+        for (Map.Entry<String, String> entry : subFieldsMap.entrySet()) {
+            // Extraer el tag (última parte de la clave, ej: "48.33.01" → "01")
+            String[] keyParts = entry.getKey().split("\\.");
+            String tag = keyParts[keyParts.length - 1];
+
+            // Codificar tag a EBCDIC Hex (2 bytes → 4 hex)
+            String tagHex = ISOUtil.stringToEBCDICHex(tag);
+
+            // Codificar valor a EBCDIC Hex
+            String valueHex = ISOUtil.stringToEBCDICHex(entry.getValue());
+
+            // Calcular longitud en bytes y codificar a EBCDIC Hex (2 bytes → 4 hex)
+            int valueLength = valueHex.length() / 2;
+            String lengthHex = ISOUtil.stringToEBCDICHex(String.format("%02d", valueLength));
+
+            // Concatenar TLV
+            tlvBuilder.append(tagHex).append(lengthHex).append(valueHex);
+        }
+
+        return tlvBuilder.toString();
+    }
+
+    public static Map<String, String> createMapFieldsISO8583Mastercard(String messageOriginal) {
 
         Map<String, String> valuesMap = new LinkedHashMap<>();
         Map<String, String> valuesMapInt = new  LinkedHashMap<>();
 
-        boolean containsSecondaryBitmap = false;
-
         try {
             int position = 0;
-            StringBuilder isoMessage = new StringBuilder(iso);
 
-            position = processNextFieldTramaClaro(MESSAGE_TYPE, isoMessage, position, valuesMap, valuesMapInt);
-            position = processNextFieldTramaClaro(BITMAP_PRIMARY, isoMessage, position, valuesMap, valuesMapInt);
+            position = processNextFieldTramaClaro(MESSAGE_TYPE, messageOriginal, position, valuesMap, valuesMapInt);
+            position = processNextFieldTramaClaro(BITMAP_PRIMARY, messageOriginal, position, valuesMap, valuesMapInt);
 
             String binaryBitMapPrimary = valuesMap.get(BITMAP_PRIMARY.getName());
             if (binaryBitMapPrimary.charAt(0) == '1') {
-                position = processNextFieldTramaClaro(BITMAP_SECONDARY,isoMessage, position, valuesMap, valuesMapInt);
-                containsSecondaryBitmap = true;
+                position = processNextFieldTramaClaro(BITMAP_SECONDARY,messageOriginal, position, valuesMap, valuesMapInt);
             }
             String binaryBitMap = valuesMap.get(BITMAP_PRIMARY.getName()).concat(valuesMap.getOrDefault(BITMAP_SECONDARY.getName(),""));
 
+            int positionActual=position;
             //Se comienza la iteración desde el campo 2, el campo 1 se salta, ya que es el bitmap secundario
             for (int i = 2; i <= binaryBitMap.length(); i++) {
                 //Se le resta 1, ya que .charAt toma el 0 como la posición inicial
                 if (binaryBitMap.charAt(i-1) == '1') {
-                    ISOField field = ISOFieldMastercard.getById(i);
+                    ISOField field = MastercardISOField.getById(i);
 
                     if (field == null) {
-                        throw new ParserLocalException(createMessageError(i, "There is no mapping available"));
+                        throw new ParserException(createMessageError(i, "There is no mapping available"));
                     }
 
-                    position = processNextFieldTramaClaro(field,isoMessage, position, valuesMap, valuesMapInt);
+                    String rawData=messageOriginal.substring(positionActual);
+                    position = processNextFieldTramaClaro(field,rawData, valuesMap, valuesMapInt);
+                    positionActual+=position;
                 }
             }
         } catch (ParserException e) {
             //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
-            throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
+            //throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
+            throw new ParserFieldsException("Cannot parse iso message: " + e.getMessage());
         }
         return valuesMap;
     }
 
-    private static int processNextFieldTramaClaro(ISOField isoField, StringBuilder isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
+    public static Map<String, String> createMapFieldsISO8583Visa(String messageOriginal) {
+
+        Map<String, String> valuesMap = new LinkedHashMap<>();
+        Map<String, String> valuesMapInt = new  LinkedHashMap<>();
 
         try {
+            int position = 0;
 
+            position = processNextFieldTramaClaro(MESSAGE_TYPE, messageOriginal, position, valuesMap, valuesMapInt);
+            position = processNextFieldTramaClaro(BITMAP_PRIMARY, messageOriginal, position, valuesMap, valuesMapInt);
+
+            String binaryBitMapPrimary = valuesMap.get(BITMAP_PRIMARY.getName());
+            if (binaryBitMapPrimary.charAt(0) == '1') {
+                position = processNextFieldTramaClaro(BITMAP_SECONDARY,messageOriginal, position, valuesMap, valuesMapInt);
+            }
+            String binaryBitMap = valuesMap.get(BITMAP_PRIMARY.getName()).concat(valuesMap.getOrDefault(BITMAP_SECONDARY.getName(),""));
+
+            int positionActual=position;
+            //Se comienza la iteración desde el campo 2, el campo 1 se salta, ya que es el bitmap secundario
+            for (int i = 2; i <= binaryBitMap.length(); i++) {
+                //Se le resta 1, ya que .charAt toma el 0 como la posición inicial
+                if (binaryBitMap.charAt(i-1) == '1') {
+                    ISOField field = VisaISOField.getById(i);
+
+                    if (field == null) {
+                        throw new ParserException(createMessageError(i, "There is no mapping available"));
+                    }
+
+                    String rawData=messageOriginal.substring(positionActual);
+                    position = processNextFieldTramaClaro(field,rawData, valuesMap, valuesMapInt);
+                    positionActual+=position;
+                }
+            }
+        } catch (ParserException e) {
+            //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
+            //throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
+            throw new ParserFieldsException("Cannot parse iso message: " + e.getMessage());
+        }
+        return valuesMap;
+    }
+
+
+    private static int processNextFieldTramaClaro(ISOField isoField, String isoMessage, int position, Map<String, String> mapString, Map<String, String> mapInt) {
+
+        try {
+            int fieldLength = isoField.getLength();
+
+            if(isoField.getTypeData().equals(BINARY_STRING)){
+                fieldLength = isoField.getLength()*2;
+            }
+
+            String value = isoMessage.substring(position, position + fieldLength);
+            position += fieldLength;
+            addFieldToMapTramaClaro(isoField, value, mapString,mapInt);
+            return position;
+
+        } catch (Exception e) {
+            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
+        }
+    }
+
+    private static int processNextFieldTramaClaro(ISOField isoField, String isoMessage, Map<String, String> mapString, Map<String, String> mapInt) {
+
+        int position=0;
+        try {
             int fieldLength = isoField.getLength();
 
             if (isoField.isVariable()) {
+                if(isoField.getId()==123){ //TODO revisar con el equipo gateway ya que este campo su cabecera pasa los dos digitos
+                    fieldLength=3;
+                }
                 String header = isoMessage.substring(position, position + fieldLength);
                 position += fieldLength;
                 fieldLength = Integer.parseInt(header);
@@ -74,7 +165,7 @@ public class ISO8583Processor {
             return position;
 
         } catch (Exception e) {
-            throw new ParserLocalException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
+            throw new ParserException(createMessageError(position,mapInt,isoField.getId(), e.getMessage()));
         }
     }
 
@@ -88,7 +179,7 @@ public class ISO8583Processor {
 
     private static String processFieldTramaClaro(ISOField isoField, String value) {
         if (isoField.getTypeData() == NUMERIC_DECIMAL) {
-            return ISOUtil.validAmount(value);
+            return FieldUtil.validAmount(value);
         } else if (isoField.getTypeData() == BINARY_STRING) {
             return  ISOUtil.convertHEXtoBITMAP(value);
         }else

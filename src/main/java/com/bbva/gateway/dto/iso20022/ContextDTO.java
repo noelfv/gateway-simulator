@@ -19,4 +19,5 @@ public class ContextDTO implements Serializable {
 	private List<VerificationDTO> verification;
 	private PointOfServiceContextDTO pointOfServiceContext;
 	private SaleContextDTO saleContext;
+	private List<RiskContextDTO> riskContext;
 }

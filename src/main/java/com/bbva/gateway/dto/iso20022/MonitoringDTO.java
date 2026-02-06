@@ -19,6 +19,8 @@ public class MonitoringDTO implements Serializable {
     private String differenceDateTime;
     private String binCode;
     private String binDescription;
+    private String binType;
+    private String binBrand;
     private String merchantNameAceptor;
     private String merchantCategoryDescription;
     private String transactionStatus;
@@ -28,4 +30,7 @@ public class MonitoringDTO implements Serializable {
     private String p2pType;
     private String originBankCode;
     private String originBankDescription;
+    private String countryDate;
+    private Boolean isNextGen;
+    private Boolean isMessageInvalid;
 }

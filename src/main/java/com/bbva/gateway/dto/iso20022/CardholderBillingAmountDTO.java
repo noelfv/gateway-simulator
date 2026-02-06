@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Builder
 @Getter
@@ -16,5 +15,5 @@ public class CardholderBillingAmountDTO implements Serializable {
 	private static final long serialVersionUID = 3499965191409678444L;
 	private Double amount;
 	private String currency;
-	private BigDecimal effectiveExchangeRate;
+	private String effectiveExchangeRate;
 }

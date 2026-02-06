@@ -1,6 +1,6 @@
 package com.bbva.gateway.dto.iso20022;
 
-//import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serial;
@@ -22,9 +22,9 @@ public class PointOfServiceContextDTO implements Serializable {
 	private String unattendedLevelCategory;
 	private Boolean partialApprovalSupported;
 	private String otherSecurityCharacteristics;
-	//@JsonProperty("eCommerceIndicator")
+	@JsonProperty("eCommerceIndicator")
 	private Boolean ecommerceIndicator;
-	//@JsonProperty("mOTOCode")
+	@JsonProperty("mOTOCode")
 	private String motoCode;
 	private Boolean attendedIndicator;
 	private List<AdditionalDataDTO> additionalData;

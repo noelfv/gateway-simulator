@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    group:
+      gw: data, datalocal, sensitivedata
+
+lombok:
+  addLombokGeneratedAnnotation: true
+
+logging:
+  pattern:
+    console: "%m%n"
+
+server:
+  port: 8083
+

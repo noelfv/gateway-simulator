@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 
 @Builder
@@ -17,7 +16,6 @@ public class ReconciliationAmountDTO implements Serializable {
 	private static final long serialVersionUID = -6264859555050322634L;
 	private Double amount;
 	private String currency;
-	//private Double effectiveExchangeRate;
-	private BigDecimal effectiveExchangeRate;
+	private String effectiveExchangeRate;
 	private String conversionDate;
 }

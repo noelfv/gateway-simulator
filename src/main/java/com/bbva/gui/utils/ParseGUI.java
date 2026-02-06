@@ -2,15 +2,18 @@ package com.bbva.gui.utils;
 
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
-import com.bbva.orchestrator.network.mastercard.ISOFieldMastercard;
-import com.bbva.orchestrator.parser.common.ISOField;
-import com.bbva.orchestrator.parser.common.ISOUtil;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
+import com.bbva.orchestrator.core.utils.ISOUtil;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,18 +45,18 @@ public class ParseGUI {
 
             // Categorizar campos
             if (field.equals("0")) {
-                fieldNode.setUserObject("bitmap_primary : " + ISOUtil.convertBITMAPtoHEX(value));
+                fieldNode.setUserObject("P000: " + "["+ ISOUtil.convertBITMAPtoHEX(value)+ "]");
                 bitmapNode1.add(fieldNode);
-         /*   }if (field.equals("0")) {
-                fieldNode.setUserObject("bitmap_prymary : " + ISOUtil.convertBITMAPtoHEX(value));
-                bitmapNode1.add(fieldNode);*/
+           }else if (field.equals("1")) {
+                fieldNode.setUserObject("P001: " + "["+ ISOUtil.convertBITMAPtoHEX(value)+ "]");
+                bitmapNode1.add(fieldNode);
             }else {
                 // Para campos numéricos, intentar convertir a entero
                 try {
                     int fieldNumber = Integer.parseInt(field);
                     if (fieldNumber < 65) {
                         // Campos del bitmap primario (1-64)
-                        String bitmap1=(String)fieldNode.getUserObject();
+                       // String bitmap1=(String)fieldNode.getUserObject();
                         sortedFieldsBitmap1.put(fieldNumber, fieldNode);
                     } else {
                         sortedFieldsBitmap2.put(fieldNumber, fieldNode);
@@ -86,6 +89,33 @@ public class ParseGUI {
     }
 
 
+    public static void updateTreeViewTLV(DefaultTreeModel treeModel, JTree resultTree, ParseResult result) {
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("DATO TLV");
+
+        // Crear nodos categorizados
+        DefaultMutableTreeNode headerNode = new DefaultMutableTreeNode("Campo 48");
+
+        result.fieldsById().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    // Tu lógica aquí, por ejemplo:
+                    String nodeText = entry.getKey() + ": " + "[" + entry.getValue() + "]";
+                    headerNode.add(new DefaultMutableTreeNode(nodeText));
+                });
+
+
+        if (headerNode.getChildCount() > 0) root.add(headerNode);
+
+        treeModel.setRoot(root);
+
+        // Expandir todos los nodos
+        for (int i = 0; i < resultTree.getRowCount(); i++) {
+            resultTree.expandRow(i);
+        }
+    }
+
+
     public static ParseResult process(Map<String,String> mapValues)  {
 
         Map<String, String> fieldsById = new HashMap<>();
@@ -108,8 +138,38 @@ public class ParseGUI {
         return new ParseResult(mapValues, fieldsById);
     }
 
+
+    public static ParseResult processTLV(Map<String,String> mapValues)  {
+
+        Map<String, String> fieldsById = new HashMap<>();
+        // Iterar sobre los campos ya mapeados
+        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            // Para el mapa por ID, necesitamos mapear las descripciones a IDs
+            String fieldId = findFieldTLVIdByName(key);
+            if (fieldId != null) {
+                fieldsById.put(fieldId, value);
+            } else {
+                // Si no encontramos el ID, usar la descripción como clave
+                fieldsById.put(key, value);
+            }
+        }
+
+        return new ParseResult(mapValues, fieldsById);
+    }
     private static  String findFieldIdByName(String fieldName) {
-        for (ISOField field : ISOFieldMastercard.values()) {
+        for (ISOField field : MastercardISOField.values()) {
+            if (field.getName().equalsIgnoreCase(fieldName)) {
+                return String.valueOf(field.getId());
+            }
+        }
+        return null;
+    }
+
+    private static  String findFieldTLVIdByName(String fieldName) {
+        for (ISOSubField field : Field48.values()) {
             if (field.getName().equalsIgnoreCase(fieldName)) {
                 return String.valueOf(field.getId());
             }
@@ -121,7 +181,6 @@ public class ParseGUI {
 
     public static void showNodeDetails(DefaultMutableTreeNode node, int x, int y) {
         String nodeText = node.getUserObject().toString();
-
         // Extraer información del nodo
         String title = "Detalle del campo";
         String message = nodeText;
@@ -135,6 +194,7 @@ public class ParseGUI {
                     fieldId = fieldId.substring(1);
                 }
 
+                String data = nodeText.substring(6).trim();
                 // Buscar información adicional del campo
                 ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
 
@@ -153,6 +213,16 @@ public class ParseGUI {
                 contentPanel.add(new JLabel("Tipo dato: " + dataType.getTypeData()));
                 contentPanel.add(new JLabel("Caracteristicas: " + dataType.getCaracteristicaDato()));
                 contentPanel.add(new JLabel("Longitud: " + dataType.getLength()));
+                JTextField valueField = new JTextField(data);
+                valueField.setEditable(false);
+                valueField.setBorder(null);
+                valueField.setBackground(panel.getBackground());
+                valueField.setFont(panel.getFont());
+                valueField.setSelectionStart(0);
+                valueField.setSelectionEnd(data.length());
+
+                contentPanel.add(new JLabel("Data:"));
+                contentPanel.add(valueField);
 
                 panel.add(contentPanel, BorderLayout.CENTER);
 
@@ -161,6 +231,7 @@ public class ParseGUI {
                 return;
             } catch (Exception e) {
                 // Si hay algún error, mostrar el mensaje simple
+                throw e;
             }
         }
         // Si no es un campo especial o hubo error, mostrar mensaje simple
@@ -172,7 +243,7 @@ public class ParseGUI {
         try {
             int id = Integer.parseInt(fieldId);
             // Buscar en el enum ISOFieldMastercard por el ID numérico
-            for (ISOFieldMastercard field : ISOFieldMastercard.values()) {
+            for (MastercardISOField field : MastercardISOField.values()) {
                 if (field.getId() == id) {
                     //return field.getDescription();
                     if(!field.isVariable()){

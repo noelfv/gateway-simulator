@@ -1,6 +1,6 @@
 package com.bbva.gateway.dto.iso20022;
 
-//import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serial;
@@ -21,7 +21,7 @@ public class TransactionContextDTO implements Serializable {
 	private String merchantCategorySpecificData;
 	private ReconciliationDTO reconciliation;
 	private String transactionInitiator;
-	//@JsonProperty("iCCFallbackIndicator")
+	@JsonProperty("iCCFallbackIndicator")
 	private String iccFallbackIndicator;
 	private String magneticStripeFallbackIndicator;
 	private Boolean reSubmissionIndicator;
