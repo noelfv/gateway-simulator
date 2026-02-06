@@ -49,11 +49,6 @@ public class PanelDoggy {
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JPanel outputPanel) {
 
-/*
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
-        splitPane.setResizeWeight(0.8); // 50% para cada panel
-        splitPane.setDividerLocation(0.8); // Inicialmente mitad y mitad*/
-
         MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setPreferredSize(new Dimension(800, 600));
@@ -75,6 +70,10 @@ public class PanelDoggy {
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JTextArea inputTextArea) {
 
+/*
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, outputPanel);
+        splitPane.setResizeWeight(0.8); // 50% para cada panel
+        splitPane.setDividerLocation(0.8); // Inicialmente mitad y mitad*/
 
         MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
 

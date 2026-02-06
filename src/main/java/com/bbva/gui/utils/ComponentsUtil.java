@@ -18,7 +18,7 @@ public class ComponentsUtil {
                 BorderFactory.createEmptyBorder(2, 5, 2, 5)));
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
-        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 10));
         inputTextArea.setBackground(BBVA_WHITE);
         return inputTextArea;
     }

@@ -1,5 +1,6 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.ComponentsUtil;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
@@ -40,6 +41,7 @@ public class GenerateTramaISO8583Panel extends JPanel {
     public GenerateTramaISO8583Panel(BeanProviderInstance beanProviderInstance) {
         this.parserFactory = beanProviderInstance.parserFactory();
         initializeComponents();
+        //createPanelsLayout();
         setupEventHandlers();
     }
 
@@ -58,7 +60,7 @@ public class GenerateTramaISO8583Panel extends JPanel {
             if (inicio < totalCampos) {
                 // Obtener los campos correspondientes a esta columna
                 List<Integer> camposColumna = camposPermitidos.subList(inicio, fin);
-                panelCampos.add(crearColumnaTableLayout(
+                panelCampos.add(createMainPanel(
                         String.format("Bloque %d", col + 1),
                         camposColumna
                 ));
@@ -79,7 +81,13 @@ public class GenerateTramaISO8583Panel extends JPanel {
         setupMyDoggy(mainContent);
     }
 
-    private JPanel crearColumnaTableLayout(String titulo, List<Integer> campos) {
+    private void createPanelsLayout() {
+        //MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel("Hola",camposPermitidos), createOutputPanel());
+        add(toolWindowManager, BorderLayout.CENTER);
+    }
+
+    private JPanel createMainPanel(String titulo, List<Integer> campos) {
         if (campos.isEmpty()) return new JPanel();
 
         double[][] size = {
@@ -133,6 +141,80 @@ public class GenerateTramaISO8583Panel extends JPanel {
         }
 
         return panel;
+    }
+
+    private JPanel createOutputPanel() {
+
+        // --- PANEL DE CONSOLA PERSONALIZADO ---
+        JPanel outputPanel = new JPanel(new BorderLayout());
+        outputTextArea = ComponentsUtil.createOutputTextArea();
+
+        // Botón de Copiar con estilo BBVA
+        JButton btnCopiar =ComponentsUtil.createButton("Copiar Trama","Copiar trama al portapapeles");
+        btnCopiar.addActionListener(e -> copiarAlPortapapeles());
+
+        // Botón de limpiar con estilo BBVA
+        JButton btnLimpiar= ComponentsUtil.createButton("Limpiar","");
+        btnLimpiar.addActionListener(e -> limpiar());
+
+        // Panel de herramientas para la consola
+        JPanel toolBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
+        toolBar.setBackground(BBVA_LIGHT_GRAY);
+        toolBar.add(btnCopiar);
+        toolBar.add(btnLimpiar);
+
+        // Unir componentes
+        outputPanel.add(toolBar, BorderLayout.NORTH);
+        outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
+
+        return outputPanel;
+    }
+
+
+    private void setupMyDoggy(JPanel mainContent) {
+        MyDoggyToolWindowManager windowManager = new MyDoggyToolWindowManager();
+
+        // --- PANEL DE CONSOLA PERSONALIZADO ---
+        JPanel consolaPanel = new JPanel(new BorderLayout());
+        outputTextArea = ComponentsUtil.createOutputTextArea();
+
+        // Botón de Copiar con estilo BBVA
+        JButton btnCopiar =ComponentsUtil.createButton("Copiar Trama","Copiar trama al portapapeles");
+        btnCopiar.addActionListener(e -> copiarAlPortapapeles());
+
+        // Botón de limpiar con estilo BBVA
+        JButton btnLimpiar= ComponentsUtil.createButton("Limpiar","");
+        btnLimpiar.addActionListener(e -> limpiar());
+
+        // Panel de herramientas para la consola
+        JPanel toolBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
+        toolBar.setBackground(BBVA_LIGHT_GRAY);
+        toolBar.add(btnCopiar);
+        toolBar.add(btnLimpiar);
+
+        // Unir componentes
+        consolaPanel.add(toolBar, BorderLayout.NORTH);
+        consolaPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
+
+        // --- REGISTRO EN MYDOGGY ---
+        ToolWindow toolWindow = windowManager.registerToolWindow(
+                "TRAMA_ISO", "Output Trama ISO-8583",
+                null,
+                consolaPanel, // Pasamos el nuevo panel con botón
+                ToolWindowAnchor.BOTTOM
+        );
+
+        DockedTypeDescriptor descriptor = (DockedTypeDescriptor) toolWindow.getTypeDescriptor(DockedTypeDescriptor.class);
+        if (descriptor != null) {
+            descriptor.setDockLength(450); // Altura del panel
+            descriptor.setPopupMenuEnabled(true);
+        }
+        toolWindow.setActive(true);
+
+        this.setLayout(new BorderLayout());
+        this.add(windowManager, BorderLayout.CENTER);
+
+        windowManager.getContentManager().addContent("Generador", "Campos Visa", null, mainContent);
     }
 
 
@@ -245,51 +327,7 @@ public class GenerateTramaISO8583Panel extends JPanel {
     }
 
 
-    private void setupMyDoggy(JPanel mainContent) {
-        MyDoggyToolWindowManager windowManager = new MyDoggyToolWindowManager();
 
-        // --- PANEL DE CONSOLA PERSONALIZADO ---
-        JPanel consolaPanel = new JPanel(new BorderLayout());
-        outputTextArea = ComponentsUtil.createOutputTextArea();
-
-        // Botón de Copiar con estilo BBVA
-        JButton btnCopiar =ComponentsUtil.createButton("Copiar Trama","Copiar trama al portapapeles");
-        btnCopiar.addActionListener(e -> copiarAlPortapapeles());
-
-        // Botón de limpiar con estilo BBVA
-        JButton btnLimpiar= ComponentsUtil.createButton("Limpiar","");
-        btnLimpiar.addActionListener(e -> limpiar());
-
-        // Panel de herramientas para la consola
-        JPanel toolBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-        toolBar.setBackground(BBVA_LIGHT_GRAY);
-        toolBar.add(btnCopiar);
-        toolBar.add(btnLimpiar);
-
-        // Unir componentes
-        consolaPanel.add(toolBar, BorderLayout.NORTH);
-        consolaPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
-
-        // --- REGISTRO EN MYDOGGY ---
-        ToolWindow toolWindow = windowManager.registerToolWindow(
-                "TRAMA_ISO", "Output Trama ISO-8583",
-                null,
-                consolaPanel, // Pasamos el nuevo panel con botón
-                ToolWindowAnchor.BOTTOM
-        );
-
-        DockedTypeDescriptor descriptor = (DockedTypeDescriptor) toolWindow.getTypeDescriptor(DockedTypeDescriptor.class);
-        if (descriptor != null) {
-            descriptor.setDockLength(450); // Altura del panel
-            descriptor.setPopupMenuEnabled(true);
-        }
-        toolWindow.setActive(true);
-
-        this.setLayout(new BorderLayout());
-        this.add(windowManager, BorderLayout.CENTER);
-
-        windowManager.getContentManager().addContent("Generador", "Campos Visa", null, mainContent);
-    }
 
     private void copiarAlPortapapeles() {
         String trama = outputTextArea.getText();
