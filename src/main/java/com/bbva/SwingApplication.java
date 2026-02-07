@@ -1,6 +1,7 @@
 package com.bbva;
 
 import com.bbva.gui.ParserGUIMain;
+import com.bbva.gui.ParserGUIMain2;
 import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;

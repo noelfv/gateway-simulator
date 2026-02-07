@@ -18,7 +18,7 @@ public class ComponentsUtil {
                 BorderFactory.createEmptyBorder(2, 5, 2, 5)));
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
-        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
         inputTextArea.setBackground(BBVA_WHITE);
         return inputTextArea;
     }
@@ -28,7 +28,7 @@ public class ComponentsUtil {
         outputTextArea.setBackground(BBVA_BLACK); // Fondo oscuro tipo terminal
         outputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
         outputTextArea.setCaretColor(Color.WHITE);
-        outputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        outputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
         return outputTextArea;

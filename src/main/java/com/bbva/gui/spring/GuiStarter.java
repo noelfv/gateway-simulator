@@ -1,13 +1,12 @@
 package com.bbva.gui.spring;
 
-import com.bbva.gui.ParserGUIMain;
 import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.stereotype.Component;
+
 import javax.swing.*;
 
 //@Component

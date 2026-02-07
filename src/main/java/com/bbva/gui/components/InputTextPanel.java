@@ -24,7 +24,6 @@ public class InputTextPanel extends JPanel {
                 BorderFactory.createLineBorder(BBVA_NAVY, 1), title);
         border.setTitleColor(BBVA_NAVY);
         border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
-        //setBorder(BorderFactory.createTitledBorder(title));
         setBorder(border);
 
         // Área de Texto

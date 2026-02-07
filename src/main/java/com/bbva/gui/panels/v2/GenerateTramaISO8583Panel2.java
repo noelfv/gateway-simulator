@@ -1,6 +1,5 @@
-package com.bbva.gui.panels;
+package com.bbva.gui.panels.v2;
 
-import com.bbva.gui.components.OutputTextPanel;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.ComponentsUtil;
@@ -14,32 +13,31 @@ import org.noos.xing.mydoggy.DockedTypeDescriptor;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.List;
+
 import static com.bbva.gui.utils.ComponentsUtil.*;
 
 
-public class GenerateTramaISO8583Panel extends JPanel {
+public class GenerateTramaISO8583Panel2 extends JPanel {
 
     // Usamos estructuras de datos para evitar declarar 192 variables manuales
     private final Map<Integer, JCheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, JTextField> textFields = new TreeMap<>();
     //private final Map<Integer, JRadioButton> radioButtons = new TreeMap<>();
-    private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14,15,16,18,20,22,26,32,33,34,35,37,38,39,41,42,43,48,49,50,51,52,54,55,60,61,62,63,73,95,104,112,120,123,126,127);
+    private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14,15,16,18,20,22,26,32,33,34,35,37,38,39,41,42,43,48,49,50,51,52,54,55,60,61,62,63,73,95,104,112,120,127);
     private JButton procesarButton ;
     private  JTextArea outputTextArea;
     private final ParserFactory parserFactory;
 
-    public GenerateTramaISO8583Panel(BeanProviderInstance beanProviderInstance) {
+    public GenerateTramaISO8583Panel2(BeanProviderInstance beanProviderInstance) {
         this.parserFactory = beanProviderInstance.parserFactory();
         initializeComponents();
         //createPanelsLayout();
@@ -144,24 +142,10 @@ public class GenerateTramaISO8583Panel extends JPanel {
         return panel;
     }
 
-    private void aplicarEstiloIntelliJ(MyDoggyToolWindowManager manager) {
-        Color bbvaNavy = new Color(0, 68, 129);
-
-        // Colores de las barras de título de los paneles anclados
-        UIManager.put("MyDoggyToolWindowTitleBar.activeBackground", bbvaNavy);
-        UIManager.put("MyDoggyToolWindowTitleBar.activeForeground", Color.WHITE);
-        UIManager.put("MyDoggyToolWindowTitleBar.background", new Color(230, 230, 230));
-
-        //manager.getDescriptor().setToolWindowButtonsBackground(Color.WHITE);
-    }
-
     private JPanel createOutputPanel() {
-        OutputTextPanel panelSalida = new OutputTextPanel("Salida", "xxx","yyy");
-        panelSalida.getBtnPrimary().addActionListener(e->copiarAlPortapapeles());
-        panelSalida.getBtnSecondary().addActionListener(e->limpiar());
 
         // --- PANEL DE CONSOLA PERSONALIZADO ---
-        /*JPanel outputPanel = new JPanel(new BorderLayout());
+        JPanel outputPanel = new JPanel(new BorderLayout());
         outputTextArea = ComponentsUtil.createOutputTextArea();
 
         // Botón de Copiar con estilo BBVA
@@ -180,10 +164,9 @@ public class GenerateTramaISO8583Panel extends JPanel {
 
         // Unir componentes
         outputPanel.add(toolBar, BorderLayout.NORTH);
-        outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);*/
+        outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
 
-        //return outputPanel;
-        return panelSalida;
+        return outputPanel;
     }
 
 
@@ -349,7 +332,7 @@ public class GenerateTramaISO8583Panel extends JPanel {
         String trama = outputTextArea.getText();
         if (!trama.isEmpty()) {
             java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(trama);
-            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
 
             // Opcional: Mostrar un feedback visual rápido
             JOptionPane.showMessageDialog(this, "Trama copiada al portapapeles", "BBVA Generator", JOptionPane.INFORMATION_MESSAGE);

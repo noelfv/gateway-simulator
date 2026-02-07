@@ -41,4 +41,25 @@ public class OutputTextPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    public OutputTextPanel(String title, String primaryBtnText) {
+        setLayout(new BorderLayout());
+
+        /*TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(BBVA_NAVY, 1), title);
+        border.setTitleColor(BBVA_NAVY);
+        border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
+        setBorder(border);*/
+
+        // Área de Texto
+        textArea = ComponentsUtil.createInputTextArea();
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Panel de Botones
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPrimary = ComponentsUtil.createButton(primaryBtnText);
+        btnSecondary = new JButton();
+        buttonPanel.add(btnPrimary);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
 }

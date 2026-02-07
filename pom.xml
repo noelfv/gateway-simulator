@@ -255,7 +255,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>libs/</classpathPrefix>
-              <mainClass>com.bbva.gui.ParserGUIMain</mainClass>
+              <mainClass>com.bbva.gui.ParserGUIMain2</mainClass>
             </manifest>
           </archive>
         </configuration>
