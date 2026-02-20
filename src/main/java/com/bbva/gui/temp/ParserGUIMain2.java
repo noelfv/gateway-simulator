@@ -1,4 +1,4 @@
-package com.bbva.gui;
+package com.bbva.gui.temp;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.gui.panels.*;

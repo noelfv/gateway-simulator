@@ -3,6 +3,9 @@ package com.bbva.gui.utils;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
+
+import static com.bbva.gui.utils.ComponentsUtil.*;
 
 public class SwingUtils {
     /**
@@ -17,6 +20,8 @@ public class SwingUtils {
 
         JInternalFrame internalFrame = new JInternalFrame(titulo, true, true, true, true);
         internalFrame.setContentPane(panel);
+        aplicarEstiloBBVA(internalFrame);
+        aplicarEstiloDesktop(desktopPane);
 
         int desktopWidth = desktopPane.getWidth();
         int desktopHeight = desktopPane.getHeight();
@@ -38,8 +43,10 @@ public class SwingUtils {
 
     public static JInternalFrame mostrarEnInternalFrame2(JDesktopPane desktopPane, JPanel panel, String titulo) {
         JInternalFrame internalFrame = new JInternalFrame(titulo, true, true, true, true);
+
+        aplicarEstiloBBVA(internalFrame);
+        aplicarEstiloDesktop(desktopPane);
         internalFrame.setContentPane(panel);
-        internalFrame.setBackground(Color.BLUE);
 
         int desktopWidth = desktopPane.getWidth();
         int desktopHeight = desktopPane.getHeight();
@@ -56,6 +63,75 @@ public class SwingUtils {
         internalFrame.setVisible(true);
         desktopPane.add(internalFrame);
         return internalFrame;
+    }
+
+    private static void aplicarEstiloBBVA(JInternalFrame frame) {
+        UIManager.put("InternalFrame.titleAlignment", "LEFT");
+        frame.putClientProperty("JInternalFrame.titleAlignment", SwingConstants.LEFT);
+        frame.setBackground(BBVA_WHITE);
+        frame.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BBVA_NAVY, 1),
+                BorderFactory.createEmptyBorder(4, 4, 4, 4)));
+
+        JComponent content = (JComponent) frame.getContentPane();
+        content.setBackground(BBVA_WHITE);
+        content.setOpaque(true);
+
+        BasicInternalFrameUI ui = (BasicInternalFrameUI) frame.getUI();
+        if (ui != null) {
+            JComponent titlePane = ui.getNorthPane();
+            if (titlePane != null) {
+                titlePane.setBackground(BBVA_NAVY);
+                titlePane.setForeground(BBVA_WHITE);
+                titlePane.setFont(new Font("SansSerif", Font.BOLD, 12));
+                titlePane.setOpaque(true);
+                //alinearTituloIzquierda(titlePane);
+            }
+        }
+    }
+
+    private static void alinearTituloIzquierda(JComponent titlePane) {
+        Component[] comps = titlePane.getComponents();
+        JLabel titleLabel = null;
+        java.util.List<Component> buttons = new java.util.ArrayList<>();
+
+        for (Component c : comps) {
+            if (c instanceof JLabel && titleLabel == null) {
+                titleLabel = (JLabel) c;
+            } else if (c instanceof AbstractButton) {
+                buttons.add(c);
+            }
+        }
+
+        if (titleLabel == null) {
+            titlePane.revalidate();
+            titlePane.repaint();
+            return;
+        }
+
+        titlePane.removeAll();
+        titlePane.setLayout(new BorderLayout(4, 0));
+
+        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 0));
+        titlePane.add(titleLabel, BorderLayout.WEST);
+
+        if (!buttons.isEmpty()) {
+            JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+            buttonsPanel.setOpaque(false);
+            for (Component b : buttons) {
+                buttonsPanel.add(b);
+            }
+            titlePane.add(buttonsPanel, BorderLayout.EAST);
+        }
+
+        titlePane.revalidate();
+        titlePane.repaint();
+    }
+
+    private static void aplicarEstiloDesktop(JDesktopPane desktopPane) {
+        desktopPane.setBackground(BBVA_WHITE);
+        desktopPane.setOpaque(true);
     }
 
 

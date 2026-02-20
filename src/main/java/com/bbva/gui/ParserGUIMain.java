@@ -2,6 +2,9 @@ package com.bbva.gui;
 
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.gui.panels.*;
+import com.bbva.gui.panels.v2.ConvertTramaOriginalViewerPanel;
+import com.bbva.gui.panels.v2.ConvertTramaOriginalVisaViewerPanel;
+import com.bbva.gui.panels.v2.ParseClearViewerPanel;
 import com.bbva.gui.panels.v2.ParseViewerPanel;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
@@ -15,9 +18,12 @@ import java.awt.event.ActionListener;
 public class ParserGUIMain extends JFrame {
 
     private JMenuItem parseMenuItem;
+    private JMenuItem parseClearMenuItem;
     private JMenuItem importarConfiguracionMenuItem;
     private JMenuItem generarTramaEspecificaMenuItem;
     private JMenuItem convertirTramaMenuItem;
+    private JMenuItem convertirTramaOriginalMenuItem;
+    private JMenuItem convertirTramaOriginalVisaMenuItem;
     private JMenuItem convertirIso20022MenuItem;
     private JMenuItem campo48MenuItem;
     private final BeanProviderInstance beanProviderInstance;
@@ -58,13 +64,19 @@ public class ParserGUIMain extends JFrame {
         configurationMenu.setFont(menuFont);
         configurationMenu.setBorder(itemPadding);
         parseMenuItem = new JMenuItem("Parsear mensaje");
+        parseClearMenuItem = new JMenuItem("Parsear mensaje claro");
         importarConfiguracionMenuItem = new JMenuItem("Importar Campos (JSON)");
         generarTramaEspecificaMenuItem = new JMenuItem("Generar trama específica");
         convertirTramaMenuItem = new JMenuItem("Convertir trama");
+        convertirTramaOriginalMenuItem = new JMenuItem("Convertir trama original");
+        convertirTramaOriginalVisaMenuItem = new JMenuItem("Convertir trama original visa");
         convertirIso20022MenuItem = new JMenuItem("Convertir Objeto ISO20022");
         campo48MenuItem = new JMenuItem("Campo 48 (TLV)");
         parseMenu.add(parseMenuItem);
+        parseMenu.add(parseClearMenuItem);
         conversionMenu.add(convertirTramaMenuItem);
+        conversionMenu.add(convertirTramaOriginalMenuItem);
+        conversionMenu.add(convertirTramaOriginalVisaMenuItem);
         conversionMenu.add(convertirIso20022MenuItem);
         conversionMenu.add(generarTramaEspecificaMenuItem);
         conversionMenu.add(campo48MenuItem);
@@ -80,7 +92,10 @@ public class ParserGUIMain extends JFrame {
 
     private void actionsMenu() {
         addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(beanProviderInstance), "Parsear mensaje");
+        addInternalFrameMenuAction(parseClearMenuItem, new ParseClearViewerPanel(beanProviderInstance), "Parsear mensaje clear");
         addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel(beanProviderInstance), "Convertir mensaje");
+        addInternalFrameMenuAction(convertirTramaOriginalMenuItem, new ConvertTramaOriginalViewerPanel(beanProviderInstance), "Convertir mensaje original");
+        addInternalFrameMenuAction(convertirTramaOriginalVisaMenuItem, new ConvertTramaOriginalVisaViewerPanel(beanProviderInstance), "Convertir mensaje original visa");
         addInternalFrameMenuAction(convertirIso20022MenuItem, new Transformer20022Panel(beanProviderInstance), "Convertir Objeto ISO20022");
         addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new GenerateTramaISO8583Panel(beanProviderInstance), "Generar Trama Específica");
         addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(beanProviderInstance), "Parsear TLV");

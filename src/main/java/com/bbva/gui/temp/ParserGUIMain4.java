@@ -1,10 +1,10 @@
-package com.bbva.gui;
+package com.bbva.gui.temp;
 
 import com.bbva.gui.components.InputTextPanel;
 import com.bbva.gui.components.OutputTextPanel;
 import com.bbva.gui.components.PanelDoggy;
 import com.bbva.gui.components.TreeStructurePanel;
-import com.bbva.gui.panels.ConverterTramaTextPlainViewerPanel;
+import com.bbva.gui.panels.GenerateTramaISO8583Panel;
 import com.bbva.gui.spring.BeanProviderInstance;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
@@ -14,10 +14,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class ParserGUIMain5 extends JFrame {
+public class ParserGUIMain4 extends JFrame {
+    private JTabbedPane centralTabbedPane;
     private MyDoggyToolWindowManager windowManager;
-    private JPanel centralCardPanel; // El contenedor con CardLayout
-    private CardLayout cardLayout;
     private final BeanProviderInstance beanProviderInstance;
     private JMenuItem parseMenuItem;
     private JMenuItem generarTramaEspecificaMenuItem;
@@ -26,44 +25,24 @@ public class ParserGUIMain5 extends JFrame {
     private OutputTextPanel bottomOutputPanel; // Panel modular para la Consola
 
 
-    public ParserGUIMain5(BeanProviderInstance beanProviderInstance) {
+    public ParserGUIMain4(BeanProviderInstance beanProviderInstance) {
         this.beanProviderInstance = beanProviderInstance;
         initializeComponents();
-        setupEvents();
+        handler();
     }
 
     private void initializeComponents() {
-        setTitle("BBVA Gateway Message Parser");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // ... (Configuración de JFrame)
+        setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        setTitle("Gateway Message Parser");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // 1. Crear el CardLayout y el panel central
-        cardLayout = new CardLayout();
-        centralCardPanel = new JPanel(cardLayout);
-
-        // 2. Crear el Panel Vacío Azul BBVA
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setBackground(new Color(0, 68, 129)); // Azul BBVA
-        centralCardPanel.add(emptyPanel, "EMPTY");
-
-        // 3. Inicializar Paneles laterales
-       /* sideTreePanel = new TreeStructurePanel("Estructura ISO", new JTree());
-        bottomOutputPanel = new OutputTextPanel("Resultado", "Copiar","limpiar");
-
-        // 4. Configurar MyDoggy
-        windowManager = PanelDoggy.setupStructureMyDoggy(sideTreePanel, centralCardPanel, bottomOutputPanel);
-        getContentPane().add(windowManager, BorderLayout.CENTER);*/
-
-        // Mostrar el panel azul por defecto
-        cardLayout.show(centralCardPanel, "EMPTY");
-        setJMenuBar(crearMenuBar());
-    }
-
-
-    private JMenuBar crearMenuBar(){
-        //Crear barra de menú
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(false); // Mantener decoraciones de ventana (barra de título, botones)
+        setLocationRelativeTo(null);
         Font menuFont = new Font("Segoe UI", Font.PLAIN, 14);
         EmptyBorder itemPadding = new EmptyBorder(5, 10, 5, 30);
+
+        //Crear barra de menú
         JMenuBar menuBar = new JMenuBar();
         // Crear items de menú
         JMenu parseMenu = new JMenu("Menu");
@@ -91,45 +70,54 @@ public class ParserGUIMain5 extends JFrame {
         menuBar.add(parseMenu);
         menuBar.add(conversionMenu);
         menuBar.add(configuracionMenu);
-        return menuBar;
+        // Establecer la barra de menú en el frame
+        //m();
+        setJMenuBar(menuBar);
     }
 
 
-    private void setupEvents() {
+    private void m(){
+        // 1. Paneles Globales (Estilo IntelliJ: Compartidos por todas las tabs)
+        sideTreePanel = new TreeStructurePanel("Estructura del Mensaje", new JTree());
+        bottomOutputPanel = new OutputTextPanel("Consola de Resultados", "Copiar","limpiar");
+
+        // 2. Contenedor de Pestañas Central
+        centralTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        centralTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        // Quitar bordes para que parezca integrado
+        centralTabbedPane.setBorder(BorderFactory.createEmptyBorder());
+
+        // 3. Orquestación MyDoggy (Look & Feel IntelliJ)
+        windowManager = PanelDoggy.setupStructureMyDoggy(sideTreePanel, centralTabbedPane, bottomOutputPanel);
+        getContentPane().add(windowManager, BorderLayout.CENTER);
+    }
+
+
+    private void abrirTabParseador() {
+        InputTextPanel parseador = new InputTextPanel("Parseador", "Analizar", "Limpiar");
+        // Lógica de botones aquí...
+        centralTabbedPane.addTab("Parseador Mensaje", parseador);
+        centralTabbedPane.setSelectedComponent(parseador);
+    }
+
+    private void abrirTabGenerador() {
+        // Aquí usarías el frmGenerator que hicimos con el arreglo de campos
+        JPanel generador = new GenerateTramaISO8583Panel(beanProviderInstance);
+        centralTabbedPane.addTab("Generador ISO", generador);
+        centralTabbedPane.setSelectedComponent(generador);
+    }
+
+    private void handler() {
         parseMenuItem.addActionListener(e -> {
-            // 1. Crear el panel de conversión
-           ConverterTramaTextPlainViewerPanel converterPanel =
-                    new ConverterTramaTextPlainViewerPanel(beanProviderInstance);
-           add(converterPanel);
-/*
-            // 2. Agregarlo al CardLayout y mostrarlo
-            centralCardPanel.add(converterPanel, "CONVERTER");
-            cardLayout.show(centralCardPanel, "CONVERTER");
+            // Evitar duplicados si lo deseas, o abrir una nueva tab tipo IntelliJ
+           /* m();
+            ConverterTramaTextPlainViewerPanel panel = new ConverterTramaTextPlainViewerPanel(
+                    beanProviderInstance, sideTreePanel, bottomOutputPanel);*/
 
-            // Revalidar para asegurar que el foco y el layout se refresquen
-            centralCardPanel.revalidate();
-            centralCardPanel.repaint();*/
-            //iniciar();
+           // centralTabbedPane.addTab("Parser: " + (centralTabbedPane.getTabCount() + 1), panel);
+          //  centralTabbedPane.setSelectedComponent(panel);
         });
     }
-
-    public void iniciar() {
-        // Instancias de tus módulos
-        TreeStructurePanel panelArbol = new TreeStructurePanel("Estructura del Mensaje", new JTree());
-        InputTextPanel panelEntrada = new InputTextPanel("Entrada", "Parsear", "Limpiar");
-        OutputTextPanel panelSalida = new OutputTextPanel("Salida", "Copiar","limpiar");
-
-        // Mantienes tus listeners para la funcionalidad
-        panelEntrada.getBtnPrimary().addActionListener(e -> {
-            // Tu lógica de negocio
-        });
-
-        // Orquestación
-        MyDoggyToolWindowManager manager = PanelDoggy.setupStructureMyDoggy(panelArbol, panelEntrada, panelSalida);
-
-        this.add(manager);
-    }
-
     public static MyDoggyToolWindowManager setupStructureMyDoggy(
             TreeStructurePanel tree,
             JTabbedPane centralTabs, // Cambiamos JPanel por JTabbedPane

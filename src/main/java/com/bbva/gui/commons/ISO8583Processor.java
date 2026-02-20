@@ -1,13 +1,17 @@
 package com.bbva.gui.commons;
 
 
+import com.bbva.gui.panels.v2.ConvertTramaOriginalVisaViewerPanel;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
+import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,6 +20,8 @@ import static com.bbva.orchestrator.core.fields.definitions.ISODataType.*;
 
 
 public class ISO8583Processor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ISO8583Processor.class);
 
     public static String buildFromMap(Map<String, String> subFieldsMap) {
         StringBuilder tlvBuilder = new StringBuilder();
@@ -64,7 +70,7 @@ public class ISO8583Processor {
             for (int i = 2; i <= binaryBitMap.length(); i++) {
                 //Se le resta 1, ya que .charAt toma el 0 como la posición inicial
                 if (binaryBitMap.charAt(i-1) == '1') {
-                    ISOField field = MastercardISOField.getById(i);
+                    ISOField field = getById(i);
 
                     if (field == null) {
                         throw new ParserException(createMessageError(i, "There is no mapping available"));
@@ -119,7 +125,8 @@ public class ISO8583Processor {
         } catch (ParserException e) {
             //throw new ParserException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap));
             //throw new ParserLocalException("Cannot parse iso message: " + e.getMessage()+"|"+ ISOUtil.processError(iso, containsSecondaryBitmap),valuesMap);
-            throw new ParserFieldsException("Cannot parse iso message: " + e.getMessage());
+            LOGGER.error("Cannot parse iso message: " ,e.getMessage());
+            return valuesMap;
         }
         return valuesMap;
     }

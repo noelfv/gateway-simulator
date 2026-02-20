@@ -1,4 +1,4 @@
-package com.bbva.gui;
+package com.bbva.gui.temp;
 
 import com.bbva.gui.components.InputTextPanel;
 import com.bbva.gui.components.OutputTextPanel;

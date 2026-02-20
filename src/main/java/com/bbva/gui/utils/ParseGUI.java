@@ -7,13 +7,11 @@ import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
 import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,7 +33,7 @@ public class ParseGUI {
         Map<Integer, DefaultMutableTreeNode> sortedFieldsBitmap2 = new TreeMap<>();
 
         String typeMessage = result.fieldsByDescription().get("messageType");
-        headerNode.add(new DefaultMutableTreeNode("typeMessage : "+ typeMessage));
+        headerNode.add(new DefaultMutableTreeNode(typeMessage));
 
         for (Map.Entry<String, String> entry : result.fieldsById().entrySet()) {
             String field = entry.getKey();
