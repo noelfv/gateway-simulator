@@ -257,6 +257,60 @@ public class PanelDoggy {
         return toolWindowManager;
     }
 
+
+
+    public static MyDoggyToolWindowManager setupStructureMyDoggy2(
+            JtreeOutputPanel treePanel,
+            InputTextPanel inputPanel,
+            OutputTextPanel outputPanel) {
+
+        MyDoggyToolWindowManager toolWindowManager = new MyDoggyToolWindowManager();
+
+        // 1. EL CENTRO: Ahora solo contiene el Panel de Entrada
+        // Ocupará todo el espacio que dejen las ToolWindows laterales
+        toolWindowManager.getContentManager().addContent(
+                "main_editor",
+                "Editor de Tramas ISO",
+                null,
+                inputPanel);
+
+        // 2. EL ÁRBOL: Registrado como ToolWindow a la IZQUIERDA (LEFT)
+        ToolWindow treeTW = toolWindowManager.registerToolWindow(
+                "tree_view",
+                "Estructura ISO",
+                null,
+                treePanel,
+                ToolWindowAnchor.LEFT); // Se ancla a la izquierda
+        // Definimos el ancho específico (ej. 300 píxeles)
+        //treeTW.getTypeDescriptor(DockedTypeDescriptor.class).setDockedVisible(true);
+        DockedTypeDescriptor descriptorTree = (DockedTypeDescriptor) treeTW.getTypeDescriptor(DockedTypeDescriptor.class);
+        if (descriptorTree != null) {
+            descriptorTree.setDockLength(150); // Altura del panel
+            descriptorTree.setPopupMenuEnabled(true);
+        }
+        treeTW.setAvailable(true);
+        treeTW.setVisible(true);
+        treeTW.aggregate(); // Esto ayuda a que ocupe el alto total si es necesario
+
+        // 3. LA SALIDA: Registrada como ToolWindow ABAJO (BOTTOM)
+        ToolWindow outputTW = toolWindowManager.registerToolWindow(
+                "out_console",
+                "Consola de Resultados",
+                null,
+                outputPanel,
+                ToolWindowAnchor.BOTTOM);
+
+        DockedTypeDescriptor descriptorOut = (DockedTypeDescriptor) outputTW.getTypeDescriptor(DockedTypeDescriptor.class);
+        if (descriptorOut != null) {
+            descriptorOut.setDockLength(450); // Altura del panel
+            descriptorOut.setPopupMenuEnabled(true);
+        }
+        outputTW.setAvailable(true);
+        outputTW.setVisible(true);
+
+        return toolWindowManager;
+    }
+
     private static void aplicarEstiloVisual(MyDoggyToolWindowManager manager) {
         // Color Azul BBVA para resaltar la ventana activa
         Color bbvaNavy = new Color(0, 68, 129);

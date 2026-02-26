@@ -1,5 +1,7 @@
 package com.bbva.gui.utils;
 
+import com.bbva.gui.components.InputTextPanel;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -80,5 +82,15 @@ public class ComponentsUtil {
         // Tooltip para guiar al usuario
         rb.setToolTipText("Habilitar/Deshabilitar");
         return rb;
+    }
+
+
+    public static JComboBox<InputTextPanel.ComboItem> createDefaultCardComboBox() {
+        DefaultComboBoxModel<InputTextPanel.ComboItem> model = new DefaultComboBoxModel<>();
+        model.addElement(new InputTextPanel.ComboItem("peer02", "Mastercard"));
+        model.addElement(new InputTextPanel.ComboItem("peer01", "Visa"));
+        JComboBox<InputTextPanel.ComboItem> combo = new JComboBox<>(model);
+        combo.setSelectedIndex(0); // Mastercard visible primero
+        return combo;
     }
 }

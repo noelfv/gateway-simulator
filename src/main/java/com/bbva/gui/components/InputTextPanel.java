@@ -16,7 +16,7 @@ public class InputTextPanel extends JPanel {
     private final JTextArea textArea;
     private final JButton btnPrimary;
     private final JButton btnSecondary;
-    private final JComboBox<ComboItem> comboBox;
+    private JComboBox<ComboItem> comboBox;
 
     public InputTextPanel(String title, String primaryBtnText, String secondaryBtnText) {
         this(title, primaryBtnText, secondaryBtnText, null);
@@ -30,9 +30,9 @@ public class InputTextPanel extends JPanel {
         border.setTitleColor(BBVA_NAVY);
         border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
         setBorder(border);
-
-        this.comboBox = comboBox != null ? comboBox : createDefaultCardComboBox();
-        if (this.comboBox != null) {
+        
+        if (comboBox != null) {
+            this.comboBox = comboBox;
             this.comboBox.setPreferredSize(new Dimension(180, 24));
             this.comboBox.setFont(new Font("SansSerif", Font.PLAIN, 12));
             this.comboBox.setForeground(BBVA_NAVY);
@@ -68,14 +68,7 @@ public class InputTextPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private JComboBox<ComboItem> createDefaultCardComboBox() {
-        DefaultComboBoxModel<ComboItem> model = new DefaultComboBoxModel<>();
-        model.addElement(new ComboItem("peer02", "Mastercard"));
-        model.addElement(new ComboItem("peer01", "Visa"));
-        JComboBox<ComboItem> combo = new JComboBox<>(model);
-        combo.setSelectedIndex(0); // Mastercard visible primero
-        return combo;
-    }
+
 
     @Getter
     public static class ComboItem {
