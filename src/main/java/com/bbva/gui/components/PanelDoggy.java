@@ -10,10 +10,7 @@ import java.awt.*;
 
 public class PanelDoggy {
 
-    public static final Color BBVA_NAVY = new Color(0, 68, 129);  // Azul principal
-    public static final Color BBVA_WHITE = new Color(255, 255, 255);
-    public static final Color BBVA_LIGHT_GRAY = new Color(244, 244, 244);
-    public static final Color BBVA_ACCENT_BLUE = new Color(18, 190, 255);
+
 
 
     public static MyDoggyToolWindowManager setupStructureMyDoggy(JPanel mainPanel,JTree resultTree,JPanel outputPanel) {
@@ -90,7 +87,7 @@ public class PanelDoggy {
         // Configuración del área de texto (Consola)
         inputTextArea.setBackground(new Color(30, 30, 30)); // Fondo oscuro tipo terminal
         // inputTextArea.setBackground(BBVA_WHITE); // Fondo oscuro tipo terminal
-        inputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
+        //inputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
         inputTextArea.setCaretColor(Color.WHITE);
         inputTextArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
         inputTextArea.setLineWrap(true);
@@ -233,10 +230,16 @@ public class PanelDoggy {
                 ToolWindowAnchor.LEFT // Posición estilo IntelliJ
         );
 
+        DockedTypeDescriptor descriptorTree= (DockedTypeDescriptor) treeTW.getTypeDescriptor(ToolWindowType.DOCKED);
+        if (descriptorTree != null) {
+            descriptorTree.setDockLength(240); // Altura del panel
+            // descriptorTree.setPopupMenuEnabled(true);
+            descriptorTree.setIdVisibleOnTitleBar(false);
+        }
         // Propiedades para que se vea y anime como un IDE
         treeTW.setAvailable(true);
         treeTW.setVisible(true);
-        treeTW.setType(ToolWindowType.DOCKED); // Anclado por defecto
+        //treeTW.setType(ToolWindowType.DOCKED); // Anclado por defecto
 
         // 4. CONFIGURAR LA CONSOLA (ToolWindow Inferior)
         ToolWindow outputTW = toolWindowManager.registerToolWindow(
@@ -246,10 +249,17 @@ public class PanelDoggy {
                 outputPanel,
                 ToolWindowAnchor.BOTTOM // Posición inferior
         );
+        //DockedTypeDescriptor descriptorOut = (DockedTypeDescriptor) outputTW.getTypeDescriptor(DockedTypeDescriptor.class);
+        DockedTypeDescriptor descriptorOut = (DockedTypeDescriptor) outputTW.getTypeDescriptor(ToolWindowType.DOCKED);
+        if (descriptorOut != null) {
+            descriptorOut.setDockLength(320); // Altura del panel
+           // descriptorOut.setPopupMenuEnabled(true);
+            descriptorOut.setIdVisibleOnTitleBar(false);
+        }
 
         outputTW.setAvailable(true);
-        outputTW.setVisible(true);
-        outputTW.setType(ToolWindowType.DOCKED);
+        //outputTW.setVisible(true);
+        //outputTW.setType(ToolWindowType.DOCKED);
 
         // 5. PERSONALIZACIÓN VISUAL (Look & Feel)
         aplicarEstiloVisual(toolWindowManager);

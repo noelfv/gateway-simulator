@@ -1,15 +1,17 @@
 package com.bbva.gui.utils;
 
 import com.bbva.gui.components.InputTextPanel;
+import com.bbva.gui.enums.FontType;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
 public class ComponentsUtil {
     // Paleta de colores oficial
     public static final Color BBVA_NAVY = new Color(0, 68, 129);  // Azul principal
     public static final Color BBVA_WHITE = new Color(255, 255, 255);
-    public static final Color BBVA_LIGHT_GRAY = new Color(230, 234, 255);
+    public static final Color BBVA_LIGHT_GRAY = new Color(244, 244, 244);
     public static final Color BBVA_ACCENT_BLUE = new Color(18, 190, 255); // Azul brillante para acentos
     public static final Color BBVA_BLACK= new Color(40, 40, 50); // Azul brillante para acentos
 
@@ -20,7 +22,7 @@ public class ComponentsUtil {
                 BorderFactory.createEmptyBorder(2, 5, 2, 5)));
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
-        inputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        inputTextArea.setFont(new Font(FontType.GEORGIA, Font.PLAIN, 10));
         inputTextArea.setBackground(BBVA_WHITE);
         return inputTextArea;
     }
@@ -30,19 +32,29 @@ public class ComponentsUtil {
         outputTextArea.setBackground(BBVA_BLACK); // Fondo oscuro tipo terminal
         outputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
         outputTextArea.setCaretColor(Color.WHITE);
-        outputTextArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        outputTextArea.setFont(new Font(FontType.GEORGIA, Font.PLAIN, 10));
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
         return outputTextArea;
     }
 
+    public static JTree createJTree(DefaultTreeModel treeModel) {
+        JTree resultTree = new JTree(treeModel);
+        resultTree.setFont(new Font(FontType.ALGERIAN, Font.PLAIN, 10));
+        resultTree.setBackground(BBVA_LIGHT_GRAY);
+        //resultTree.setEditable(true);
+        resultTree.setForeground(BBVA_ACCENT_BLUE);
+        resultTree.setVerifyInputWhenFocusTarget(true);
+        resultTree.setRootVisible(true);
+        return resultTree;
+    }
 
     public static JButton createButton(String text) {
         JButton jButton = new JButton(text);
         jButton.setBackground(BBVA_NAVY);
         jButton.setForeground(BBVA_WHITE);
         jButton.setFocusPainted(false);
-        jButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+        jButton.setFont(new Font("SansSerif", Font.BOLD, 11));
         jButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         jButton.setBorder(BorderFactory.createEmptyBorder(8, 25, 8, 25));
         return jButton;
@@ -55,7 +67,7 @@ public class ComponentsUtil {
         jButton.setBackground(BBVA_NAVY);
         jButton.setForeground(BBVA_WHITE);
         jButton.setFocusPainted(false);
-        jButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+        jButton.setFont(new Font("SansSerif", Font.BOLD, 11));
         jButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         jButton.setBorder(BorderFactory.createEmptyBorder(8, 25, 8, 25));
         return jButton;
@@ -67,7 +79,7 @@ public class ComponentsUtil {
         JRadioButton rb = new JRadioButton(text,selected);
         rb.setBackground(BBVA_WHITE);
         rb.setForeground(BBVA_NAVY);
-        rb.setFont(new Font("SansSerif", Font.BOLD, 13));
+        rb.setFont(new Font("SansSerif", Font.BOLD, 12));
 
         // Quitar el foco pintado (el cuadro punteado al hacer clic)
         rb.setFocusPainted(false);

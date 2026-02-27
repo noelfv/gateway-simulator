@@ -46,14 +46,18 @@ public class SwingUtils {
 
         aplicarEstiloBBVA(internalFrame);
         aplicarEstiloDesktop(desktopPane);
-        internalFrame.setContentPane(panel);
+        //internalFrame.setContentPane(panel);
 
         int desktopWidth = desktopPane.getWidth();
         int desktopHeight = desktopPane.getHeight();
 
-        int frameWidth = (int) (desktopWidth * 0.49);
+        int frameWidth = (int) (desktopWidth * 0.7);
         int frameHeight = (int) (desktopHeight * 0.8);
 
+        //internalFrame.setSize(frameWidth, frameHeight);
+
+        panel.setPreferredSize(new Dimension(frameWidth, frameHeight)); // Ajusta el tamaño preferido del panel
+        internalFrame.setContentPane(panel);
         internalFrame.setSize(frameWidth, frameHeight);
 
         int x = (desktopWidth - frameWidth) / 2;

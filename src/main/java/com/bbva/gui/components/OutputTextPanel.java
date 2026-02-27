@@ -6,6 +6,7 @@ import lombok.Getter;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.Arrays;
 
 import static com.bbva.gui.utils.ComponentsUtil.BBVA_NAVY;
 
