@@ -1,13 +1,9 @@
 package com.bbva.gui;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.gui.panels.ConfigurationViewerPanel;
-import com.bbva.gui.panels.TLVParseViewerPanel;
-import com.bbva.gui.panels.Transformer20022Panel;
-import com.bbva.gui.panels.v2.*;
+import com.bbva.gui.panels.*;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

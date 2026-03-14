@@ -1,4 +1,4 @@
-package com.bbva.gui.panels.v2;
+package com.bbva.gui.panels;
 
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.InputTextPanel;

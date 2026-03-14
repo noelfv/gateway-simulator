@@ -1,10 +1,9 @@
-package com.bbva.gui.panels.v2;
+package com.bbva.gui.panels;
 
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.components.InputTextPanel;
 import com.bbva.gui.components.OutputTextPanel;
 import com.bbva.gui.components.PanelDoggy;
-import com.bbva.gui.panels.AbstractBasePanel;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;

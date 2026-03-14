@@ -1,18 +1,14 @@
 package com.bbva.gui.commons;
 
 
-import com.bbva.gui.panels.v2.ConvertTramaOriginalVisaViewerPanel;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
-import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import com.bbva.orchlib.parser.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static com.bbva.orchestrator.core.fields.MastercardISOField.*;
