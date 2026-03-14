@@ -26,24 +26,21 @@ import java.util.List;
 import static com.bbva.gui.utils.ComponentsUtil.*;
 
 
-public class GenerateTramaISO8583Panel2 extends JPanel {
+public class GenerateTramaISO8583Panel extends JPanel {
 
     // Usamos estructuras de datos para evitar declarar 192 variables manuales
     private final Map<Integer, JCheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, JTextField> textFields = new TreeMap<>();
     //private final Map<Integer, JRadioButton> radioButtons = new TreeMap<>();
     private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14,15,16,18,20,22,26,32,33,34,35,37,38,39,41,42,43,48,49,50,51,52,54,55,60,61,62,63,73,95,104,112,120,127);
-    private final Set<Integer> camposMandatoriosCompras= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
-    private final Set<Integer> camposMandatoriosBilletera= new HashSet<>(Arrays.asList(2, 3, 4, 7, 25,32));
-    private final Set<Integer> camposMandatoriosRetiros= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 41,42));
     private JButton procesarButton ;
-    private JComboBox<String> tipoOperacionComboBox;
     private  JTextArea outputTextArea;
     private final ParserFactory parserFactory;
 
-    public GenerateTramaISO8583Panel2(BeanProviderInstance beanProviderInstance) {
+    public GenerateTramaISO8583Panel(BeanProviderInstance beanProviderInstance) {
         this.parserFactory = beanProviderInstance.parserFactory();
         initializeComponents();
+        //createPanelsLayout();
         setupEventHandlers();
     }
 
@@ -72,9 +69,6 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
         // 2. Panel superior para acciones
         procesarButton=ComponentsUtil.createButton("Procesar","procesar");
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        tipoOperacionComboBox = new JComboBox<>(new String[]{"Compras", "Billetera", "Retiros"});
-        tipoOperacionComboBox.setPreferredSize(new Dimension(140, 25));
-        headerPanel.add(tipoOperacionComboBox);
         headerPanel.add(procesarButton);
 
         // 3. Unir todo en un contenedor intermedio
@@ -86,6 +80,11 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
         setupMyDoggy(mainContent);
     }
 
+    private void createPanelsLayout() {
+        //MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel(), resultTree, createOutputPanel());
+        MyDoggyToolWindowManager toolWindowManager = PanelDoggy.setupStructureMyDoggy(createMainPanel("Hola",camposPermitidos), createOutputPanel());
+        add(toolWindowManager, BorderLayout.CENTER);
+    }
 
     private JPanel createMainPanel(String titulo, List<Integer> campos) {
         if (campos.isEmpty()) return new JPanel();
@@ -112,9 +111,6 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
             JCheckBox chk = new JCheckBox(fieldName, false);
             chk.setBackground(BBVA_WHITE);
             chk.setForeground(BBVA_NAVY);
-            if (camposMandatoriosCompras.contains(i)) {
-                chk.setSelected(true);
-            }
             checkBoxes.put(i, chk);
 
             JTextField txt = new JTextField(getDefaultValue(i));
@@ -223,7 +219,6 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
 
     private void setupEventHandlers() {
         procesarButton.addActionListener(this::procesarTrama);
-        tipoOperacionComboBox.addActionListener(e -> actualizarValoresPorDefecto());
     }
 
     private void procesarTrama(ActionEvent e) {
@@ -310,88 +305,24 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
         return true;
     }
 
-    // Centralizamos los valores por defecto según tipo de operación
+    // Centralizamos los valores por defecto
     private String getDefaultValue(int i) {
-        String tipo = tipoOperacionComboBox != null && tipoOperacionComboBox.getSelectedItem() != null
-                ? tipoOperacionComboBox.getSelectedItem().toString()
-                : "Compras";
-
         //format MMDDHHMMSS
-        return switch (tipo) {
-            case "Billetera" -> switch (i) {
-                case 2 -> "5536508888888888";
-                case 3 -> "311000";       // Código ejemplo billetera
-                case 4 -> "50.00";
-                case 5 -> "100.00";
-                case 6 -> "150.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 8, 9, 10 -> "00000000";
-                case 11 -> String.format("%06d", new java.util.Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                case 15 -> "0610";
-                default -> "";
-            };
-            case "Retiros" -> switch (i) {
-                case 2 -> "5536507777777777";
-                case 3 -> "010000";       // Código ejemplo retiros
-                case 4 -> "200.00";
-                case 5 -> "400.00";
-                case 6 -> "600.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 8, 9, 10 -> "00000000";
-                case 11 -> String.format("%06d", new java.util.Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                case 15 -> "0610";
-                default -> "";
-            };
-            // Compras (por defecto)
-            default -> switch (i) {
-                case 2 -> "5536509999999999";
-                case 3 -> "000000";
-                case 4 -> "100.00";
-                case 5 -> "200.00";
-                case 6 -> "300.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 8, 9, 10 -> "00000000";
-                case 11 -> String.format("%06d", new java.util.Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                case 15 -> "0610";
-                default -> "";
-            };
+        return switch (i) {
+            case 2 -> "5536509999999999";
+            case 3 -> "000000";
+            case 4 -> "100.00";
+            case 5 -> "200.00";
+            case 6 -> "300.00";
+            case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
+            case 8, 9, 10 -> "00000000";
+            case 11 -> String.format("%06d", new java.util.Random().nextInt(1000000));
+            case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
+            case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
+            case 14 -> "2701";
+            case 15 -> "0610";
+            default -> "";
         };
-    }
-
-    private void actualizarValoresPorDefecto() {
-        // Determinar lista de campos mandatorios según el tipo seleccionado
-        String tipo = tipoOperacionComboBox != null && tipoOperacionComboBox.getSelectedItem() != null
-                ? tipoOperacionComboBox.getSelectedItem().toString()
-                : "Compras";
-
-        Set<Integer> mandatoriosActuales = switch (tipo) {
-            case "Billetera" -> camposMandatoriosBilletera;
-            case "Retiros" -> camposMandatoriosRetiros;
-            default -> camposMandatoriosCompras;
-        };
-
-        for (Integer campo : camposPermitidos) {
-            // Actualizar valores por defecto si el campo no está en modo edición
-            JTextField txt = textFields.get(campo);
-            if (txt != null && !txt.isEditable()) {
-                txt.setText(getDefaultValue(campo));
-            }
-
-            // Actualizar selección de checkboxes según mandatorios
-            JCheckBox chk = checkBoxes.get(campo);
-            if (chk != null) {
-                chk.setSelected(mandatoriosActuales.contains(campo));
-            }
-        }
     }
 
 
