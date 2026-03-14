@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(while read:*)",
+      "Bash(do echo:*)",
+      "Read(//d/home/bbva/gateway/simuladores/claude/gateway-simulator/**)",
+      "Bash(done)"
+    ]
+  }
+}

@@ -255,7 +255,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>libs/</classpathPrefix>
-              <mainClass>com.bbva.gui.temp.ParserGUIMain2</mainClass>
+              <mainClass>com.bbva.SwingApplication</mainClass>
             </manifest>
           </archive>
         </configuration>

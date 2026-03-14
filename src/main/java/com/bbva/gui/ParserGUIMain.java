@@ -1,18 +1,16 @@
 package com.bbva.gui;
 
 import com.bbva.gateway.utils.LogsTraces;
-import com.bbva.gui.panels.*;
-import com.bbva.gui.panels.v2.ConvertTramaOriginalViewerPanel;
-import com.bbva.gui.panels.v2.ConvertTramaOriginalVisaViewerPanel;
-import com.bbva.gui.panels.v2.ParseClearViewerPanel;
-import com.bbva.gui.panels.v2.ParseViewerPanel;
+import com.bbva.gui.panels.ConfigurationViewerPanel;
+import com.bbva.gui.panels.TLVParseViewerPanel;
+import com.bbva.gui.panels.Transformer20022Panel;
+import com.bbva.gui.panels.v2.*;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.SwingUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 
 public class ParserGUIMain extends JFrame {
@@ -42,27 +40,28 @@ public class ParserGUIMain extends JFrame {
         setUndecorated(false);
         setLocationRelativeTo(null);
         JDesktopPane desktopPane = new JDesktopPane();
-        //desktopPane.setBackground(Color.BLACK);
         setContentPane(desktopPane);
         setJMenuBar(createMenuBar());
     }
 
-
     private JMenuBar createMenuBar() {
-        //Font menuFont = new Font("Segoe UI", Font.PLAIN, 14);
-        Font menuFont =new Font("SansSerif", Font.BOLD, 12);
+        Font menuFont = new Font("SansSerif", Font.BOLD, 12);
         EmptyBorder itemPadding = new EmptyBorder(5, 10, 5, 30);
         JMenuBar menuBar = new JMenuBar();
         menuBar.setBorder(new EmptyBorder(5, 10, 5, 10));
+
         JMenu parseMenu = new JMenu("Parsear");
         parseMenu.setFont(menuFont);
         parseMenu.setBorder(itemPadding);
+
         JMenu conversionMenu = new JMenu("Conversion");
         conversionMenu.setFont(menuFont);
         conversionMenu.setBorder(itemPadding);
+
         JMenu configurationMenu = new JMenu("Configuración");
         configurationMenu.setFont(menuFont);
         configurationMenu.setBorder(itemPadding);
+
         parseMenuItem = new JMenuItem("Parsear mensaje");
         parseClearMenuItem = new JMenuItem("Parsear mensaje claro");
         importarConfiguracionMenuItem = new JMenuItem("Importar Campos (JSON)");
@@ -72,6 +71,7 @@ public class ParserGUIMain extends JFrame {
         convertirTramaOriginalVisaMenuItem = new JMenuItem("Convertir trama original visa");
         convertirIso20022MenuItem = new JMenuItem("Convertir Objeto ISO20022");
         campo48MenuItem = new JMenuItem("Campo 48 (TLV)");
+
         parseMenu.add(parseMenuItem);
         parseMenu.add(parseClearMenuItem);
         conversionMenu.add(convertirTramaMenuItem);
@@ -89,45 +89,41 @@ public class ParserGUIMain extends JFrame {
         return menuBar;
     }
 
-
     private void actionsMenu() {
         addInternalFrameMenuAction(parseMenuItem, new ParseViewerPanel(beanProviderInstance), "Parsear mensaje");
         addInternalFrameMenuAction(parseClearMenuItem, new ParseClearViewerPanel(beanProviderInstance), "Parsear mensaje clear");
-        addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel(beanProviderInstance), "Convertir mensaje");
+        addInternalFrameMenuAction(convertirTramaMenuItem, new ConverterTramaTextPlainViewerPanel2(beanProviderInstance), "Convertir mensaje");
         addInternalFrameMenuAction(convertirTramaOriginalMenuItem, new ConvertTramaOriginalViewerPanel(beanProviderInstance), "Convertir mensaje original");
         addInternalFrameMenuAction(convertirTramaOriginalVisaMenuItem, new ConvertTramaOriginalVisaViewerPanel(beanProviderInstance), "Convertir mensaje original visa");
         addInternalFrameMenuAction(convertirIso20022MenuItem, new Transformer20022Panel(beanProviderInstance), "Convertir Objeto ISO20022");
-        addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new GenerateTramaISO8583Panel(beanProviderInstance), "Generar Trama Específica");
+        addInternalFrameMenuAction(generarTramaEspecificaMenuItem, new GenerateTramaISO8583Panel2(beanProviderInstance), "Generar Trama Específica");
         addInternalFrameMenuAction(campo48MenuItem, new TLVParseViewerPanel(beanProviderInstance), "Parsear TLV");
-        addInternalFrameMenuAction(importarConfiguracionMenuItem, new ConfigurationViewerPanel(beanProviderInstance), "Configuration"); // Solo abre diálogo
+        addInternalFrameMenuAction(importarConfiguracionMenuItem, new ConfigurationViewerPanel(beanProviderInstance), "Configuration");
     }
 
     private void addInternalFrameMenuAction(JMenuItem menuItem, JPanel panel, String title) {
-        menuItem.addActionListener(new ActionListener() {
-            private JInternalFrame internalFrame;
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JDesktopPane desktopPane = (JDesktopPane) getContentPane();
-                if (internalFrame == null || internalFrame.isClosed()) {
-                    internalFrame = SwingUtils.mostrarEnInternalFrame2(desktopPane, panel, title);
-                    try {
-                        internalFrame.setSelected(true);
-                        internalFrame.toFront();
-                        desktopPane.revalidate();
-                        desktopPane.repaint();
-                    } catch (java.beans.PropertyVetoException ex) {
-                        LogsTraces.writeWarning(ex.getMessage());
-                    }
-                } else {
-                    try {
-                        internalFrame.setIcon(false);
-                        internalFrame.setSelected(true);
-                        internalFrame.toFront();
-                        desktopPane.revalidate();
-                        desktopPane.repaint();
-                    } catch (Exception ex) {
-                        LogsTraces.writeWarning(ex.getMessage());
-                    }
+        JInternalFrame[] frameHolder = {null};
+        menuItem.addActionListener(e -> {
+            JDesktopPane desktopPane = (JDesktopPane) getContentPane();
+            if (frameHolder[0] == null || frameHolder[0].isClosed()) {
+                frameHolder[0] = SwingUtils.mostrarEnInternalFrame2(desktopPane, panel, title);
+                try {
+                    frameHolder[0].setSelected(true);
+                    frameHolder[0].toFront();
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } catch (java.beans.PropertyVetoException ex) {
+                    LogsTraces.writeWarning(ex.getMessage());
+                }
+            } else {
+                try {
+                    frameHolder[0].setIcon(false);
+                    frameHolder[0].setSelected(true);
+                    frameHolder[0].toFront();
+                    desktopPane.revalidate();
+                    desktopPane.repaint();
+                } catch (Exception ex) {
+                    LogsTraces.writeWarning(ex.getMessage());
                 }
             }
         });
