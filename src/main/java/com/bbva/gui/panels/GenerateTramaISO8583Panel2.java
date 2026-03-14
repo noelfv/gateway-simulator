@@ -35,7 +35,7 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
     private final Map<Integer, JTextField> textFields = new TreeMap<>();
     //private final Map<Integer, JRadioButton> radioButtons = new TreeMap<>();
     // Listas por tipo de operación: solo los campos relacionados a cada uno (carga inicial)
-    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
+    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13,14,19,20,25));
     private final List<Integer> listBilletera = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 25, 32));
     private final List<Integer> listRetiros = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 41, 42));
     private JPanel mainContentPanel;
@@ -44,6 +44,7 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
     private  Set<Integer> camposMandatoriosRetiros= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 41,42));
     private JButton procesarButton ;
     private JComboBox<String> tipoOperacionComboBox;
+    private JComboBox<String> procesarComboBox;
     private  JTextArea outputTextArea;
     private final ParserFactory parserFactory;
 
@@ -84,15 +85,27 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
     }
 
     private JPanel createHeaderPanel() {
-        procesarButton = ComponentsUtil.createButton("Procesar", "procesar");
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        tipoOperacionComboBox = new JComboBox<>(new String[]{"Compras", "Billetera", "Retiros"});
-        tipoOperacionComboBox.setSelectedItem("Compras");
-        tipoOperacionComboBox.setPreferredSize(new Dimension(140, 25));
-        headerPanel.add(tipoOperacionComboBox);
-        headerPanel.add(procesarButton);
+        procesarComboBox=ComponentsUtil.createComboBox(new String[]{"Mastercard", "Visa"}, "Mastercard");
+        tipoOperacionComboBox = ComponentsUtil.createComboBox(new String[]{"Compras", "Billetera", "Retiros"},"Compras");
+
+        JLabel lblProcesar = new JLabel("Marca:");
+        lblProcesar.setLabelFor(procesarComboBox);
+        JLabel lblTipoOperacion = new JLabel("Tipo de operación:");
+        lblTipoOperacion.setLabelFor(tipoOperacionComboBox);
+        
+
+        JPanel leftPanel = new JPanel(new GridLayout(2, 2, 8, 6));
+        leftPanel.add(lblProcesar);
+        leftPanel.add(procesarComboBox);
+        leftPanel.add(lblTipoOperacion);
+        leftPanel.add(tipoOperacionComboBox);
+       
+
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        headerPanel.add(leftPanel);
+
         TitledBorder border = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(BBVA_NAVY, 1), "Tipo de operación");
+                BorderFactory.createLineBorder(BBVA_NAVY, 1), "Opciones");
         border.setTitleColor(BBVA_NAVY);
         border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
         border.setTitlePosition(TitledBorder.TOP);
@@ -119,12 +132,15 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
                 ));
             }
         }
-
+        procesarButton = ComponentsUtil.createButton("Procesar", "procesar");
+        procesarButton.addActionListener(this::procesarTrama);
         JButton btnAgregarCampo = ComponentsUtil.createButton("Agregar campo", "Agregar un nuevo campo");
+        btnAgregarCampo.setBackground(Color.GREEN);
         btnAgregarCampo.addActionListener(e -> mostrarDialogoAgregarCampo());
 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         topBar.add(btnAgregarCampo);
+        topBar.add(procesarButton);
 
         JPanel wrapper = new JPanel(new BorderLayout(0, 6));
         wrapper.add(topBar, BorderLayout.NORTH);
@@ -226,8 +242,8 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
             txt.setBackground(BBVA_ACCENT_BLUE);
             txt.setEnabled(false);
             txt.setEditable(false);
+            txt.setSize(new Dimension(260, 25));
             textFields.put(i, txt);
-
             JRadioButton rb = new JRadioButton("Edit", false);
             rb.setBackground(BBVA_WHITE);
             rb.setFont(new Font("SansSerif", Font.PLAIN, 10));
@@ -296,7 +312,6 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
 
 
     private void setupEventHandlers() {
-        procesarButton.addActionListener(this::procesarTrama);
         tipoOperacionComboBox.addActionListener(e -> {
             refreshPanelCampos();
             actualizarValoresPorDefecto();

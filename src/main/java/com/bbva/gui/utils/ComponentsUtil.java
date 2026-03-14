@@ -105,4 +105,14 @@ public class ComponentsUtil {
         combo.setSelectedIndex(0); // Mastercard visible primero
         return combo;
     }
+
+
+    public static JComboBox<String> createComboBox(String[] items,String itemSeleccionado) {
+        JComboBox<String> combo = new JComboBox<>(items);
+        //combo.setSelectedIndex(0); // Mastercard visible primero
+        combo.setSelectedItem(itemSeleccionado);
+        combo.setPreferredSize(new Dimension(140, 25));
+        return combo;
+    }
+
 }
