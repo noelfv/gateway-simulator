@@ -1,6 +1,6 @@
 package com.bbva.gui.panels;
 
-import com.bbva.gui.components.PanelDoggy;
+
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.ComponentsUtil;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
@@ -13,15 +13,17 @@ import org.noos.xing.mydoggy.DockedTypeDescriptor;
 import org.noos.xing.mydoggy.ToolWindow;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.ArrayList;
 
 import static com.bbva.gui.utils.ComponentsUtil.*;
 
@@ -32,10 +34,14 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
     private final Map<Integer, JCheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, JTextField> textFields = new TreeMap<>();
     //private final Map<Integer, JRadioButton> radioButtons = new TreeMap<>();
-    private final List<Integer> camposPermitidos = Arrays.asList(2, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14,15,16,18,20,22,26,32,33,34,35,37,38,39,41,42,43,48,49,50,51,52,54,55,60,61,62,63,73,95,104,112,120,127);
-    private final Set<Integer> camposMandatoriosCompras= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
-    private final Set<Integer> camposMandatoriosBilletera= new HashSet<>(Arrays.asList(2, 3, 4, 7, 25,32));
-    private final Set<Integer> camposMandatoriosRetiros= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 41,42));
+    // Listas por tipo de operación: solo los campos relacionados a cada uno (carga inicial)
+    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
+    private final List<Integer> listBilletera = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 25, 32));
+    private final List<Integer> listRetiros = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 41, 42));
+    private JPanel mainContentPanel;
+    private Set<Integer> camposMandatoriosCompras= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
+    private  Set<Integer> camposMandatoriosBilletera= new HashSet<>(Arrays.asList(2, 3, 4, 7, 25,32));
+    private  Set<Integer> camposMandatoriosRetiros= new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 41,42));
     private JButton procesarButton ;
     private JComboBox<String> tipoOperacionComboBox;
     private  JTextArea outputTextArea;
@@ -49,19 +55,64 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
 
 
     private void initializeComponents() {
-        // 1. Crear el panel de campos usando TableLayout
+        mainContentPanel = new JPanel(new BorderLayout());
+        mainContentPanel.add(createHeaderPanel(), BorderLayout.NORTH);
+        mainContentPanel.add(new JScrollPane(createPanelCampos()), BorderLayout.CENTER);
+        setupMyDoggy(mainContentPanel);
+    }
+
+    private List<Integer> getCamposActuales() {
+        String tipo = tipoOperacionComboBox != null && tipoOperacionComboBox.getSelectedItem() != null
+                ? tipoOperacionComboBox.getSelectedItem().toString()
+                : "Compras";
+        return switch (tipo) {
+            case "Billetera" -> listBilletera;
+            case "Retiros" -> listRetiros;
+            default -> listCompras;
+        };
+    }
+
+    private Set<Integer> getMandatoriosActuales() {
+        String tipo = tipoOperacionComboBox != null && tipoOperacionComboBox.getSelectedItem() != null
+                ? tipoOperacionComboBox.getSelectedItem().toString()
+                : "Compras";
+        return switch (tipo) {
+            case "Billetera" -> camposMandatoriosBilletera;
+            case "Retiros" -> camposMandatoriosRetiros;
+            default -> camposMandatoriosCompras;
+        };
+    }
+
+    private JPanel createHeaderPanel() {
+        procesarButton = ComponentsUtil.createButton("Procesar", "procesar");
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        tipoOperacionComboBox = new JComboBox<>(new String[]{"Compras", "Billetera", "Retiros"});
+        tipoOperacionComboBox.setSelectedItem("Compras");
+        tipoOperacionComboBox.setPreferredSize(new Dimension(140, 25));
+        headerPanel.add(tipoOperacionComboBox);
+        headerPanel.add(procesarButton);
+        TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(BBVA_NAVY, 1), "Tipo de operación");
+        border.setTitleColor(BBVA_NAVY);
+        border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
+        border.setTitlePosition(TitledBorder.TOP);
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(6, 8, 6, 8)));
+        return headerPanel;
+    }
+
+    private JPanel createPanelCampos() {
+        checkBoxes.clear();
+        textFields.clear();
+        List<Integer> camposActuales = getCamposActuales();
         JPanel panelCampos = new JPanel(new GridLayout(1, 3, 10, 0));
-        // Distribuir campos equitativamente en 3 columnas
-        int totalCampos = camposPermitidos.size();
+        int totalCampos = camposActuales.size();
         int camposPorColumna = (int) Math.ceil(totalCampos / 3.0);
 
         for (int col = 0; col < 3; col++) {
             int inicio = col * camposPorColumna;
             int fin = Math.min(inicio + camposPorColumna, totalCampos);
-
             if (inicio < totalCampos) {
-                // Obtener los campos correspondientes a esta columna
-                List<Integer> camposColumna = camposPermitidos.subList(inicio, fin);
+                List<Integer> camposColumna = camposActuales.subList(inicio, fin);
                 panelCampos.add(createMainPanel(
                         String.format("Bloque %d", col + 1),
                         camposColumna
@@ -69,23 +120,73 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
             }
         }
 
-        // 2. Panel superior para acciones
-        procesarButton=ComponentsUtil.createButton("Procesar","procesar");
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        tipoOperacionComboBox = new JComboBox<>(new String[]{"Compras", "Billetera", "Retiros"});
-        tipoOperacionComboBox.setPreferredSize(new Dimension(140, 25));
-        headerPanel.add(tipoOperacionComboBox);
-        headerPanel.add(procesarButton);
+        JButton btnAgregarCampo = ComponentsUtil.createButton("Agregar campo", "Agregar un nuevo campo");
+        btnAgregarCampo.addActionListener(e -> mostrarDialogoAgregarCampo());
 
-        // 3. Unir todo en un contenedor intermedio
-        JPanel mainContent = new JPanel(new BorderLayout());
-        mainContent.add(headerPanel, BorderLayout.NORTH);
-        mainContent.add(new JScrollPane(panelCampos), BorderLayout.CENTER);
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        topBar.add(btnAgregarCampo);
 
-        // 4. Inyectar en MyDoggy para manejo de ventanas pro
-        setupMyDoggy(mainContent);
+        JPanel wrapper = new JPanel(new BorderLayout(0, 6));
+        wrapper.add(topBar, BorderLayout.NORTH);
+        wrapper.add(panelCampos, BorderLayout.CENTER);
+
+        TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(BBVA_NAVY, 1), "Campos ISO-8583");
+        border.setTitleColor(BBVA_NAVY);
+        border.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
+        border.setTitlePosition(TitledBorder.TOP);
+        wrapper.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(6, 8, 6, 8)));
+        return wrapper;
     }
 
+    private void refreshPanelCampos() {
+        if (mainContentPanel == null) return;
+        mainContentPanel.remove(1);
+        mainContentPanel.add(new JScrollPane(createPanelCampos()), BorderLayout.CENTER);
+        mainContentPanel.revalidate();
+        mainContentPanel.repaint();
+    }
+
+    private void mostrarDialogoAgregarCampo() {
+        JTextField txtNumero = new JTextField(10);
+        txtNumero.setToolTipText("Ingrese el número de campo (ej: 2, 3, 48)");
+        txtNumero.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                txtNumero.requestFocusInWindow();
+            }
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {}
+            @Override
+            public void ancestorMoved(AncestorEvent event) {}
+        });
+        Object[] message = {"Número de campo:", txtNumero};
+        int option = JOptionPane.showConfirmDialog(this, message, "Agregar campo",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.OK_OPTION) {
+            String valor = txtNumero.getText();
+            if (valor != null && !valor.isBlank()) {
+                try {
+                    int numero = Integer.parseInt(valor.trim());
+                    List<Integer> listaActual = getCamposActuales();
+                    if (listaActual.contains(numero)) {
+                        JOptionPane.showMessageDialog(this, "El campo " + numero + " ya está en la lista.",
+                                "Agregar campo", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        listaActual.add(numero);
+                        Collections.sort(listaActual);
+                        refreshPanelCampos();
+                        actualizarValoresPorDefecto();
+                        JOptionPane.showMessageDialog(this, "Campo " + numero + " agregado.",
+                                "Agregar campo", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Debe ingresar un número válido.",
+                            "Agregar campo", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        }
+    }
 
     private JPanel createMainPanel(String titulo, List<Integer> campos) {
         if (campos.isEmpty()) return new JPanel();
@@ -112,7 +213,7 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
             JCheckBox chk = new JCheckBox(fieldName, false);
             chk.setBackground(BBVA_WHITE);
             chk.setForeground(BBVA_NAVY);
-            if (camposMandatoriosCompras.contains(i)) {
+            if (getMandatoriosActuales().contains(i)) {
                 chk.setSelected(true);
             }
             checkBoxes.put(i, chk);
@@ -144,33 +245,6 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
         }
 
         return panel;
-    }
-
-    private JPanel createOutputPanel() {
-
-        // --- PANEL DE CONSOLA PERSONALIZADO ---
-        JPanel outputPanel = new JPanel(new BorderLayout());
-        outputTextArea = ComponentsUtil.createOutputTextArea();
-
-        // Botón de Copiar con estilo BBVA
-        JButton btnCopiar =ComponentsUtil.createButton("Copiar Trama","Copiar trama al portapapeles");
-        btnCopiar.addActionListener(e -> copiarAlPortapapeles());
-
-        // Botón de limpiar con estilo BBVA
-        JButton btnLimpiar= ComponentsUtil.createButton("Limpiar","");
-        btnLimpiar.addActionListener(e -> limpiar());
-
-        // Panel de herramientas para la consola
-        JPanel toolBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-        toolBar.setBackground(BBVA_LIGHT_GRAY);
-        toolBar.add(btnCopiar);
-        toolBar.add(btnLimpiar);
-
-        // Unir componentes
-        outputPanel.add(toolBar, BorderLayout.NORTH);
-        outputPanel.add(new JScrollPane(outputTextArea), BorderLayout.CENTER);
-
-        return outputPanel;
     }
 
 
@@ -223,7 +297,10 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
 
     private void setupEventHandlers() {
         procesarButton.addActionListener(this::procesarTrama);
-        tipoOperacionComboBox.addActionListener(e -> actualizarValoresPorDefecto());
+        tipoOperacionComboBox.addActionListener(e -> {
+            refreshPanelCampos();
+            actualizarValoresPorDefecto();
+        });
     }
 
     private void procesarTrama(ActionEvent e) {
@@ -246,6 +323,10 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
                 // Intentamos obtener la definición desde VisaISOField
                 MastercardISOField fieldDef = MastercardISOField.getById(id);
                 String value = textFields.get(id).getText();
+
+                if (isValorVacio(value)) {
+                    value = valorPorDefectoParaCampoVacio(fieldDef);
+                }
 
                 if (fieldDef != null) {
                     // Si existe en el Enum, usamos su nombre (ej. "processingCode")
@@ -379,7 +460,7 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
             default -> camposMandatoriosCompras;
         };
 
-        for (Integer campo : camposPermitidos) {
+        for (Integer campo : getCamposActuales()) {
             // Actualizar valores por defecto si el campo no está en modo edición
             JTextField txt = textFields.get(campo);
             if (txt != null && !txt.isEditable()) {
@@ -394,8 +475,34 @@ public class GenerateTramaISO8583Panel2 extends JPanel {
         }
     }
 
+    /** Indica si el valor del campo está vacío (null, vacío o solo espacios). */
+    private boolean isValorVacio(String value) {
+        return value == null || value.isBlank();
+    }
 
+    /** Devuelve el valor por defecto para un campo vacío según su definición ISO. */
+    private String valorPorDefectoParaCampoVacio(MastercardISOField fieldDef) {
+        if (fieldDef.isVariable()) {
+            return fieldDef.getLength() == 2 ? "00" : "000";
+        }
+        if (fieldDef.getTypeData() == ISODataType.ALPHA_NUMERIC) {
+            return completar(" ", fieldDef.getLength());
+        }
+        if (fieldDef.getTypeData() == ISODataType.NUMERIC) {
+            return completar("0", fieldDef.getLength());
+        }
+        return completar(" ", fieldDef.getLength());
+    }
 
+    /**
+     * Genera una cadena de longitud {@code length} rellena con el carácter indicado.
+     * Si {@code padChar} es null o vacío, se usa espacio.
+     */
+    private String completar(String padChar, int length) {
+        if (length <= 0) return "";
+        char c = (padChar == null || padChar.isEmpty()) ? ' ' : padChar.charAt(0);
+        return String.valueOf(c).repeat(length);
+    }
 
     private void copiarAlPortapapeles() {
         String trama = outputTextArea.getText();

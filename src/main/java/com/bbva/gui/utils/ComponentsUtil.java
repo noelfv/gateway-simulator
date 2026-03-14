@@ -32,7 +32,7 @@ public class ComponentsUtil {
         outputTextArea.setBackground(BBVA_BLACK); // Fondo oscuro tipo terminal
         outputTextArea.setForeground(BBVA_ACCENT_BLUE);      // Letras azul neón
         outputTextArea.setCaretColor(Color.WHITE);
-        outputTextArea.setFont(new Font(FontType.GEORGIA, Font.PLAIN, 10));
+        outputTextArea.setFont(new Font(FontType.TAHOMA, Font.PLAIN, 10));
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
         return outputTextArea;
