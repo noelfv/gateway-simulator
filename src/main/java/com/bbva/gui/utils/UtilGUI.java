@@ -3,7 +3,6 @@ package com.bbva.gui.utils;
 
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -80,15 +79,10 @@ public class UtilGUI {
     }
 
 
+    /** @deprecated Use FXUtils.showErrorAlert() instead */
+    @Deprecated
     public static void showErrorDialog(String message) {
-        // Limitar mensaje a 150 caracteres y usar HTML para wrap
-        String displayMessage = message.length() > 200 ?
-                message.substring(0, 200) + "..." : message;
-
-        String htmlMessage = "<html><body style='width: 250px; padding: 10px;'>" +
-                displayMessage.replace("\n", "<br>") + "</body></html>";
-
-        JOptionPane.showMessageDialog(null, htmlMessage, "Error", JOptionPane.ERROR_MESSAGE);
+        FXUtils.showErrorAlert(message);
     }
 
 
