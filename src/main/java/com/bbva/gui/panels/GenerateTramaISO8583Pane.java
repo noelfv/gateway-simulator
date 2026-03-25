@@ -1,4 +1,4 @@
-package com.bbva.gui.panels.v2;
+package com.bbva.gui.panels;
 
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXUtils;
@@ -21,10 +21,37 @@ import java.util.*;
 
 public class GenerateTramaISO8583Pane extends BorderPane {
 
-    private static final String BBVA_NAVY = "#004481";
-    private static final String BBVA_WHITE = "#FFFFFF";
-    private static final String BBVA_ACCENT_BLUE = "#12BEFF";
-    private static final String BBVA_BLACK = "#282832";
+    // Light palette
+    private static final String NAVY = "#004481";
+    private static final String BLUE = "#1464A0";
+    private static final String LIGHT_BLUE = "#E8F4FD";
+    private static final String WHITE = "#FFFFFF";
+    private static final String STRIPE = "#F7F9FC";
+    private static final String BORDER = "#D0E4F7";
+    // Dark (output terminal)
+    private static final String DARK_BG = "#1E1E2E";
+    private static final String DARK_HEADER = "#12122A";
+    private static final String DARK_BORDER = "#2D2D4E";
+    private static final String DARK_FOOT = "#16162A";
+    private static final String TEXT_OUT = "#CDD6F4";
+    private static final String ACCENT = "#89B4FA";
+    private static final String ACCENT_DIM = "#5A7FCC";
+    // Field row
+    private static final String TF_RO_BG = "#F0F4F8";
+    private static final String TF_BORDER = "#B8CCE0";
+
+    private static final String STYLE_TF_RO = "-fx-control-inner-background: " + TF_RO_BG + "; " +
+            "-fx-font-family: Consolas; -fx-font-size: 10px; " +
+            "-fx-border-color: " + TF_BORDER + "; " +
+            "-fx-border-radius: 3; -fx-background-radius: 3;";
+    private static final String STYLE_TF_EDIT = "-fx-control-inner-background: " + WHITE + "; " +
+            "-fx-font-family: Consolas; -fx-font-size: 10px; " +
+            "-fx-border-color: " + NAVY + "; " +
+            "-fx-border-radius: 3; -fx-background-radius: 3;";
+    private static final String STYLE_EDIT_OFF = "-fx-background-color: transparent; -fx-text-fill: #8899AA; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
+    private static final String STYLE_EDIT_ON = "-fx-background-color: " + NAVY + "; -fx-text-fill: white; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
 
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
@@ -59,8 +86,11 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         tipoOperacionComboBox.setValue("Compras");
 
         outputTextArea = new TextArea();
-        outputTextArea.setStyle("-fx-control-inner-background: " + BBVA_BLACK + "; " +
-                "-fx-font-family: Tahoma; -fx-font-size: 10px; -fx-text-fill: " + BBVA_ACCENT_BLUE + ";");
+        outputTextArea.setStyle(
+                "-fx-control-inner-background: " + DARK_BG + "; " +
+                        "-fx-font-family: Consolas; -fx-font-size: 11px; " +
+                        "-fx-text-fill: " + TEXT_OUT + "; " +
+                        "-fx-border-color: transparent;");
         outputTextArea.setWrapText(true);
         outputTextArea.setEditable(false);
     }
@@ -71,16 +101,30 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     }
 
     private HBox createHeaderPanel() {
-        Label lblProcesar = new Label("Marca:");
-        lblProcesar.setStyle("-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + BBVA_NAVY + ";");
-        Label lblTipo = new Label("Tipo de operación:");
-        lblTipo.setStyle("-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + BBVA_NAVY + ";");
+        Label title = new Label("Generar Trama ISO8583");
+        title.setStyle(
+                "-fx-text-fill: white; -fx-font-weight: bold; " +
+                        "-fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
 
-        HBox header = new HBox(12);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label lblMarca = new Label("Marca:");
+        Label lblTipo = new Label("Tipo de operación:");
+        for (Label lbl : new Label[] { lblMarca, lblTipo }) {
+            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-family: 'Segoe UI';");
+        }
+        for (ComboBox<?> cb : new ComboBox[] { procesarComboBox, tipoOperacionComboBox }) {
+            cb.setStyle(
+                    "-fx-font-size: 11px; -fx-background-color: white; " +
+                            "-fx-border-color: " + BORDER + "; -fx-border-radius: 3; -fx-background-radius: 3;");
+        }
+
+        HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(8, 8, 8, 8));
-        header.setStyle("-fx-border-color: " + BBVA_NAVY + "; -fx-border-width: 0 0 1 0;");
-        header.getChildren().addAll(lblProcesar, procesarComboBox, lblTipo, tipoOperacionComboBox);
+        header.setPadding(new Insets(7, 12, 7, 12));
+        header.setStyle("-fx-background-color: " + NAVY + ";");
+        header.getChildren().addAll(title, spacer, lblMarca, procesarComboBox, lblTipo, tipoOperacionComboBox);
         return header;
     }
 
@@ -101,7 +145,20 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     }
 
     private VBox createOutputPanel() {
-        Button btnCopiar = createButton("Copiar Trama");
+        Label titleLabel = new Label("Trama Generada");
+        titleLabel.setMaxWidth(Double.MAX_VALUE);
+        titleLabel.setPadding(new Insets(5, 10, 5, 10));
+        titleLabel.setStyle(
+                "-fx-background-color: " + DARK_HEADER + "; " +
+                        "-fx-text-fill: " + ACCENT + "; " +
+                        "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
+                        "-fx-border-color: transparent transparent " + DARK_BORDER + " transparent; " +
+                        "-fx-border-width: 0 0 1 0;");
+
+        Button btnLimpiar = createOutlineBtn("Limpiar", ACCENT, "transparent", ACCENT_DIM);
+        btnLimpiar.setOnAction(e -> outputTextArea.setText(""));
+
+        Button btnCopiar = createOutlineBtn("Copiar Trama", ACCENT, "transparent", ACCENT_DIM);
         btnCopiar.setOnAction(e -> {
             String trama = outputTextArea.getText();
             if (!trama.isEmpty()) {
@@ -112,16 +169,17 @@ public class GenerateTramaISO8583Pane extends BorderPane {
             }
         });
 
-        Button btnLimpiar = createButton("Limpiar");
-        btnLimpiar.setOnAction(e -> outputTextArea.setText(""));
+        HBox footer = new HBox(8);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.setPadding(new Insets(6, 8, 8, 8));
+        footer.setStyle("-fx-background-color: " + DARK_FOOT + ";");
+        footer.getChildren().addAll(btnLimpiar, btnCopiar);
 
-        HBox toolBar = new HBox(8);
-        toolBar.setAlignment(Pos.CENTER_RIGHT);
-        toolBar.setPadding(new Insets(4));
-        toolBar.setStyle("-fx-background-color: #F4F4F4;");
-        toolBar.getChildren().addAll(btnCopiar, btnLimpiar);
-
-        VBox outputPanel = new VBox(toolBar, outputTextArea);
+        VBox outputPanel = new VBox(0, titleLabel, outputTextArea, footer);
+        outputPanel.setStyle(
+                "-fx-border-color: " + DARK_BORDER + "; " +
+                        "-fx-border-width: 1.5; " +
+                        "-fx-background-color: " + DARK_BG + ";");
         VBox.setVgrow(outputTextArea, Priority.ALWAYS);
         return outputPanel;
     }
@@ -134,15 +192,17 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         List<Integer> camposActuales = getCamposActuales();
 
         // Action buttons
-        Button procesarButton = createButton("Procesar");
+        Button procesarButton = createPrimaryBtn("Procesar");
         procesarButton.setOnAction(e -> procesarTrama());
-        Button btnAgregarCampo = createButton("Agregar campo");
-        btnAgregarCampo.setStyle(btnAgregarCampo.getStyle() + " -fx-background-color: #228B22;");
+        Button btnAgregarCampo = createOutlineBtn("+ Agregar campo", "#228B22", "transparent", "#E8F5E9");
         btnAgregarCampo.setOnAction(e -> mostrarDialogoAgregarCampo());
 
         HBox topBar = new HBox(8);
         topBar.setAlignment(Pos.CENTER_RIGHT);
-        topBar.setPadding(new Insets(4, 8, 4, 8));
+        topBar.setPadding(new Insets(6, 10, 6, 10));
+        topBar.setStyle("-fx-background-color: " + LIGHT_BLUE + "; " +
+                "-fx-border-color: transparent transparent " + BORDER + " transparent; " +
+                "-fx-border-width: 0 0 1 0;");
         topBar.getChildren().addAll(btnAgregarCampo, procesarButton);
 
         // Fields grid distributed in 3 columns
@@ -150,68 +210,84 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         int camposPorColumna = (int) Math.ceil(totalCampos / 3.0);
 
         HBox columnsBox = new HBox(8);
-        columnsBox.setPadding(new Insets(4));
+        columnsBox.setPadding(new Insets(8));
 
         for (int col = 0; col < 3; col++) {
             int inicio = col * camposPorColumna;
             int fin = Math.min(inicio + camposPorColumna, totalCampos);
             if (inicio < totalCampos) {
-                List<Integer> camposColumna = camposActuales.subList(inicio, fin);
-                columnsBox.getChildren().add(createColumnPanel("Bloque " + (col + 1), camposColumna));
+                columnsBox.getChildren().add(
+                        createColumnPanel("Bloque " + (col + 1), camposActuales.subList(inicio, fin)));
             }
         }
-        HBox.setHgrow(columnsBox.getChildren().isEmpty() ? new HBox() : columnsBox.getChildren().get(0), Priority.ALWAYS);
 
         camposContainer.getChildren().addAll(topBar, columnsBox);
     }
 
     private VBox createColumnPanel(String titulo, List<Integer> campos) {
-        GridPane grid = new GridPane();
-        grid.setHgap(4);
-        grid.setVgap(2);
-        grid.setPadding(new Insets(4));
-        grid.setStyle("-fx-border-color: " + BBVA_NAVY + "; -fx-border-width: 1; -fx-background-color: white;");
+        // ── Title bar ──────────────────────────────────────────────
+        Label titleBar = new Label(titulo);
+        titleBar.setMaxWidth(Double.MAX_VALUE);
+        titleBar.setPadding(new Insets(4, 8, 4, 8));
+        titleBar.setStyle(
+                "-fx-background-color: " + NAVY + "; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI';");
 
-        Label tituloLabel = new Label(titulo);
-        tituloLabel.setStyle("-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + BBVA_NAVY + ";");
+        // ── Field rows ─────────────────────────────────────────────
+        VBox fieldsBox = new VBox(0);
+        fieldsBox.setStyle("-fx-background-color: " + WHITE + ";");
 
-        int row = 0;
+        Set<Integer> mandatorios = getMandatoriosActuales();
+        int rowIdx = 0;
         for (int i : campos) {
-            String fieldName = String.format("P%02d", i);
+            String bg = (rowIdx % 2 == 0) ? WHITE : STRIPE;
 
-            CheckBox chk = new CheckBox(fieldName);
-            chk.setStyle("-fx-text-fill: " + BBVA_NAVY + "; -fx-font-size: 11px;");
-            chk.setSelected(getMandatoriosActuales().contains(i));
+            CheckBox chk = new CheckBox();
+            chk.setSelected(mandatorios.contains(i));
             checkBoxes.put(i, chk);
 
+            Label badge = new Label(String.format("P%03d", i));
+            badge.setStyle(
+                    "-fx-background-color: " + NAVY + "; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-font-size: 9px; -fx-font-weight: bold; " +
+                            "-fx-padding: 1 5 1 5; -fx-background-radius: 3;");
+
             TextField txt = new TextField(getDefaultValue(i));
-            txt.setStyle("-fx-background-color: " + BBVA_ACCENT_BLUE + "; -fx-font-size: 10px;");
+            txt.setStyle(STYLE_TF_RO);
             txt.setDisable(true);
             txt.setEditable(false);
-            txt.setPrefWidth(160);
+            HBox.setHgrow(txt, Priority.ALWAYS);
             textFields.put(i, txt);
 
-            RadioButton rb = new RadioButton("Edit");
-            rb.setStyle("-fx-font-size: 10px;");
-            rb.setOnAction(e -> {
-                txt.setDisable(!rb.isSelected());
-                txt.setEditable(rb.isSelected());
-                if (rb.isSelected()) {
-                    txt.setStyle("-fx-background-color: white; -fx-font-size: 10px;");
-                } else {
-                    txt.setStyle("-fx-background-color: " + BBVA_ACCENT_BLUE + "; -fx-font-size: 10px;");
-                }
+            Button editBtn = new Button("✎");
+            editBtn.setStyle(STYLE_EDIT_OFF);
+            editBtn.setOnAction(e -> {
+                boolean editing = !txt.isEditable();
+                txt.setDisable(!editing);
+                txt.setEditable(editing);
+                txt.setStyle(editing ? STYLE_TF_EDIT : STYLE_TF_RO);
+                editBtn.setStyle(editing ? STYLE_EDIT_ON : STYLE_EDIT_OFF);
             });
 
-            grid.add(chk, 0, row);
-            grid.add(txt, 1, row);
-            grid.add(rb, 2, row);
-            row++;
+            HBox fieldRow = new HBox(6, chk, badge, txt, editBtn);
+            fieldRow.setAlignment(Pos.CENTER_LEFT);
+            fieldRow.setPadding(new Insets(4, 8, 4, 8));
+            fieldRow.setStyle(
+                    "-fx-background-color: " + bg + "; " +
+                            "-fx-border-color: transparent transparent " + BORDER + " transparent; " +
+                            "-fx-border-width: 0 0 1 0;");
+            fieldsBox.getChildren().add(fieldRow);
+            rowIdx++;
         }
 
-        VBox column = new VBox(4, tituloLabel, grid);
-        column.setPadding(new Insets(4));
-        VBox.setVgrow(grid, Priority.ALWAYS);
+        VBox column = new VBox(0, titleBar, fieldsBox);
+        column.setStyle(
+                "-fx-border-color: " + NAVY + "; " +
+                        "-fx-border-width: 1.5; " +
+                        "-fx-background-color: " + WHITE + ";");
+        VBox.setVgrow(fieldsBox, Priority.ALWAYS);
         HBox.setHgrow(column, Priority.ALWAYS);
         return column;
     }
@@ -367,7 +443,8 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     }
 
     private String valorPorDefectoParaCampoVacio(MastercardISOField fieldDef) {
-        if (fieldDef == null) return "";
+        if (fieldDef == null)
+            return "";
         if (fieldDef.isVariable()) {
             return fieldDef.getLength() == 2 ? "00" : "000";
         }
@@ -380,11 +457,31 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         return " ".repeat(fieldDef.getLength());
     }
 
-    private Button createButton(String text) {
+    private Button createPrimaryBtn(String text) {
         Button btn = new Button(text);
-        btn.setStyle("-fx-background-color: " + BBVA_NAVY + "; -fx-text-fill: white; " +
-                "-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 11px; " +
-                "-fx-padding: 8 25 8 25; -fx-cursor: hand;");
+        String normal = "-fx-background-color: " + NAVY + "; -fx-text-fill: white; " +
+                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
+                "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
+        String hover = "-fx-background-color: " + BLUE + "; -fx-text-fill: white; " +
+                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
+                "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
+        btn.setStyle(normal);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(normal));
+        return btn;
+    }
+
+    private Button createOutlineBtn(String text, String borderColor, String bgNormal, String bgHover) {
+        Button btn = new Button(text);
+        String base = "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
+                "-fx-padding: 6 18 6 18; -fx-cursor: hand; " +
+                "-fx-border-color: " + borderColor + "; -fx-border-radius: 4; " +
+                "-fx-border-width: 1.5; -fx-background-radius: 4;";
+        String normal = "-fx-background-color: " + bgNormal + "; -fx-text-fill: " + borderColor + "; " + base;
+        String hover = "-fx-background-color: " + bgHover + "; -fx-text-fill: " + borderColor + "; " + base;
+        btn.setStyle(normal);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(normal));
         return btn;
     }
 }

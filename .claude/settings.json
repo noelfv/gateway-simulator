@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean package)",
+      "Bash(mvn clean package -DskipTests)",
+      "Bash(mvn spring-boot:run *)",
+      "Bash(mvn test)",
+      "Bash(mvn test -Dtest=*)",
+      "Bash(mvn dependency:tree)",
+      "Bash(mvn verify)",
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git branch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ],
+    "deny": []
+  }
+}

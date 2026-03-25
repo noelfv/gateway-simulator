@@ -1,4 +1,4 @@
-package com.bbva.gui.panels.v2;
+package com.bbva.gui.panels;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
 import com.bbva.gui.components.InputTextPane;
@@ -49,8 +49,7 @@ public class ParseViewerPane extends AbstractBasePane {
         ComboBox<InputTextPane.ComboItem> comboBox = new ComboBox<>();
         comboBox.getItems().addAll(
                 new InputTextPane.ComboItem("peer02", "Mastercard"),
-                new InputTextPane.ComboItem("peer01", "Visa")
-        );
+                new InputTextPane.ComboItem("peer01", "Visa"));
         comboBox.getSelectionModel().selectFirst();
 
         inputPane = new InputTextPane("input", "Parsear", "Limpiar", comboBox);
@@ -97,7 +96,8 @@ public class ParseViewerPane extends AbstractBasePane {
 
             Map<String, String> mapValuesTree = new HashMap<>(mapValues);
             if (mapValues.containsKey("additionalDataRetailer")) {
-                mapValuesTree.put("additionalDataRetailer", ISOUtil.ebcdicToString(mapValuesTree.get("additionalDataRetailer")));
+                mapValuesTree.put("additionalDataRetailer",
+                        ISOUtil.ebcdicToString(mapValuesTree.get("additionalDataRetailer")));
             }
 
             ParseResult result = FXParseGUI.process(mapValuesTree);
@@ -107,7 +107,8 @@ public class ParseViewerPane extends AbstractBasePane {
 
             FXParseGUI.updateTreeView(treePane.getTreeView(), result);
             ObjectMapper objectMapper = new ObjectMapper();
-            outputPane.getTextArea().setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022));
+            outputPane.getTextArea()
+                    .setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022));
 
         } catch (Exception ex) {
             FXUtils.showErrorAlert("Error al parsear el mensaje: " + ex.getMessage());

@@ -1,6 +1,6 @@
 package com.bbva.gui;
 
-import com.bbva.gui.panels.v2.*;
+import com.bbva.gui.panels.*;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXUtils;
 import javafx.geometry.Insets;
@@ -57,8 +57,10 @@ public class JavaFXMain {
         MenuItem campo48Item = new MenuItem("Campo 48 (TLV)");
 
         convertirTramaItem.setOnAction(e -> abrirTab("Convertir trama", new ConverterTramaTextPlainPane(beans)));
-        convertirOriginalItem.setOnAction(e -> abrirTab("Convertir trama original", new ConvertTramaOriginalPane(beans)));
-        convertirOriginalVisaItem.setOnAction(e -> abrirTab("Convertir trama original visa", new ConvertTramaOriginalVisaPane(beans)));
+        convertirOriginalItem
+                .setOnAction(e -> abrirTab("Convertir trama original", new ConvertTramaOriginalPane(beans)));
+        convertirOriginalVisaItem
+                .setOnAction(e -> abrirTab("Convertir trama original visa", new ConvertTramaOriginalVisaPane(beans)));
         convertirIso20022Item.setOnAction(e -> abrirTab("Convertir Objeto ISO20022", new Transformer20022Pane(beans)));
         generarTramaItem.setOnAction(e -> abrirTab("Generar Trama Específica", new GenerateTramaISO8583Pane(beans)));
         campo48Item.setOnAction(e -> abrirTab("Parsear TLV", new TLVParseViewerPane(beans)));
@@ -74,7 +76,7 @@ public class JavaFXMain {
         configMenu.getItems().add(importarItem);
 
         menuBar.getMenus().addAll(parseMenu, conversionMenu, configMenu);
-        menuBar.setStyle("-fx-background-color: " + BBVA_NAVY + "; -fx-padding: 5 10 5 10;");
+        menuBar.setStyle("-fx-background-color: " + BBVA_WHITE + "; -fx-padding: 5 10 5 10;");
         return menuBar;
     }
 

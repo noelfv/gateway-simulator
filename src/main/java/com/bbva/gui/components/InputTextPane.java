@@ -8,14 +8,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
 @Getter
 public class InputTextPane extends VBox {
 
-    private static final String BBVA_NAVY = "#004481";
-    private static final String BBVA_ACCENT_BLUE = "#12BEFF";
+    private static final String NAVY       = "#004481";
+    private static final String BLUE       = "#1464A0";
+    private static final String LIGHT_BLUE = "#E8F4FD";
+    private static final String WHITE      = "#FFFFFF";
+    private static final String BORDER     = "#D0E4F7";
 
     private final TextArea textArea;
     private final Button btnPrimary;
@@ -28,46 +32,116 @@ public class InputTextPane extends VBox {
 
     public InputTextPane(String title, String primaryBtnText, String secondaryBtnText,
                          ComboBox<ComboItem> comboBox) {
-        setStyle("-fx-border-color: " + BBVA_NAVY + "; -fx-border-width: 1; -fx-padding: 4;");
-        setPadding(new Insets(4));
-        setSpacing(4);
+        setStyle(
+            "-fx-border-color: " + NAVY + "; " +
+            "-fx-border-width: 1.5; " +
+            "-fx-background-color: " + WHITE + ";"
+        );
+        setSpacing(0);
+
+        // ── Title bar ──────────────────────────────────────────────
+        HBox titleBar = new HBox(8);
+        titleBar.setAlignment(Pos.CENTER_LEFT);
+        titleBar.setPadding(new Insets(5, 10, 5, 10));
+        titleBar.setStyle("-fx-background-color: " + NAVY + ";");
 
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + BBVA_NAVY + ";");
-        getChildren().add(titleLabel);
+        titleLabel.setStyle(
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 11px; " +
+            "-fx-font-family: 'Segoe UI';"
+        );
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        titleBar.getChildren().addAll(titleLabel, spacer);
 
         if (comboBox != null) {
             this.comboBox = comboBox;
-            HBox comboWrapper = new HBox(6);
-            comboWrapper.setAlignment(Pos.CENTER_RIGHT);
-            comboWrapper.setPadding(new Insets(2, 4, 4, 4));
-            Label label = new Label("Marca:");
-            label.setStyle("-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: " + BBVA_NAVY + ";");
-            comboWrapper.getChildren().addAll(label, comboBox);
-            getChildren().add(comboWrapper);
+            Label comboLabel = new Label("Marca:");
+            comboLabel.setStyle(
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 11px; " +
+                "-fx-font-family: 'Segoe UI';"
+            );
+            comboBox.setStyle(
+                "-fx-font-size: 11px; " +
+                "-fx-background-color: white; " +
+                "-fx-border-color: " + BORDER + "; " +
+                "-fx-border-radius: 3; " +
+                "-fx-background-radius: 3;"
+            );
+            titleBar.getChildren().addAll(comboLabel, comboBox);
         }
 
+        // ── Text area ──────────────────────────────────────────────
         textArea = new TextArea();
-        textArea.setStyle("-fx-control-inner-background: white; -fx-font-family: Georgia; -fx-font-size: 10px;");
+        textArea.setStyle(
+            "-fx-control-inner-background: " + WHITE + "; " +
+            "-fx-font-family: Consolas; " +
+            "-fx-font-size: 11px; " +
+            "-fx-border-color: transparent;"
+        );
         textArea.setWrapText(true);
         VBox.setVgrow(textArea, Priority.ALWAYS);
-        getChildren().add(textArea);
+        VBox.setMargin(textArea, new Insets(6, 8, 0, 8));
 
-        HBox buttonPanel = new HBox(8);
-        buttonPanel.setAlignment(Pos.CENTER_RIGHT);
-        buttonPanel.setPadding(new Insets(4, 0, 0, 0));
-        btnPrimary = createButton(primaryBtnText);
-        btnSecondary = createButton(secondaryBtnText);
-        buttonPanel.getChildren().addAll(btnPrimary, btnSecondary);
-        getChildren().add(buttonPanel);
+        // ── Button bar ─────────────────────────────────────────────
+        HBox buttonBar = new HBox(8);
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        buttonBar.setPadding(new Insets(8, 8, 8, 8));
+
+        btnSecondary = createSecondaryButton(secondaryBtnText);
+        btnPrimary   = createPrimaryButton(primaryBtnText);
+        buttonBar.getChildren().addAll(btnSecondary, btnPrimary);
+
+        getChildren().addAll(titleBar, textArea, buttonBar);
     }
 
-    private Button createButton(String text) {
+    private Button createPrimaryButton(String text) {
         Button btn = new Button(text);
-        btn.setStyle("-fx-background-color: " + BBVA_NAVY + "; -fx-text-fill: white; " +
-                "-fx-font-family: SansSerif; -fx-font-weight: bold; -fx-font-size: 11px; " +
-                "-fx-padding: 8 25 8 25; -fx-cursor: hand;");
+        String normal = styleBtn(NAVY, "white");
+        String hover  = styleBtn(BLUE, "white");
+        btn.setStyle(normal);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e  -> btn.setStyle(normal));
         return btn;
+    }
+
+    private Button createSecondaryButton(String text) {
+        Button btn = new Button(text);
+        String normal = styleBtnOutline(NAVY, NAVY, "transparent");
+        String hover  = styleBtnOutline(NAVY, NAVY, LIGHT_BLUE);
+        btn.setStyle(normal);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e  -> btn.setStyle(normal));
+        return btn;
+    }
+
+    private static String styleBtn(String bg, String fg) {
+        return "-fx-background-color: " + bg + "; " +
+               "-fx-text-fill: " + fg + "; " +
+               "-fx-font-weight: bold; " +
+               "-fx-font-size: 11px; " +
+               "-fx-font-family: 'Segoe UI'; " +
+               "-fx-padding: 7 20 7 20; " +
+               "-fx-cursor: hand; " +
+               "-fx-background-radius: 4;";
+    }
+
+    private static String styleBtnOutline(String border, String fg, String bg) {
+        return "-fx-background-color: " + bg + "; " +
+               "-fx-text-fill: " + fg + "; " +
+               "-fx-font-weight: bold; " +
+               "-fx-font-size: 11px; " +
+               "-fx-font-family: 'Segoe UI'; " +
+               "-fx-padding: 6 18 6 18; " +
+               "-fx-cursor: hand; " +
+               "-fx-border-color: " + border + "; " +
+               "-fx-border-radius: 4; " +
+               "-fx-border-width: 1.5; " +
+               "-fx-background-radius: 4;";
     }
 
     @Getter
