@@ -107,7 +107,7 @@ public class JavaFXMain {
                         "-fx-border-color: transparent transparent #C8D0DC transparent; " +
                         "-fx-border-width: 0 0 1 0;");
 
-        menuBar.getMenus().addAll(buildParseMenu(), buildConversionMenu(), buildConfigMenu());
+        menuBar.getMenus().addAll(buildParseMenu(), buildConversionMenu(), buildConfigMenu(),buildIAMenu());
         return menuBar;
     }
 
@@ -127,7 +127,7 @@ public class JavaFXMain {
         // MenuItem convertirTrama = styledItem("Convertir trama");
         MenuItem convertirOrig = styledItem("Convertir trama original");
         // MenuItem convertirVisa = styledItem("Convertir trama original Visa");
-        MenuItem convertirIso = styledItem("Convertir Objeto ISO20022");
+        MenuItem convertirIso = styledItem("Convertir ISO20022");
         MenuItem generarTrama = styledItem("Generar trama específica");
         MenuItem campo48 = styledItem("Campo 48 (TLV)");
 
@@ -141,16 +141,25 @@ public class JavaFXMain {
         campo48.setOnAction(e -> abrirTab("Parsear TLV", new TLVParseViewerPane(beans)));
 
         menu.getItems().addAll(/* convertirTrama, */ convertirOrig, /* convertirVisa, */
-                new SeparatorMenuItem(), convertirIso, generarTrama,
+                 convertirIso, new SeparatorMenuItem(),generarTrama,
                 new SeparatorMenuItem(), campo48);
         return menu;
     }
 
     private Menu buildConfigMenu() {
         Menu menu = styledMenu("Configuración");
-        MenuItem importarItem = styledItem("Importar Campos (JSON)");
-        importarItem.setOnAction(e -> abrirTab("Configuración", new ConfigurationPane(beans)));
-        menu.getItems().add(importarItem);
+        MenuItem importarItem = styledItem("Importar Configuracion");
+        MenuItem cargarLLM = styledItem("Cargar especificacion");
+        //importarItem.setOnAction(e -> abrirTab("Configuración", new ConfigurationPane(beans)));
+        menu.getItems().addAll(importarItem, new SeparatorMenuItem(),cargarLLM);
+        return menu;
+    }
+
+    private Menu buildIAMenu() {
+        Menu menu = styledMenu("IA");
+        MenuItem importarItem = styledItem("Cargar modelo");
+        MenuItem cargarLLM = styledItem("Cargar skill");
+        menu.getItems().addAll(importarItem, new SeparatorMenuItem(),cargarLLM);
         return menu;
     }
 
