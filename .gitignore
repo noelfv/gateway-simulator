@@ -31,12 +31,12 @@ logs/
 /nbdist/
 /.nb-gradle/
 
-### Build portable - ignorar artefactos generados, trackear config y scripts ###
+### Build portable - solo se trackean los launchers .bat y .gitkeep ###
+### El resto es generado por "mvn clean package" y no va al repo      ###
 build/libs/
 build/log/
+build/config/
 build/*.jar
-!build/config/
-!build/config/**
 !build/*.bat
 !build/**/.gitkeep
 
