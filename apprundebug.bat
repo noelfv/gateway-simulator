@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 title Gateway Simulator - Build y Ejecucion [DEBUG]
 
-set DIST=target\dist
+set DIST=build
 set JAR=gateway-simulator-2.0.0-SNAPSHOT.jar
 
 echo.
@@ -32,20 +32,20 @@ echo.
 :: ── Paso 2: Preparar carpetas en target\dist ─────────────────────
 echo [2/3] Preparando estructura de distribucion...
 
-if not exist "%DIST%\logs" (
-    mkdir "%DIST%\logs"
-    echo [INFO] Carpeta %DIST%\logs\ creada.
+if not exist "%DIST%\log" (
+    mkdir "%DIST%\log"
+    echo [INFO] Carpeta %DIST%\log\ creada.
 )
 
 echo [OK] Estructura lista:
 echo      %DIST%\libs\    dependencias
 echo      %DIST%\config\  configuracion externa
-echo      %DIST%\logs\    trazabilidad Log4j2
+echo      %DIST%\log\     trazabilidad Log4j2
 echo.
 
 :: Moverse a dist y capturar ruta absoluta del log
 cd "%DIST%"
-set LOG_PATH=%CD%\logs\gateway-simulator-daily.log
+set LOG_PATH=%CD%\log\gateway-simulator-daily.log
 
 :: ── Paso 3: Abrir consola de trazabilidad en nueva ventana ───────
 echo [3/3] Abriendo consola de trazabilidad...
@@ -57,8 +57,8 @@ echo.
 echo ================================================================
 echo   Iniciando Gateway Simulator [MODO DEBUG]
 echo   Logs guardados en:
-echo   - logs\gateway-simulator-daily.log  (trazabilidad completa)
-echo   - logs\gateway-simulator-errors.log (solo errores)
+echo   - log\gateway-simulator-daily.log  (trazabilidad completa)
+echo   - log\gateway-simulator-errors.log (solo errores)
 echo ================================================================
 echo.
 
@@ -72,7 +72,7 @@ java -Xms256m -Xmx512m ^
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] La aplicacion termino con codigo %errorlevel%.
-    echo         Revisa logs\gateway-simulator-errors.log para el detalle.
+    echo         Revisa log\gateway-simulator-errors.log para el detalle.
     echo.
     pause
 )

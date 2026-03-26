@@ -141,7 +141,7 @@
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/dist/libs</outputDirectory>
+              <outputDirectory>${project.basedir}/build/libs</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>false</overWriteSnapshots>
               <overWriteIfNewer>true</overWriteIfNewer>
@@ -157,7 +157,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.3.0</version>
         <configuration>
-          <outputDirectory>${project.build.directory}/dist</outputDirectory>
+          <outputDirectory>${project.basedir}/build</outputDirectory>
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
@@ -182,7 +182,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/dist/config</outputDirectory>
+              <outputDirectory>${project.basedir}/build/config</outputDirectory>
               <resources>
                 <resource>
                   <directory>src/main/resources</directory>
@@ -202,7 +202,7 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/dist</outputDirectory>
+              <outputDirectory>${project.basedir}/build</outputDirectory>
               <resources>
                 <resource>
                   <directory>src/main/scripts</directory>
@@ -231,8 +231,8 @@
             </goals>
             <configuration>
               <target>
-                <mkdir dir="${project.build.directory}/dist/logs"/>
-                <echo file="${project.build.directory}/dist/logs/.gitkeep" message="# Mantener esta carpeta en el repositorio"/>
+                <mkdir dir="${project.basedir}/build/log"/>
+                <echo file="${project.basedir}/build/log/.gitkeep" message="# Mantener esta carpeta en el repositorio"/>
               </target>
             </configuration>
           </execution>

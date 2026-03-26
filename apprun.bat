@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 title Gateway Simulator - Build y Ejecucion
 
-set DIST=target\dist
+set DIST=build
 set JAR=gateway-simulator-2.0.0-SNAPSHOT.jar
 
 echo.
@@ -32,15 +32,15 @@ echo.
 :: ── Paso 2: Preparar carpetas en target\dist ─────────────────────
 echo [2/3] Preparando estructura de distribucion...
 
-if not exist "%DIST%\logs" (
-    mkdir "%DIST%\logs"
-    echo [INFO] Carpeta %DIST%\logs\ creada.
+if not exist "%DIST%\log" (
+    mkdir "%DIST%\log"
+    echo [INFO] Carpeta %DIST%\log\ creada.
 )
 
 echo [OK] Estructura lista:
 echo      %DIST%\libs\    dependencias
 echo      %DIST%\config\  configuracion externa
-echo      %DIST%\logs\    trazabilidad Log4j2
+echo      %DIST%\log\     trazabilidad Log4j2
 echo.
 
 :: ── Paso 3: Lanzar la aplicacion ─────────────────────────────────
