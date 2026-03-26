@@ -35,6 +35,7 @@ public class ParseViewerPane extends AbstractBasePane {
     private InputTextPane inputPane;
     private OutputTextPane outputPane;
     private TreeOutputPane treePane;
+    private ComboBox<InputTextPane.ComboItem> comboBoxOpciones;
 
     public ParseViewerPane(BeanProviderInstance beans) {
         this.parserFactory = beans.parserFactory();
@@ -46,19 +47,28 @@ public class ParseViewerPane extends AbstractBasePane {
     }
 
     private void initComponents() {
-        ComboBox<InputTextPane.ComboItem> comboBox = new ComboBox<>();
-        comboBox.getItems().addAll(
+        ComboBox<InputTextPane.ComboItem> comboBoxRedes = new ComboBox<>();
+        comboBoxRedes.getItems().addAll(
                 new InputTextPane.ComboItem("peer02", "Mastercard"),
                 new InputTextPane.ComboItem("peer01", "Visa"));
-        comboBox.getSelectionModel().selectFirst();
+        comboBoxRedes.getSelectionModel().selectFirst();
 
-        inputPane = new InputTextPane("input", "Parsear", "Limpiar", comboBox);
+        comboBoxOpciones = new ComboBox<>();
+        comboBoxOpciones.getItems().addAll(
+                new InputTextPane.ComboItem("iso20022", "ISO20022"),
+                new InputTextPane.ComboItem("textClear", "Texto plano"));
+        comboBoxOpciones.getSelectionModel().selectFirst();
+
+        inputPane = new InputTextPane("input", "Parsear", "Limpiar",
+                comboBoxRedes,
+                comboBoxOpciones, "Formato salida:",
+                InputTextPane.ComboDirection.LEFT);
         inputPane.getTextArea().setText(TRAMA_MASTERCARD);
         outputPane = new OutputTextPane("output", "Copiar");
         treePane = new TreeOutputPane("Estructura del mensaje");
 
-        comboBox.setOnAction(e -> {
-            InputTextPane.ComboItem item = comboBox.getValue();
+        comboBoxRedes.setOnAction(e -> {
+            InputTextPane.ComboItem item = comboBoxRedes.getValue();
             if (item != null) {
                 itemSeleccionado = item.getId();
                 if ("peer01".equalsIgnoreCase(itemSeleccionado)) {
@@ -106,9 +116,15 @@ public class ParseViewerPane extends AbstractBasePane {
             ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields);
 
             FXParseGUI.updateTreeView(treePane.getTreeView(), result);
-            ObjectMapper objectMapper = new ObjectMapper();
-            outputPane.getTextArea()
-                    .setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022));
+
+            if (comboBoxOpciones.getValue().getId().equals("iso20022")) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                outputPane.getTextArea()
+                        .setText(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso20022));
+            } else {
+                String trama = delegateParser.unParserPlainText(mapValues);
+                outputPane.getTextArea().setText(trama);
+            }
 
         } catch (Exception ex) {
             FXUtils.showErrorAlert("Error al parsear el mensaje: " + ex.getMessage());

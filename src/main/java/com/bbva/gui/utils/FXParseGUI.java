@@ -60,9 +60,12 @@ public class FXParseGUI {
         sortedBitmap1.values().forEach(n -> bitmapNode1.getChildren().add(n));
         sortedBitmap2.values().forEach(n -> bitmapNode2.getChildren().add(n));
 
-        if (!headerNode.getChildren().isEmpty()) root.getChildren().add(headerNode);
-        if (!bitmapNode1.getChildren().isEmpty()) root.getChildren().add(bitmapNode1);
-        if (!bitmapNode2.getChildren().isEmpty()) root.getChildren().add(bitmapNode2);
+        if (!headerNode.getChildren().isEmpty())
+            root.getChildren().add(headerNode);
+        if (!bitmapNode1.getChildren().isEmpty())
+            root.getChildren().add(bitmapNode1);
+        if (!bitmapNode2.getChildren().isEmpty())
+            root.getChildren().add(bitmapNode2);
 
         root.setExpanded(true);
         headerNode.setExpanded(true);
@@ -81,7 +84,8 @@ public class FXParseGUI {
                 .forEach(entry -> headerNode.getChildren().add(
                         new TreeItem<>(entry.getKey() + ": [" + entry.getValue() + "]")));
 
-        if (!headerNode.getChildren().isEmpty()) root.getChildren().add(headerNode);
+        if (!headerNode.getChildren().isEmpty())
+            root.getChildren().add(headerNode);
         root.setExpanded(true);
         headerNode.setExpanded(true);
         treeView.setRoot(root);
@@ -89,6 +93,9 @@ public class FXParseGUI {
 
     public static ParseResult process(Map<String, String> mapValues) {
         Map<String, String> fieldsById = new HashMap<>();
+        mapValues.remove("plainTextPCI");
+        mapValues.remove("networkName");
+        mapValues.remove("header");
         for (Map.Entry<String, String> entry : mapValues.entrySet()) {
             String fieldId = findFieldIdByName(entry.getKey());
             fieldsById.put(fieldId != null ? fieldId : entry.getKey(), entry.getValue());
@@ -113,14 +120,16 @@ public class FXParseGUI {
         try {
             String raw = nodeText.substring(1, 4).trim();
             String fieldId = raw.replaceFirst("^0+", "");
-            if (fieldId.isEmpty()) fieldId = "0";
+            if (fieldId.isEmpty())
+                fieldId = "0";
             String data = nodeText.length() > 6 ? nodeText.substring(6).trim() : "";
             ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Detalle del campo");
             alert.setHeaderText("Campo " + fieldId);
-            String content = String.format("ID: %d%nNombre: %s%nTipo dato: %s%nCaracteristicas: %s%nLongitud: %d%nData: %s",
+            String content = String.format(
+                    "ID: %d%nNombre: %s%nTipo dato: %s%nCaracteristicas: %s%nLongitud: %d%nData: %s",
                     dataType.getId(), dataType.getTypeData(),
                     dataType.getTypeData(), dataType.getCaracteristicaDato(),
                     dataType.getLength(), data);
