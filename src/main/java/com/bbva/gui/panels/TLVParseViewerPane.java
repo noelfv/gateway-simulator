@@ -58,21 +58,10 @@ public class TLVParseViewerPane extends AbstractBasePane {
             MastercardHandlerField mastercardHandlerField = ApplicationContextProvider
                     .getBean(MastercardHandlerField.class);
             CompositeTlvFieldParser fieldTLV = new CompositeTlvFieldParser("48");
-            Map<String, String> mapValues = new HashMap<>();
-            String inputMessageTemp;
-
-            if (inputMessage.substring(2, 3).startsWith("F")) {
-                inputMessageTemp = inputMessage;
-                mapValues = fieldTLV.parseToMap(inputMessageTemp, null, mastercardHandlerField);
-                inputMessageTemp = ISOUtil.ebcdicToString(inputMessageTemp);
-            } else {
-                inputMessageTemp = ISOUtil.stringToEBCDICHex(inputMessage);
-                mapValues = fieldTLV.parseToMap(inputMessageTemp, null, mastercardHandlerField);
-            }
-
+            Map<String, String> mapValues = fieldTLV.parseToMap(inputMessage, null, mastercardHandlerField);
             ParseResult result = FXParseGUI.processTLV(mapValues);
             FXParseGUI.updateTreeViewTLV(treePane.getTreeView(), result);
-            outputPane.getTextArea().setText(inputMessageTemp);
+            outputPane.getTextArea().setText(ISOUtil.ebcdicToString(inputMessage));
 
         } catch (Exception ex) {
             FXUtils.showErrorAlert("Error al parsear el mensaje: " + ex.getMessage());
