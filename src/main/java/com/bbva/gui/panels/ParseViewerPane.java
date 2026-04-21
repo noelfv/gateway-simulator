@@ -93,7 +93,7 @@ public class ParseViewerPane extends AbstractBasePane {
 
     private void parseMessage() {
         try {
-            String inputMessage = inputPane.getTextArea().getText().trim();
+            String inputMessage = inputPane.getTextArea().getText();
             if (inputMessage.isEmpty()) {
                 FXUtils.showInfoAlert("Aviso", "Por favor ingrese un mensaje para parsear");
                 return;

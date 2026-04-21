@@ -63,13 +63,12 @@ public class ParseClearViewerPane extends AbstractBasePane {
 
     private void parseMessage() {
         try {
-            String inputMessage = inputPane.getTextArea().getText().trim();
+            String inputMessage = inputPane.getTextArea().getText();
             if (inputMessage.isEmpty()) {
                 FXUtils.showInfoAlert("Aviso", "Por favor ingrese un mensaje para parsear");
                 return;
             }
 
-            ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser("PEER02");
             ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper("PEER02");
             NetworkDelegateFieldLogic delegateFieldLogic = fieldLogicFactory.getDelegateFieldLogic("PEER02");
             Map<String, String> mapValues = ISO8583Processor.createMapFieldsISO8583Mastercard(inputMessage);

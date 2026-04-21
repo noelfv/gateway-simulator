@@ -31,7 +31,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
     private TreeOutputPane treePane;
     private ComboBox<InputTextPane.ComboItem> comboBoxRedes;
     private ComboBox<InputTextPane.ComboItem> comboBoxFormato;
-    private String redSeleccionada    = "peer02";
+    private String redSeleccionada = "peer02";
     private String formatoSeleccionado = "hex";
 
     public ConvertTramaOriginalPane(BeanProviderInstance beans) {
@@ -50,7 +50,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
 
         comboBoxFormato = new ComboBox<>();
         comboBoxFormato.getItems().addAll(
-                new InputTextPane.ComboItem("hex",   "Hexadecimal"),
+                new InputTextPane.ComboItem("hex", "Hexadecimal"),
                 new InputTextPane.ComboItem("plain", "Texto plano"));
         comboBoxFormato.getSelectionModel().selectFirst();
 
@@ -59,7 +59,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
                 comboBoxFormato, "Formato de salida:",
                 InputTextPane.ComboDirection.LEFT);
         outputPane = new OutputTextPane("output", "Copiar");
-        treePane   = new TreeOutputPane("Estructura del mensaje");
+        treePane = new TreeOutputPane("Estructura del mensaje");
 
         Platform.runLater(() -> inputPane.getTextArea().setText(SAMPLE_MASTERCARD));
 
@@ -93,7 +93,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
 
     private void parseMessage() {
         try {
-            String inputMessage = inputPane.getTextArea().getText().trim();
+            String inputMessage = inputPane.getTextArea().getText();
             if (inputMessage.isEmpty()) {
                 FXUtils.showInfoAlert("Aviso", "Por favor ingrese un mensaje para parsear");
                 return;

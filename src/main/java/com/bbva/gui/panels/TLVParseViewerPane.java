@@ -11,8 +11,6 @@ import com.bbva.gui.utils.FXUtils;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class TLVParseViewerPane extends AbstractBasePane {
@@ -49,7 +47,7 @@ public class TLVParseViewerPane extends AbstractBasePane {
 
     private void parseMessage() {
         try {
-            String inputMessage = inputPane.getTextArea().getText().trim();
+            String inputMessage = inputPane.getTextArea().getText();
             if (inputMessage.isEmpty()) {
                 FXUtils.showInfoAlert("Aviso", "Por favor ingrese un mensaje para parsear");
                 return;

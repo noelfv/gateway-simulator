@@ -9,6 +9,10 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
@@ -50,14 +54,44 @@ public abstract class AbstractBasePane extends BorderPane {
     }
 
     protected void setupTreeClickHandler(TreeOutputPane treePane) {
+        MenuItem menuCopiar = new MenuItem("Copiar valor");
+        MenuItem menuExportar = new MenuItem("Exportar como JSON");
+        ContextMenu contextMenu = new ContextMenu(menuCopiar, new SeparatorMenuItem(), menuExportar);
+
+        menuCopiar.setOnAction(e -> {
+            TreeItem<String> selected = treePane.getTreeView().getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                String texto = extractNodeValue(selected.getValue());
+                ClipboardContent content = new ClipboardContent();
+                content.putString(texto);
+                Clipboard.getSystemClipboard().setContent(content);
+                FXUtils.mostrarTooltipTemporal(treePane.getTreeView(), "¡Valor copiado!", 1500);
+            }
+        });
+
+        menuExportar.setOnAction(e -> FXParseGUI.showExportJsonDialog(treePane.getTreeView()));
+
+        treePane.getTreeView().setContextMenu(contextMenu);
+
         treePane.getTreeView().setOnMouseClicked(evt -> {
-            if (evt.getClickCount() == 1) {
+            if (evt.getButton() == MouseButton.PRIMARY && evt.getClickCount() == 1) {
                 TreeItem<String> selected = treePane.getTreeView().getSelectionModel().getSelectedItem();
                 if (selected != null && selected.getChildren().isEmpty()) {
                     FXParseGUI.showNodeDetails(selected.getValue());
                 }
             }
         });
+    }
+
+    private String extractNodeValue(String nodeText) {
+        if (nodeText == null) return "";
+        // Para nodos tipo "P001: [valor]" extrae solo el valor entre corchetes
+        int start = nodeText.indexOf('[');
+        int end = nodeText.lastIndexOf(']');
+        if (start >= 0 && end > start) {
+            return nodeText.substring(start + 1, end);
+        }
+        return nodeText;
     }
 
     protected void clearFields(InputTextPane inputPane, OutputTextPane outputPane, TreeOutputPane treePane) {
