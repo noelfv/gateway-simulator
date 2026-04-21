@@ -1,9 +1,7 @@
 package com.bbva.orchestrator.core.builders;
 
-import com.bbva.gateway.dto.iso20022.ContextDTO;
-import com.bbva.gateway.dto.iso20022.EnvironmentDTO;
-import com.bbva.gateway.dto.iso20022.MonitoringDTO;
-import com.bbva.gateway.dto.iso20022.TransactionDTO;
+import com.bbva.gateway.dto.iso20022.*;
+import com.bbva.gateway.interceptors.GrpcHeadersInfo;
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.core.dto.ISO8583;
@@ -12,23 +10,21 @@ import com.bbva.orchestrator.core.enums.FilterOperator;
 import com.bbva.orchestrator.core.enums.TransactionType;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.Set;
+import java.util.Optional;
 
 @Component
 public class MonitoringBuilder {
 
-    private static final Set<String> MTI_OUTPUT = Set.of("0110", "0130", "0410", "0430");
-    private static final Set<String> LIST_CODE_APPROVED = Set.of("00", "10", "11");
+    private static final Set<String> MTI_OUTPUT = Set.of("0110", "0130", "0410", "0430","0610","0630");
+    private static final Set<String> LIST_CODE_APPROVED = Set.of("00", "10", "11","87","08","85","N0");
     private static final String BIN_ADQUIRENTE_P2P = "420829";
     private static final String APPROVED = "Approved"; //Se recibió una respuesta positiva.
     private static final String DENIED = "Denied";//Se recibió una respuesta negativa.
-    private static final String PENDING = "Pending";//La solicitud ha sido enviada y se espera una respuesta.
     private final ApplicationDataCache applicationDataCache;
 
 
@@ -47,6 +43,7 @@ public class MonitoringBuilder {
         try {
             String currentTime = String.valueOf(Instant.now().toEpochMilli());
             if(FieldUtil.requiredProcess(input.getMessageType())){
+
                 String binCode = extractBinCode(input.getPrimaryAccountNumber());
                 String merchantName = extractMerchantName(envAcceptorNameAndLocation);
                 monitoring.setStartDateMs(currentTime);
@@ -56,17 +53,22 @@ public class MonitoringBuilder {
                 monitoring.setMerchantCategoryDescription(applicationDataCache.getCustomValue("merchant_type", merchantCategory));
                 monitoring.setTransactionTypeDescription(TransactionType.getTransactionType(transaction.getTransactionType()));
                 monitoring.setCountryDate(getCurrentDatePeru());
-                monitoring.setTransactionStatus(PENDING);//Indicador para saber que la transacción no obtuvo respuesta.
                 monitoring.setChannelFilter(channelFilterDescription(context.getPointOfServiceContext().getEcommerceIndicator(), environment.getTerminal().getKey()));
                 monitoring.setOperationFilter(FilterOperator.getFilterOperator(transaction.getTransactionType()));
+                monitoring.setIsNextGen(false);
                 if (BIN_ADQUIRENTE_P2P.equals(envAcquirerId)) {
                     monitoring.setP2pType(envAcceptorNameAndLocation.substring(0, 4));
                     monitoring.setOriginBankCode(envAcceptorId.trim());
                     monitoring.setOriginBankDescription(applicationDataCache.getCustomValue("bank_p2p", monitoring.getOriginBankCode()));
+                    monitoring.setMerchantNameAceptor("Visa direct");//TODO revisar y validar que dato podemos colocar en este campo, ya que el nombre del comercio se ennvia los datos del cliente
+                    monitoring.setTransactionTypeDescription(TransactionType.getTransactionType(transaction.getTransactionType()));//TODO este dato se deberia calcular a partir del transaction type
+                    monitoring.setChannelFilter("P2PP");//TODO este dato se deberia calcular a partir del ecommerce indicator y el terminal key .channelFilterDescription
                 }
             } else {
                 if (MTI_OUTPUT.contains(input.getMessageType())) {
                     monitoring.setEndDateMs(currentTime);
+                    monitoring.setIsNextGen(false);
+
                     if(LIST_CODE_APPROVED.contains(input.getResponseCode())){
                         monitoring.setTransactionStatus(APPROVED);
                     }else{
@@ -93,7 +95,6 @@ public class MonitoringBuilder {
             resultBinCode = primaryAccountNumber.substring(0, 6);
             return resultBinCode;
         } catch (Exception e) {
-            LogsTraces.writeWarning("Error getting the binCode from the field primaryAccountNumber  " +e.getMessage());
             return resultBinCode;
         }
     }

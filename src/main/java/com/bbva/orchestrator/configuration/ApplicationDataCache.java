@@ -1,12 +1,11 @@
 package com.bbva.orchestrator.configuration;
 
 import com.bbva.orchlib.configuration.BusinessDataLoad;
-import com.bbva.orchlib.featuretoggle.businessdata.Bin;
-import com.bbva.orchlib.featuretoggle.businessdata.Currency;
-import com.bbva.orchlib.featuretoggle.businessdata.Custom;
-import com.bbva.orchlib.featuretoggle.businessdata.Fields;
+import com.bbva.orchlib.configuration.preloaddto.businessdata.Bin;
+import com.bbva.orchlib.configuration.preloaddto.businessdata.Currency;
+import com.bbva.orchlib.configuration.preloaddto.businessdata.Custom;
+import com.bbva.orchlib.configuration.preloaddto.businessdata.Fields;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +39,25 @@ public class ApplicationDataCache {
 
     public String getBinDescription(String network, String key) {
         Map<String, String> map = inputBinesByNetwork.get(network);
+
         if (map == null) {
             return key;
         }
+
+        if(!map.containsKey(key)){
+            return "BIN_NO_BBVA";
+        }
+
         String description = map.get(key);
         return description != null ? description : key;
+    }
+
+    public boolean containsBin(String network, String key) {
+        if (inputBinesByNetwork == null || network == null || key == null) {
+            return false;
+        }
+        Map<String, String> map = inputBinesByNetwork.get(network);
+        return map != null && map.containsKey(key);
     }
 
     public String getCustomValue(String section, String key) {

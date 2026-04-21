@@ -4,13 +4,13 @@ import com.bbva.gateway.dto.iso20022.AdditionalIdDTO;
 import com.bbva.gateway.utils.LogsTraces;
 import com.bbva.orchestrator.configuration.ApplicationDataCache;
 import com.bbva.orchestrator.configuration.ApplicationDataLocalCache;
-import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.enums.Field6001TerminalType;
 import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
+import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.network.visa.VisaAxisOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
@@ -19,6 +19,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MapperUtil {
 
+    private static final String VAR_6001 = "60.01";
     private static final Set<String> LIST_CODE_APPROVED = Set.of("00", "10", "11");
     private static final Set<String> MTI_OUTPUT = Set.of("0110", "0130", "0410", "0430","0120", "0420", "0312");
     private final ApplicationDataCache applicationDataCache;
@@ -45,6 +46,25 @@ public class MapperUtil {
 
     public String getBinDescription(String network,String bin) {
         return applicationDataCache.getBinDescription(network,bin);
+    }
+
+    public boolean containsBin(ISO8583 input, Map<String, String> subFields) {
+        try {
+            if (subFields == null || input == null) {
+                LogsTraces.writeWarning("containsBin: input o subFields es nulo");
+                return true;
+            }
+
+            String pan = input.getPrimaryAccountNumber();
+            if (pan == null || pan.length() < 6) {
+                LogsTraces.writeWarning("containsBin: PAN nulo o con longitud insuficiente: " + pan);
+                return true;
+            }
+            return applicationDataCache.containsBin(input.getNetworkName(), pan.substring(0, 6));
+        } catch (Exception e) {
+            LogsTraces.writeWarning("containsBin: error inesperado: " + e.getMessage());
+            return true;
+        }
     }
 
     public String convertLabelDataToResponseCode(String network,String labelData) {
@@ -146,9 +166,12 @@ public class MapperUtil {
         if("peer02".equalsIgnoreCase(iso8583.getNetworkName())){
             return MastercardAxisOperator.entryModeIndicator(subFields, cardDataEntryMode);
         }else {
-            //return ProcessSubFieldsVisa.entryModeIndicator(subFields, values.getMerchantType());
             return VisaAxisOperator.entryModeIndicator(subFields, cardDataEntryMode);
         }
+    }
+
+    public String generateSpecialProgrammeQualificationDetailName(String network){
+        return "peer02".equalsIgnoreCase(network) ? "mastercard_promotion_code" : null;
     }
 
     public String ownerValue(String channel) {
@@ -156,16 +179,16 @@ public class MapperUtil {
     }
 
     //TODO revisar la nueva estructura de los mensajes
-    public  String createTransactionReference(ISO8583 inputObject, Map<String, String> subFields, String networkName){
+    public  String createTransactionReference(ISO8583 inputObject){
         StringBuilder transactionReference = new StringBuilder();
-
-        String P07 = isNullOrEmpty(inputObject.getTransmissionDateTime());
+        String msgType = isNullOrEmpty(inputObject.getMessageType()).equals("") ? "" : isNullOrEmpty(inputObject.getMessageType()).substring(0,2);
         String P11 = isNullOrEmpty(inputObject.getSystemTraceAuditNumber());
         String P32 = isNullOrEmpty(inputObject.getAcquiringInstitutionIdentificationCode());
         String P37 = isNullOrEmpty(inputObject.getRetrievalReferenceNumber());
         String P41 = isNullOrEmpty(inputObject.getCardAcceptorTerminalIdentification());
 
-        transactionReference.append(P07)
+        transactionReference
+                    .append(msgType)
                     .append(P11)
                     .append(P32)
                     .append(P37)
@@ -183,6 +206,21 @@ public class MapperUtil {
         }else {
             return VisaAxisOperator.channelTPVIndicator(subFields, iso8583.getMerchantType());
         }
+    }
+
+    public static String enviromentTerminalTypeVisa(Map<String, String> subFields) {
+
+        if (subFields == null) {
+            return "UNSP";
+        }
+
+        String val6001 = subFields.get(VAR_6001);
+
+        if (val6001 == null) {
+            return "UNSP";
+        }
+        return Field6001TerminalType.convertToISO20022(val6001);
+
     }
 
     public Boolean channelECommerceIndicator(String networkName, Map<String, String> subFields, String pointServiceConditionCode) {
@@ -313,5 +351,7 @@ public class MapperUtil {
         }
         return input.substring(beginIndex, endIndex);
     }
+
+
 
 }

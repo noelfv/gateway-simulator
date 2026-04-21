@@ -7,7 +7,6 @@ import com.bbva.orchestrator.core.parser.iso8583.ParsedFieldResult;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.NetworkHandlerField;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,6 +78,22 @@ public class ParserUtil {
         }
 
         return mapMaskedValues;
+    }
+
+    public static String getTransactionType(Map<String,String> mapValues) {
+        String processingCode = mapValues.get("processingCode");
+        if (processingCode == null || processingCode.length() < 2) {
+            return "";
+        }
+        return processingCode.substring(0, 2);
+    }
+
+    public static String getBinCode(Map<String,String> mapValues) {
+        String primaryAccountNumber = mapValues.get("primaryAccountNumber");
+        if (primaryAccountNumber == null || primaryAccountNumber.length() < 6) {
+            return "";
+        }
+        return primaryAccountNumber.substring(0, 6);
     }
 
     private static  String maskWithDefaultChar(String value) {

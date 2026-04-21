@@ -1,5 +1,7 @@
 package com.bbva.orchestrator.core.utils;
 
+import com.bbva.gateway.utils.LogsTraces;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
@@ -10,8 +12,17 @@ import java.util.Set;
 
 public class FieldUtil {
 
+
+    public static void requestMessage(String messageType,String messagePCI){
+        LogsTraces.writeInfo("requestMessage["+messageType+"] : " + messagePCI);
+    }
+
+    public static void transactionReference(String transactionReference,String networkName,String typeMessage,String operationType,String traceID){
+        LogsTraces.writeInfo("transactionReference["+transactionReference+"] : |" + networkName+"|"+typeMessage+"|"+operationType+"|"+traceID+"|");
+    }
+
     public static boolean requiredProcess(String messageType) {
-        return Set.of("0100","0101","0120","0400","0401","0420").contains(messageType);
+        return Set.of("0100","0101","0120","0400","0401","0420","0600","0620").contains(messageType);
     }
     /**
      * Parsea un String a Double, devuelve null si es nulo, vacío o inválido.
@@ -67,7 +78,9 @@ public class FieldUtil {
 
             return outputFormatter.withZone(ZoneOffset.UTC).format(instant);
         } catch (Exception e) {
-            return null;
+            LogsTraces.writeWarning("Fecha por defecto por error en el formato de fecha: " + value);
+            // USA LocalDateTime o Instant en lugar de LocalDate para incluir la hora
+            return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
         }
     }
 
@@ -140,38 +153,77 @@ public class FieldUtil {
         return (value != null && value == 0.0) ? null : value;
     }
 
-
-    //TODO REVISAR LA FUNCIONALIDAD
     public static String convertEffectiveExchangeRate(String value) {
         if (value == null || value.isEmpty()) {
             return null;
         }
 
         StringBuilder conversionRate = new StringBuilder(value);
-        int precision = Integer.parseInt(conversionRate.substring(0, 1));
 
+        // Obtenemos la precisión del primer dígito
+        int precision = Character.getNumericValue(conversionRate.charAt(0));
         conversionRate.deleteCharAt(0);
-        conversionRate.insert(conversionRate.length() - precision, ".");
+
+        // Calculamos la posición donde debe ir el punto
+        int insertPosition = conversionRate.length() - precision;
+
+        // Si la posición es negativa, significa que faltan ceros a la izquierda
+        if (insertPosition < 0) {
+            int zerosToAdd = Math.abs(insertPosition);
+            for (int i = 0; i < zerosToAdd; i++) {
+                conversionRate.insert(0, "0");
+            }
+            insertPosition = 0; // El punto irá al inicio
+        }
+
+        conversionRate.insert(insertPosition, ".");
+
+        // Para buena legibilidad: si el string empieza con punto (ej. ".1234567"), agregar un "0"
+        if (conversionRate.charAt(0) == '.') {
+            conversionRate.insert(0, "0");
+        }
+
         return conversionRate.toString();
     }
 
-    //TODO REVISAR LA FUNCIONALIDAD
     public static String convertConversionRate(String value) {
-        if (value == null) {
+        if (value == null || value.isEmpty()) {
             return "";
         }
 
         StringBuilder conversionRate = new StringBuilder(value);
+        int dotPosition = conversionRate.indexOf(".");
+        int precision = 0;
+
+        // Si tiene punto decimal, lo procesamos
+        if (dotPosition != -1) {
+            precision = conversionRate.length() - (dotPosition + 1);
+            conversionRate.deleteCharAt(dotPosition);
+        }
+
+        // Aseguramos que la precisión no sea mayor a 9 (solo ocupa 1 dígito en ISO8583)
+        if (precision > 9) precision = 9;
+
+        while(conversionRate.length() > 7) {
+            conversionRate.deleteCharAt(0);
+        }
+
+        // Insertamos el dígito de precisión al inicio
+        conversionRate.insert(0, precision);
+
+        // Rellenamos con ceros a la derecha hasta alcanzar la longitud de 8 caracteres estándar
         while (conversionRate.length() < 8) {
             conversionRate.append("0");
         }
 
-        int dotPosition = conversionRate.indexOf(".");
-        int precision = conversionRate.length() - (dotPosition + 1);
-        conversionRate.deleteCharAt(dotPosition);
-        conversionRate.insert(0, precision);
+        // Si nos pasamos de 8 caracteres (trama malformada), lo truncamos a los primeros 8
+        if (conversionRate.length() > 8) {
+            return conversionRate.substring(0, 8);
+        }
+
         return conversionRate.toString();
     }
+
 
     // --- Métodos Específicos para Montos ---
     public static String validAmount(String amount) {

@@ -3,7 +3,9 @@ package com.bbva.orchestrator.core.mapper.iso20022.strategy.impl;
 import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
+import com.bbva.orchestrator.core.enums.Field6002TerminalEntryCapability;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
+import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingResponseStrategy;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
@@ -13,8 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class EnvironmentMappingStrategy implements SectionMappingStrategy<EnvironmentDTO> {
+public class EnvironmentMappingStrategy implements SectionMappingStrategy<EnvironmentDTO>, SectionMappingResponseStrategy<EnvironmentDTO> {
 
+    private static final String POSTAL_CODE_KEY = "postalCode";
+    private static final String ADDITIONAL_DATA_RETAILER_KEY = "additionalDataRetailer";
     private final MapperUtil mapperUtil;
     
     public EnvironmentMappingStrategy(MapperUtil mapperUtil) {
@@ -53,17 +57,26 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .capability(CardholderVerificationCapability.convertCardholderVerificationCapability(subFields.getOrDefault("22.02",null)))
                     .build();
 
+            String  terminalEntryCapability = Field6002TerminalEntryCapability.convertToISO20022(
+                    subFields.getOrDefault("60.02", null)
+            );
+
             CardReadingCapabilityDTO cardReadingCapability = CardReadingCapabilityDTO.builder()
                     .capability(CardholderVerificationCapability.mapCardReadingCapability_Capability(
                                     subFields.getOrDefault("61.11", null))
                                     .getOrDefault("capability",null))
+                    .build();
+            CardReadingCapabilityDTO cardReadingCapabilityVisa = CardReadingCapabilityDTO.builder()
+                    .capability(CardholderVerificationCapability.mapCardReadingCapability_Capability(
+                                    terminalEntryCapability)
+                            .getOrDefault("capability",null))
                     .build();
 
             CapabilitiesDTO capabilities = CapabilitiesDTO.builder()
                     .cardholderVerificationCapabilities(List.of(cvCapability))
                     .cardCaptureCapable(CardholderVerificationCapability.mapCapabilities_CardCaptureCapable(
                             subFields.getOrDefault("61.06", null)))
-                    .cardReadingCapabilities(List.of(cardReadingCapability))
+                    .cardReadingCapabilities("peer01".equalsIgnoreCase(input.getNetworkName()) ? List.of(cardReadingCapabilityVisa) : List.of(cardReadingCapability))
                     .build();
 
             TerminalIdDTO terminalId = TerminalIdDTO.builder()
@@ -76,7 +89,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .build();
 
             // ... resto del mapeo
-            String type = mapperUtil.channelTPVIndicator(input, subFields);
+            String type = "peer02".equalsIgnoreCase(input.getNetworkName()) ? mapperUtil.channelTPVIndicator(input,subFields) : MapperUtil.enviromentTerminalTypeVisa(subFields);
 
             Map<String,String> posTerminalLocation = CardholderVerificationCapability.mapPosTerminalLocation(
                     subFields.getOrDefault("61.03", null),
@@ -95,7 +108,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
             // ======== FIELD 62 (MAPPED AS POSTAL CODE) ========
             AdditionalIdDTO postalCodeData = AdditionalIdDTO.builder()
-                    .key("postalCode")
+                    .key(POSTAL_CODE_KEY)
                     .value(input.getPostalCode())
                     .build();
 
@@ -110,7 +123,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
 
             // ======== FIELD 48 (ADDITIONAL DATA RETAILER) ========
             AdditionalIdDTO additionalDataRetailer = AdditionalIdDTO.builder()
-                    .key("additionalDataRetailer")
+                    .key(ADDITIONAL_DATA_RETAILER_KEY)
                     .value(input.getAdditionalDataRetailer())
                     .build();
 
@@ -142,7 +155,7 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
                     .assigner(input.getPosCardIssuer())
                     .build();
 
-            if(!Set.of("0110","0130","0410","0430","0210","0810","0312","0800").contains(input.getMessageType())){
+            if(!Set.of("0110","0130","0410","0430","0210","0810","0312","0800","0610","0630").contains(input.getMessageType())){
                 return EnvironmentDTO.builder()
                         .card(card)
                         .terminal(terminal)
@@ -194,13 +207,13 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
         // Acquirer Information
         resultMap.put("acquiringInstitutionIdentificationCode", mapperUtil.getFieldValue(acquirer, AcquirerDTO::getId, DEFAULT_EMPTY_VALUE));
         resultMap.put("acquirerCountryCode", mapperUtil.getFieldValue(acquirer, AcquirerDTO::getCountry, DEFAULT_EMPTY_VALUE));
-        resultMap.put("postalCode", mapperUtil.getAdditionalDataValue(acquirer.getAdditionalId(), "postalCode", DEFAULT_EMPTY_VALUE));
+        resultMap.put(POSTAL_CODE_KEY, mapperUtil.getAdditionalDataValue(acquirer.getAdditionalId(), POSTAL_CODE_KEY, DEFAULT_EMPTY_VALUE));
 
         // Sender Information
         // ======== FIELD 33 (FORWARDING INSTITUTION IDENTIFICATION CODE) ========
         resultMap.put("forwardingInstitutionIdentificationCode", mapperUtil.getFieldValue(sender, SenderDTO::getId, DEFAULT_EMPTY_VALUE));
         // ======== FIELD 48 (ADDITIONAL DATA RETAILER) ========
-        resultMap.put("additionalDataRetailer", mapperUtil.getAdditionalDataValue(sender.getAdditionalId(), "additionalDataRetailer", DEFAULT_EMPTY_VALUE));
+        resultMap.put(ADDITIONAL_DATA_RETAILER_KEY, mapperUtil.getAdditionalDataValue(sender.getAdditionalId(), ADDITIONAL_DATA_RETAILER_KEY, DEFAULT_EMPTY_VALUE));
 
         // Acceptor Information
         resultMap.put("cardAcceptorIdentificationCode", mapperUtil.getFieldValue(acceptor, AcceptorDTO::getId, DEFAULT_EMPTY_VALUE));
@@ -210,5 +223,15 @@ public class EnvironmentMappingStrategy implements SectionMappingStrategy<Enviro
         resultMap.put("posCardIssuer", mapperUtil.getFieldValue(issuer, IssuerDTO::getAssigner, DEFAULT_EMPTY_VALUE));
 
         return resultMap;
+    }
+
+    @Override
+    public EnvironmentDTO mapperResponse(ISO8583 input) {
+        CardDTO card = CardDTO.builder()
+                .pan(input.getPrimaryAccountNumber())
+                .build();
+        return EnvironmentDTO.builder()
+                .card(card)
+                .build();
     }
 }

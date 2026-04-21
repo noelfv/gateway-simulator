@@ -113,7 +113,7 @@ public class ParseViewerPane extends AbstractBasePane {
             ParseResult result = FXParseGUI.process(mapValuesTree);
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, mapValues);
             Map<String, String> subFields = delegateFieldLogic.parseSubfields(iso8583);
-            ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields);
+            ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields, "peer01");
 
             FXParseGUI.updateTreeView(treePane.getTreeView(), result);
 

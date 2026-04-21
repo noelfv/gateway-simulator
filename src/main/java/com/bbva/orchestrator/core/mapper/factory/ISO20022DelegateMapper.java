@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface ISO20022DelegateMapper {
 
-    ISO20022 mapper(ISO8583 input, Map<String, String> subFields);
+    ISO20022 mapper(ISO8583 input, Map<String, String> subFields, String label);
 
-    Map<String,String> unMapper(ISO20022 input);
+    Map<String, String> unMapper(ISO20022 input);
 }

@@ -12,7 +12,6 @@ import com.bbva.orchestrator.core.utils.ParserUtil;
 import com.bbva.orchlib.parser.ParserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,10 +46,9 @@ public class VisaProcessField {
 
         try {
 
-            String header = processHeader(isoMessage);
+            String header = processHeaderComplete(isoMessage, valuesMap);
             position += header.length();
             valuesMap.put(VisaISOField.HEADER.getName(), header);
-
             position = processFieldData(VisaISOField.MESSAGE_TYPE, isoMessage, position, valuesMap);
             position = processFieldData(VisaISOField.BITMAP_PRIMARY, isoMessage, position, valuesMap);
 
@@ -69,15 +67,15 @@ public class VisaProcessField {
                     VisaISOField field = VisaISOField.getById(i);
 
                     if (field == null) {
-                        LogsTraces.writeInfo("Campo no permitido: " + i + ". No hay mapeo disponible.");
+                        LogsTraces.writeWarning("Campo no permitido: " + i + ". No hay mapeo disponible.");
                         throw new ParserException(ParserUtil.createMessageError(i));
                     }
                     position = processFieldData(field, isoMessage, position, valuesMap);
                 }
             }
         } catch (ParserException e) {
-            LogsTraces.writeError("parserError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
-            throw e;
+            LogsTraces.writeWarning("parserError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
+            return valuesMap;
         } catch (Exception e) {
             LogsTraces.writeError("messageError: " +FieldUtil.extractSegment(originalMessageHex,containsSecondaryBitmap));
             throw new ParserException(FieldUtil.formatMessageException("[PGWP-00000]","No se puede parsear el mensaje ISO - "+FieldUtil.processError(originalMessageHex,"peer01", containsSecondaryBitmap),e.getCause()));
@@ -208,11 +206,31 @@ public class VisaProcessField {
 
         String messageType = mapValues.getOrDefault("messageType", "0000");
         String bitmapHex = ISOUtil.convertBITMAPtoHEX(binaryBitmap.toString());
+        String header = mapValues.getOrDefault("header", "HEADER_NOT_FOUND");
 
-        return messageType + bitmapHex + isoValues;
+        return header + messageType + bitmapHex + isoValues;
     }
 
-    private  String processHeader(StringBuilder isoMessage) {
+    public String processHeaderComplete(StringBuilder isoMessage, Map<String, String> valuesMap) {
+
+        if (isoMessage.charAt(0) != '1' || isoMessage.charAt(1) != 'A') {
+            return processHeader(isoMessage.toString());
+        }
+
+        String isoString = isoMessage.toString();
+        String firstPart = processHeader(isoString);
+        valuesMap.put("rejectFlag", "0000");
+
+        String remaining = isoString.substring(firstPart.length());
+        String secondPart = processHeader(remaining);
+
+        return new StringBuilder(secondPart.length() + firstPart.length())
+                .append(firstPart)
+                .append(secondPart)
+                .toString();
+    }
+
+    public String processHeader(String isoMessage) {
         int start = 0;
         int length = VisaISOField.HEADER.getLength();
         String longHeader = isoMessage.substring(start, length);
@@ -221,4 +239,6 @@ public class VisaProcessField {
 
         return isoMessage.substring(0, length);
     }
+
+
 }

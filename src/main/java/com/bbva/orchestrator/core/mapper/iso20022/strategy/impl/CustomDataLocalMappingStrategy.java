@@ -33,9 +33,15 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
                     .value(input.getPlainTextPCI())
                     .build();
             // 3. Guardar el campo 48 original
-            RequestDTO iso8583AdditionalData_DE48 = RequestDTO.builder()
+            RequestDTO iso8583AdditionalDataDE48 = RequestDTO.builder()
                     .key("DE_48")
                     .value(input.getAdditionalDataRetailer())
+                    .build();
+
+            // 4. Guardar el campo 39 original en caso de los mensajes de aviso
+            RequestDTO iso8583ResponseCodeDE39 = RequestDTO.builder()
+                    .key("DE_39")
+                    .value(input.getResponseCode())
                     .build();
 
             additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
@@ -47,7 +53,11 @@ public class CustomDataLocalMappingStrategy implements SectionMappingStrategy<Cu
                     .build());
 
             additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
-                    .request(iso8583AdditionalData_DE48)
+                    .request(iso8583AdditionalDataDE48)
+                    .build());
+
+            additionalDataCustomDataLocalList.add(AdditionalDataCustomDataLocalDTO.builder()
+                    .request(iso8583ResponseCodeDE39)
                     .build());
 
             // 4. Construir el DTO final con la lista poblada

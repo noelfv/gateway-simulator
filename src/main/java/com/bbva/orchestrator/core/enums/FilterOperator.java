@@ -10,8 +10,13 @@ public enum FilterOperator {
 
     PURCHASE("00","PURCHASE"),
     WTHDMON("01","WTHDMON"),
-    NA("02","NA"),
-    REFUND("04","REFUND");
+    ACCOUNT_FUNDING_TRANSFER("10","AFT"),
+    QUASI_CASH("11","QUASI CASH"),
+    WTHDMON_WINDOW ("17","WTHDMON WINDOW"),
+    REFUND("20","REFUND"),
+    ORIGINAL_CREDIT_TRANSFER("26","OCT"),
+    PAYMENT("28","PAYMENT"),
+    BALANCE_INQUIRY("30","BALANCE INQUIRY");
 
     private final String key;
     private final String value;

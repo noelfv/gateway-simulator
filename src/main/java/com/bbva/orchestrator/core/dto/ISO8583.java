@@ -131,4 +131,7 @@ public class ISO8583 {
     private String messageAuthenticationCode2;
     private String networkName;
     private String plainTextPCI;
+    private String rejectFlag;
+    private String transactionType;
+    private String binCode;
 }

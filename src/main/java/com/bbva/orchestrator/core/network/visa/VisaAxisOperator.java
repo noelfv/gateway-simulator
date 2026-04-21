@@ -1,5 +1,6 @@
 package com.bbva.orchestrator.core.network.visa;
 
+
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class VisaAxisOperator {
     }
     public static Boolean channelECommerceIndicator(Map<String, String> subFields, String pointServiceConditionCode) {
 
-        if (!subFields.containsKey(VAR_6008) || pointServiceConditionCode == null) {
+        if (subFields==null || !subFields.containsKey(VAR_6008) || pointServiceConditionCode == null) {
             return false;
         }
 
@@ -61,7 +62,7 @@ public class VisaAxisOperator {
             return "POST";
         }
 
-        if ("01".equals(val0301)) {
+        if ("01".equals(val0301) || "30".equals(val0301)) {
             if ("6011".equals(merchantType)) {
                 return "ATMT";
             }
@@ -72,6 +73,8 @@ public class VisaAxisOperator {
 
         return "UNSP";
     }
+
+
 
     public static String entryModeIndicator(Map<String, String> subFields, String cardDataEntryMode) {
         return "ALL";

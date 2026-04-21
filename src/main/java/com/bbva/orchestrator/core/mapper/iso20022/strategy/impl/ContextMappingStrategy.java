@@ -4,7 +4,10 @@ import com.bbva.gateway.dto.iso20022.*;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardDataEntryMode;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
+import com.bbva.orchestrator.core.enums.Field6003ChipConditionCode;
+import com.bbva.orchestrator.core.enums.Field6008EcommerceIndicator;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
+import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingResponseStrategy;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
 import com.bbva.orchestrator.core.utils.FieldUtil;
 import com.bbva.orchestrator.core.utils.MapperUtil;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO> {
+public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO> , SectionMappingResponseStrategy<ContextDTO> {
 
     private final MapperUtil mapperUtil;
 
@@ -82,12 +85,19 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
 
             String captureDateValue = input.getCaptureDate();
 
+            Field6003ChipConditionCode chipConditionCode = Field6003ChipConditionCode.getByISO8583Value(
+                    subFields.getOrDefault("60.03",null)
+            );
+
+            String iccFallbackIndicator = chipConditionCode != null ? chipConditionCode.getIccFallbackIndicator() : null;
+
             TransactionContextDTO transactionContext = TransactionContextDTO.builder()
                     .merchantCategoryCode(input.getMerchantType())
                     .merchantCategorySpecificData("NATIONAL")
                     .reconciliation(reconciliation)
                     .settlementService(settlementService)
                     .captureDate(mapperUtil.validValue(captureDateValue))
+                    .iccFallbackIndicator(iccFallbackIndicator)
                     .additionalData(transactionContextAdditionalData)
                     .build();
 
@@ -104,6 +114,14 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                     .value(input.getPointServiceEntryMode())
                     .build();
 
+            Field6008EcommerceIndicator ecommIndicator = Field6008EcommerceIndicator.getByISO8583Value(
+                    subFields.getOrDefault("60.08", null)
+            );
+
+            String motoCodeFromField60 = ecommIndicator != null ? ecommIndicator.getMotoCode() : null;
+            String motoCode = motoCodeFromField60 != null ? motoCodeFromField60 : posCardHolderPresence.getOrDefault("MOTOCode",null);
+
+
             PointOfServiceContextDTO pointOfServiceContext = PointOfServiceContextDTO.builder()
                     .cardDataEntryMode(cardDataEntryModeValue)
                     .ecommerceIndicator(CardholderVerificationCapability.mapPointOfServiceContext_EcommerceIndicator(
@@ -114,7 +132,7 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                             subFields.getOrDefault("61.01",null), subFields.getOrDefault("61.10",null)))
                     .cardholderPresent(mapperUtil.safeBooleanValueOf(
                             posCardHolderPresence.getOrDefault("cardholderPresent",null)))
-                    .motoCode(posCardHolderPresence.getOrDefault("MOTOCode",null))
+                    .motoCode(motoCode)
                     .cardPresent(CardholderVerificationCapability.mapPointOfServiceContext_CardPresent(
                             subFields.getOrDefault("61.05",null)))
                     .additionalData(List.of(pointServiceEntryMode))
@@ -157,7 +175,10 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
                     .resultDetails(List.of(resultDetails))
                     .build();
 
+            String verificationKey = ecommIndicator != null ? ecommIndicator.getVerificationKey() : null;
+
             VerificationDTO verification = VerificationDTO.builder()
+                    .key(verificationKey)
                     .verificationInformation(List.of(verificationInfo,verificationInfoCVC2))
                     .verificationResult(List.of(verificationResult))
                     .build();
@@ -185,16 +206,6 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
             // Manejo de excepciones, puedes lanzar una RuntimeException o una excepción personalizada
             throw new MapperFieldsException("PGWP-00121", "Error al mapear ContextDTO desde ISO8583", e);
         }
-    }
-
-    public ContextDTO mapper_response(ISO8583 input, Map<String, String> subFields) {
-        TransactionContextDTO transactionContextVuelta = TransactionContextDTO.builder()
-                .transactionInitiator("0000")
-                .build();
-
-        return ContextDTO.builder()
-                .transactionContext(transactionContextVuelta)
-                .build();
     }
 
     @Override
@@ -239,5 +250,17 @@ public class ContextMappingStrategy implements SectionMappingStrategy<ContextDTO
         mapValues.put("pinData", pinData);
 
         return mapValues;
+    }
+
+    @Override
+    public ContextDTO mapperResponse(ISO8583 input) {
+        TransactionContextDTO transactionContextVuelta = TransactionContextDTO.builder()
+                .transactionInitiator("0000")
+                .merchantCategoryCode(input.getMerchantType())
+                .build();
+
+        return ContextDTO.builder()
+                .transactionContext(transactionContextVuelta)
+                .build();
     }
 }

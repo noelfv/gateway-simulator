@@ -1,9 +1,9 @@
 package com.bbva.orchestrator.core.fields;
 
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
-import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
+import com.bbva.orchestrator.core.fields.definitions.ISOField;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -123,7 +123,7 @@ public enum MastercardISOField implements ISOField {
     ADDITIONAL_TRANSACTION_REFERENCE_DATA(108, "additionalTransactionReferenceData", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     ISO_USE(109, "isoUse", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     ENCRYPTION_DATA(110, "encryptionData", HEXADECIMAL, true, 3, new LlvarLengthPrefixParser(new HexadecimalFieldParser())),
-    ADDITIONAL_DATA_NATIONAL_USE(112, "additionalDataNationalUse", ISODataType.ALPHA_NUMERIC, false, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
+    ADDITIONAL_DATA_NATIONAL_USE(112, "additionalDataNationalUse", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     RESERVED_NATIONAL_USE(115, "reservedNationalUse", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     RESERVED_NATIONAL_USE_2(119, "reservedNationalUse2", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),
     KEY_MANAGEMENT(120, "keyManagement", ISODataType.ALPHA_NUMERIC, true, 3, new LlvarLengthPrefixParser(new AlphaNumericFieldParser())),

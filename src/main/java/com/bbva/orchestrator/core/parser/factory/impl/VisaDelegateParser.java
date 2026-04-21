@@ -1,11 +1,10 @@
 package com.bbva.orchestrator.core.parser.factory.impl;
 
-import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
+import com.bbva.orchestrator.core.network.visa.VisaProcessField;
 import com.bbva.orchestrator.core.utils.ParserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 @Component
@@ -20,7 +19,9 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
         Map<String,String> mappedFields = fieldParser.mapFields(originalMessage);
         adjustFields(mappedFields);
         mappedFields.put("networkName",NETWORK_VISA);
-        mappedFields.put("plainTextPCI", unParserPlainTextPCI(mappedFields));
+        mappedFields.put("plainTextPCI", unParserPlainTextPCI(mappedFields,originalMessage));
+        mappedFields.put("transactionType",ParserUtil.getTransactionType(mappedFields));
+        mappedFields.put("binCode",ParserUtil.getBinCode(mappedFields));
         return mappedFields;
     }
 
@@ -70,10 +71,10 @@ public class VisaDelegateParser implements ISO8583DelegateParser {
         }
     }
 
-    private String unParserPlainTextPCI(Map<String, String> mapFieldsValue) {
+    private String unParserPlainTextPCI(Map<String, String> mapFieldsValue,String originalMessage) {
 
         if (mapFieldsValue.get("messageType").startsWith("08") || mapFieldsValue.get("messageType").startsWith("019")) {
-            return mapFieldsValue.get("messageType");
+            return originalMessage;
         }
         try{
             Map<String, String> maskedFields = ParserUtil.maskSensitiveFields(mapFieldsValue);

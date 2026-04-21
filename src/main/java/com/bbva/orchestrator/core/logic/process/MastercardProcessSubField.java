@@ -1,16 +1,15 @@
 package com.bbva.orchestrator.core.logic.process;
 
-import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 

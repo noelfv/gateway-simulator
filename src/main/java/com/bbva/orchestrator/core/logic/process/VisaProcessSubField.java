@@ -1,12 +1,15 @@
 package com.bbva.orchestrator.core.logic.process;
 
-import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import com.bbva.orchestrator.core.dto.ISO8583;
+import com.bbva.orchestrator.core.exception.ParserFieldsException;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructureMixed;
+import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.VisaHandlerField;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParserMixed;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeVariableFieldParser;
 import com.bbva.orchestrator.core.utils.FieldUtil;
+import com.bbva.orchestrator.core.commons.CommonsProcessSubField;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +23,7 @@ public class VisaProcessSubField {
 
     private final CommonsProcessSubField commonsProcessSubField;
     private final CompositeVariableFieldParser compositeVariableFieldParser;
+    private final VisaHandlerField visaHandlerField;
 
     /**
      * Parsea los subcampos de campos variables específicos (como el Campo 48)
@@ -38,15 +42,41 @@ public class VisaProcessSubField {
             return allParsedSubfields;
         }
 
+        Map<String, String> mapSubField104 = processField104(iso8583);
+
         allParsedSubfields = commonsProcessSubField.parseSubfields(iso8583);
         Map<String, String> mapSubField60 = compositeVariableFieldParser.buildSubFieldsSpecific("60", iso8583.getPosTerminalData());
         allParsedSubfields.putAll(mapSubField60);
+        allParsedSubfields.putAll(mapSubField104);
+
 
         //TODO: Validar de ser necesario el tratamiento del campo 48 para Visa
         //FIXME Si se agrega se debe de validar ya que el formatodel 48 de visa es diferente al de mastercard
 
 
         return allParsedSubfields;
+    }
+
+    private Map<String,String> processField104(ISO8583 iso8583){
+
+        Map<String, String> mapField104 = new HashMap<>();
+        // 1. Obtener la data hexadecimal cruda del Campo 48
+        String field104RawHex = iso8583.getTransactionData();
+
+        if (field104RawHex == null || field104RawHex.isEmpty()) {
+            return mapField104;
+        }
+
+        try {
+            CompositeTlvFieldParserMixed field104Parser = new CompositeTlvFieldParserMixed("104", TLVFieldLoadStructureMixed.getDirectSubFieldDefinitions());
+            Map<String, String> parsedInternalSubfields = field104Parser.parseToMap(field104RawHex,visaHandlerField);
+            mapField104.putAll(parsedInternalSubfields);
+
+        } catch (RuntimeException e) {
+            throw new ParserFieldsException("PGWP-00140","Error al procesar subcampos del Campo 48 :" +field104RawHex,e);
+        }
+
+        return mapField104;
     }
 
 }

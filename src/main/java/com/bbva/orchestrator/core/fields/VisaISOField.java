@@ -4,6 +4,7 @@ import com.bbva.orchestrator.core.fields.definitions.ISODataType;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParserMixed;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,7 +114,7 @@ public enum VisaISOField implements ISOField {
     FILE_NAME(101, "fileName", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),
     ACCOUNT_IDENTIFICATION_1(102, "accountIdentification1", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),
     ACCOUNT_IDENTIFICATION_2(103, "accountIdentification2", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),
-    TRANSACTION_DATA(104, "transactionData",ISODataType.HEXADECIMAL,true,2,new LlvarLengthPrefixParserVisa(new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser()))),
+    TRANSACTION_DATA(104, "transactionData",ISODataType.HEXADECIMAL,true,2,new LlvarLengthPrefixParser(new CompositeTlvFieldParserMixed("104"))),
     ADDITIONAL_TRANSACTION_REFERENCE_DATA(108, "additionalTransactionReferenceData", ISODataType.ALPHA_NUMERIC, true, 2,new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),
     CARD_ISSUER_REFERENCE_DATA(116, "cardIssuerReferenceData", ISODataType.ALPHA_NUMERIC, true, 2, new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),
     KEY_MANAGEMENT(120, "keyManagement", ISODataType.HEXADECIMAL, true, 2,new LlvarLengthPrefixParser(new AlphaNumericDecoratorFieldParser())),

@@ -1,8 +1,10 @@
 package com.bbva.gateway.dto.iso20022;
 
-
-import lombok.*;
-
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -33,4 +35,5 @@ public class MonitoringDTO implements Serializable {
     private String countryDate;
     private Boolean isNextGen;
     private Boolean isMessageInvalid;
+    private String tokenDescription;
 }

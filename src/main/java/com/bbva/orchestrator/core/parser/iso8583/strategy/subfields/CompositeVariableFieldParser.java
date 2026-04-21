@@ -5,10 +5,7 @@ import com.bbva.orchestrator.core.fields.definitions.subfields.fixed.CompositeFi
 import com.bbva.orchestrator.core.parser.iso8583.ParsedSubFieldResult;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component

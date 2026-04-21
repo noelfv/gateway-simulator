@@ -6,9 +6,9 @@ import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.logic.factory.NetworkDelegateFieldLogic;
 import com.bbva.orchestrator.core.logic.process.VisaProcessSubField;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class VisaDelegateFieldLogic implements NetworkDelegateFieldLogic {

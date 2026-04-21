@@ -5,16 +5,20 @@ import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.enums.CardholderVerificationCapability;
 import com.bbva.orchestrator.core.enums.MessageFunction;
 import com.bbva.orchestrator.core.exception.MapperFieldsException;
+import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingResponseStrategy;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field104;
 import com.bbva.orchestrator.core.mapper.iso20022.strategy.SectionMappingStrategy;
-import com.bbva.orchestrator.core.network.mastercard.MastercardAxisOperator;
 import com.bbva.orchestrator.core.utils.MapperUtil;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 
 @Component
-public class TransactionMappingStrategy implements SectionMappingStrategy<TransactionDTO> {
+public class TransactionMappingStrategy implements SectionMappingStrategy<TransactionDTO>, SectionMappingResponseStrategy<TransactionDTO> {
 
     private final MapperUtil mapperUtil;
+
+    public static final String ADDITIONAL_AMOUNT_DOUBLE_KEY = "ADDITIONAL_AMOUNT_DOUBLE";
 
     public TransactionMappingStrategy( MapperUtil mapperUtil) {
         this.mapperUtil = mapperUtil;
@@ -28,7 +32,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
 
             // ======== FIELD 3 (CODE PROCESS) ========
             // 03.01 TRANSACTION TYPE
-            String transactionType = subFields.get("03.01");
+            String transactionType = input.getTransactionType();
             // 03.02 ACCOUNT FROM
             String accountFromType = subFields.get("03.02");
             // 03.03 ACCOUNT TO
@@ -117,7 +121,7 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                     .transmissionDateTime(mapperUtil.convertFormatDateTime(input.getTransmissionDateTime()))
                     // ======== ID MONITOR ========
                     .transactionReference(mapperUtil.generateTransactionReferenceFromSeed(
-                            mapperUtil.createTransactionReference(input, subFields,  input.getNetworkName())
+                            mapperUtil.createTransactionReference(input)
                     ))
                     .build();
 
@@ -144,14 +148,32 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
             AdditionalAmountDTO additionalAmount = AdditionalAmountDTO.builder()
                     .key("BLNCHECK")
                     .amount(AmountDTO.builder()
-                            .amount(subFields.containsKey("ADDITIONAL_AMOUNT_DOUBLE") ?
-                                    mapperUtil.convertAmountDouble(subFields.get("ADDITIONAL_AMOUNT_DOUBLE")) : null)
+                            .amount(subFields.containsKey(ADDITIONAL_AMOUNT_DOUBLE_KEY) ?
+                                    mapperUtil.convertAmountDouble(subFields.get(ADDITIONAL_AMOUNT_DOUBLE_KEY)) : null)
                             .build())
                     .build();
             additionalAmountList.add(additionalAmount);
 
             // Additional Transaction Data
             List<AdditionalDataDTO> additionalTransactionDataList = new ArrayList<>();
+
+            if(input.getTransactionData() != null && !input.getTransactionData().isEmpty()){
+                subFields.entrySet().stream()
+                        .filter(entry -> entry.getKey().startsWith("104"))
+                        .forEach(entry -> {
+                            Field104 field104 = Field104.convertToIso20022(entry.getKey());
+                            if (field104 != null) {
+                                String type = field104.getType();
+                                String key = field104.getValue();
+                                additionalTransactionDataList.add(AdditionalDataDTO.builder()
+                                        .key(type)
+                                        .value(key)
+                                        .build());
+                            }
+
+                        });
+            }
+
 
             // ======== FIELD 3 (PROCESSING CODE) ========
             additionalTransactionDataList.add(AdditionalDataDTO.builder()
@@ -195,14 +217,13 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
 
             //FIELD 48
             addAdditionalData(additionalTransactionDataList, subFields, "48.01", "transaction_category_code");
-            //addAdditionalData(additionalTransactionDataList, subFields, "48.42", "electronic_commerce_indicators");
             addAdditionalData(additionalTransactionDataList, subFields, "48.43", "universal_cardholder_authentication_field");
             addAdditionalData(additionalTransactionDataList, subFields, "48.51", "merchant_on_behalf_services");
             addAdditionalData(additionalTransactionDataList, subFields, "48.71", "on_behalf_services");
             addAdditionalData(additionalTransactionDataList, subFields, "48.72", "issuer_chip_authentication");
 
             DetailDTO detail = DetailDTO.builder()
-                    .name("mastercard_promotion_code")
+                    .name(mapperUtil.generateSpecialProgrammeQualificationDetailName(networkName))
                     .value(subFields.getOrDefault("48.95",null))
                     .build();
 
@@ -294,7 +315,6 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
 
 
         // --- Data Elements ---
-        //TODO evaluar si este bloqeu es nesario, quiza en los mensajes de respuesta no es necesario
         String originalDataElements = reconstructOriginalDataElements(transId.getOriginalDataElements());
         mapValues.put("originalDataElements", originalDataElements);
 
@@ -348,11 +368,25 @@ public class TransactionMappingStrategy implements SectionMappingStrategy<Transa
                     );
                     // Solo añade al mapa si el valor no está vacío.
                     if (!amountValue.isEmpty()) {
-                        mapValues.put("ADDITIONAL_AMOUNT_DOUBLE", amountValue);
+                        mapValues.put(ADDITIONAL_AMOUNT_DOUBLE_KEY, amountValue);
                     }
                 });
     }
 
 
+    @Override
+    public TransactionDTO mapperResponse(ISO8583 input) {
 
+        TransactionIdDTO transactionId = TransactionIdDTO.builder()
+                // ======== ID MONITOR ========
+                .transactionReference(mapperUtil.generateTransactionReferenceFromSeed(
+                        mapperUtil.createTransactionReference(input)
+                ))
+                .build();
+
+        return TransactionDTO.builder()
+                .transactionType(input.getTransactionType())
+                .transactionId(transactionId)
+                .build();
+    }
 }

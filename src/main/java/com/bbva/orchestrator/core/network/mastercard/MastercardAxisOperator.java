@@ -28,36 +28,48 @@ public class MastercardAxisOperator {
             return false;
         }
 
-        return (subFields.containsKey(VAR_4801) && subFields.containsKey(VAR_2201) && subFields.containsKey(VAR_4842) &&
-                TCC.equals(subFields.get(VAR_4801)) &&
-                subFields.get(VAR_2201).equals("10") &&
-                subFields.get(VAR_6104).equals("4") &&
-                subFields.get(VAR_6105).equals("1") &&
-                subFields.get(VAR_6110).equals("6")) ||
-                (subFields.containsKey(VAR_4801) &&
-                        subFields.containsKey(VAR_2201) &&
-                        subFields.containsKey(VAR_4842) &&
+        return (
+                        subFields.containsKey(VAR_4801) && subFields.containsKey(VAR_2201) && subFields.containsKey(VAR_4842) &&
                         TCC.equals(subFields.get(VAR_4801)) &&
-                        (subFields.get(VAR_2201).equals("81") ||
-                                subFields.get(VAR_2201).equals("01") ||
-                                subFields.get(VAR_2201).equals("10")) &&
+                        (subFields.get(VAR_2201).equals("10") || subFields.get(VAR_2201).equals("01") || subFields.get(VAR_2201).equals("81")) &&
+                        subFields.get(VAR_6104).equals("4") &&
+                        subFields.get(VAR_6105).equals("1") &&
+                        subFields.get(VAR_6110).equals("6")
+                )
+                ||
+                (
+                        subFields.containsKey(VAR_4801) && subFields.containsKey(VAR_2201) && subFields.containsKey(VAR_4842) &&
+                        TCC.equals(subFields.get(VAR_4801)) &&
+                        (subFields.get(VAR_2201).equals("81") || subFields.get(VAR_2201).equals("01") || subFields.get(VAR_2201).equals("10")) &&
                         subFields.get(VAR_6104).equals("5") &&
                         subFields.get(VAR_6105).equals("1") &&
-                        subFields.get(VAR_6110).equals("6"));
+                        subFields.get(VAR_6110).equals("6")
+                );
     }
 
     public static String valueElectronicCommerceIndicators(Map<String, String> subFields) {
+        if (subFields == null || subFields.isEmpty()) {
+            return null;
+        }
 
         if (!subFields.containsKey(VAR_4801) || !subFields.containsKey(VAR_2201) ||
                 !subFields.containsKey(VAR_6110) || !subFields.containsKey(VAR_4842)){
             return null;
         }
 
-        if (subFields.get(VAR_4801).equals("T") &&
-                subFields.get(VAR_2201).equals("81") &&
-                subFields.get(VAR_6110).equals("6")) {
-            return subFields.get(VAR_4842).substring(4, 7);
-        }else {
+        boolean condition1 = "T".equals(subFields.get(VAR_4801));
+        boolean condition2 = "81".equals(subFields.get(VAR_2201));
+        boolean condition3 = "6".equals(subFields.get(VAR_6110));
+
+        if (condition1 && condition2 && condition3) {
+            String valueToCut = subFields.get(VAR_4842);
+
+            if (valueToCut != null && valueToCut.length() >= 7) {
+                return valueToCut.substring(4, 7);
+            } else {
+                return null;
+            }
+        } else {
             return null;
         }
     }
@@ -78,9 +90,10 @@ public class MastercardAxisOperator {
 
     public static String channelTPVIndicator(Map<String, String> subFields, String merchantType){
 
-        if(RETAIL.equals(subFields.get(VAR_4801)) && subFields.containsKey(VAR_2201) && subFields.containsKey(VAR_6111)
-                        &&(subFields.get(VAR_2201).equals("05") || subFields.get(VAR_2201).equals("07"))
-                        && VALID_VALUES.contains(subFields.get(VAR_6111))){
+        if(RETAIL.equals(subFields.get(VAR_4801)) && subFields.containsKey(VAR_2201) && subFields.containsKey(VAR_6111) && subFields.containsKey(VAR_6105)
+                &&(subFields.get(VAR_2201).equals("05") || subFields.get(VAR_2201).equals("07") || subFields.get(VAR_2201).equals("02"))
+                && VALID_VALUES.contains(subFields.get(VAR_6111))
+                && subFields.get(VAR_6105).equals("0")){
             return "POST";
         }else if(subFields.containsKey(VAR_0301) && subFields.get(VAR_0301).equals("01") && merchantType != null && merchantType.equals("6011")){
             return "ATMT";

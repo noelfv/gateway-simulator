@@ -120,47 +120,33 @@ data:
   bins:
     - key: PEER01
       fields:
-        - { name: 122300, value: "VISA MISTURA" }
-        - { name: 421531, value: "VISA REGALO" }
         - { name: 428597, value: "DEBITO EMPRESARIAL" }
-        - { name: 438168, value: "VIP CLASICA ELECTRON" }
-        - { name: 455103, value: "VISA CLASICA COMPRAS" }
-        - { name: 455170, value: "VISA MUNDO SUELDO" }
-        - { name: 461135, value: "VISA CLASICA ELECTRON" }
-        - { name: 477113, value: "VISA PREPAGO" }
-        - { name: 404208, value: "VISA STICKER" }
-        - { name: 404293, value: "VISA CERO" }
-        - { name: 414064, value: "VISA ORO LIFE MILES" }
-        - { name: 414068, value: "VISA PLATINUM LIFE MILES" }
-        - { name: 414075, value: "VISA INFINITE" }
-        - { name: 414089, value: "VISA SIGNATURE LIFE MILES" }
-        - { name: 414791, value: "VISA SIGNATURE" }
-        - { name: 455102, value: "VISA REGATAS" }
-        - { name: 461132, value: "VISA ORO" }
-        - { name: 491909, value: "VISA CLASICA BFREE" }
-        - { name: 491910, value: "VISA CLASICA" }
-        - { name: 491911, value: "VISA ORO" }
-        - { name: 491912, value: "VISA EMPRESARIAL" }
+        - { name: 438168, value: "VIP ELECTRON" }
+        - { name: 455103, value: "COMPRAS" }
+        - { name: 455170, value: "MUNDO SUELDO" }
+        - { name: 477113, value: "PREPAGO DISEÑO" }
+        - { name: 404293, value: "CUOTA CERO" }
+        - { name: 414064, value: "LIFEMILES ORO" }
+        - { name: 414068, value: "LIFEMILES PLATINUM" }
+        - { name: 414075, value: "INFINITE" }
+        - { name: 414089, value: "SIGNATURE LIFEMILES" }
+        - { name: 414791, value: "SIGNATURE" }
+        - { name: 491909, value: "BFREE" }
+        - { name: 491910, value: "CLASICA REPSOL" }
+        - { name: 491911, value: "ORO" }
+        - { name: 491914, value: "PLATINUM" }
+        - { name: 491931, value: "CUOTA FIJA" }
         - { name: 491913, value: "EMPRESARIAL ORO" }
-        - { name: 491914, value: "VISA PLATINUM" }
-        - { name: 491931, value: "VISA CLASICA CUOTA FIJA" }
-        - { name: 491946, value: "VISA CUENTA VIAJES" }
-        - { name: 491947, value: "CORPORATE ORO" }
-        - { name: 497031, value: "497031" }
-        - { name: 497040, value: "497040" }
-        - { name: 497044, value: "497044" }
-        - { name: 497049, value: "497049" }
-        - { name: 497401, value: "497401" }
+        - { name: 491912, value: "CAPITAL DE TRABAJO" }
+        - { name: 491947, value: "CORPORATE" }
+        - { name: 491946, value: "CUENTA VIAJES" }
     - key: PEER02
       fields:
-        - { name: 519348, value: "MASTERCARD FPF" }
-        - { name: 511578, value: "MASTERCARD PLATINUM" }
-        - { name: 512312, value: "MASTERCARD CLASICA" }
-        - { name: 512409, value: "MASTERCARD" }
-        - { name: 549825, value: "MASTERCARD ORO" }
-        - { name: 553650, value: "MASTERCARD BLACK" }
-        - { name: 559125, value: "MASTERCARD FLEXIBLE" }
-        - { name: 559131, value: "MASTERCARD AHORRO" }
+        - { name: 519348, value: "TARJETA HINCHA" }
+        - { name: 511578, value: "PLATINUM" }
+        - { name: 512312, value: "CLASICA" }
+        - { name: 512409, value: "ORO" }
+        - { name: 553650, value: "BLACK" }
   custom:
     bank_p2p:
       - { name: 650036704, value: "BBVA" }
@@ -179,7 +165,15 @@ data:
       - { name: 650180877, value: "YAPE CARD" }
       - { name: 650212662, value: "MI BANCO" }
       - { name: 650196944, value: "CAJA HUANCAYO" }
-      - { name: 650241569, value: "650241569" }
+      - { name: 650241569, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650240708, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650218369, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650238611, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650190321, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650195861, value: "ENTIDAD_NO_FOUND" }
+      - { name: 651008214, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650173712, value: "ENTIDAD_NO_FOUND" }
+      - { name: 650246823, value: "ENTIDAD_NO_FOUND" }
     merchant_type:
       - { name: 6012, value: "INSTITUCIONES FINANCIERAS 6 MERCADERIA" }
       - { name: 4829, value: "TRANSFERENCIAS DE DINERO" }

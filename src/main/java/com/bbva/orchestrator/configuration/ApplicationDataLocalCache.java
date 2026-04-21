@@ -1,13 +1,14 @@
 package com.bbva.orchestrator.configuration;
 
 import com.bbva.orchlib.configuration.BusinessDataLocalLoad;
-import com.bbva.orchlib.featuretoggle.businessdata.Custom;
-import com.bbva.orchlib.featuretoggle.businessdatalocal.BusinessDataLocal;
-import com.bbva.orchlib.featuretoggle.businessdatalocal.InputLRA;
-import com.bbva.orchlib.featuretoggle.businessdatalocal.OutputLRA;
+import com.bbva.orchlib.configuration.preloaddto.businessdata.Custom;
+import com.bbva.orchlib.configuration.preloaddto.businessdatalocal.BusinessDataLocal;
+import com.bbva.orchlib.configuration.preloaddto.businessdatalocal.InputLRA;
+import com.bbva.orchlib.configuration.preloaddto.businessdatalocal.OutputLRA;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;

@@ -3,10 +3,11 @@ package com.bbva.orchestrator.core.fields.definitions.subfields.tlv;
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
 import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.FieldParserStrategy;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.AlphaNumericFieldParser;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.HexadecimalFieldParser;
-import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.NumericFieldParser;
+import com.bbva.orchestrator.core.parser.iso8583.strategy.fields.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 public enum Field48 implements ISOSubField {
 
     // GRUPO 1: SIN SUBCAMPOS
@@ -104,6 +105,7 @@ public enum Field48 implements ISOSubField {
     private final ISODataType typeData;
     private final boolean isVariable;
     private final int length;
+    @Setter
     private FieldParserStrategy parserStrategy;
 
 
@@ -116,19 +118,6 @@ public enum Field48 implements ISOSubField {
         this.parserStrategy = parserStrategy;
     }
 
-    @Override
-    public String getId() { return id; }
-    @Override
-    public String getName() { return name; }
-    @Override
-    public ISODataType getTypeData() { return typeData; }
-    @Override
-    public boolean isVariable() { return isVariable; }
-    @Override
-    public int getLength() { return length; }
-    @Override
-    public FieldParserStrategy getParserStrategy() { return parserStrategy; }
-
     // Implementación de getIdentifier() para IFieldDefinition
     @Override
     public String getIdentifier() {
@@ -136,7 +125,4 @@ public enum Field48 implements ISOSubField {
     }
 
 
-    public void setParserStrategy(FieldParserStrategy parserStrategy) {
-        this.parserStrategy = parserStrategy;
-    }
 }

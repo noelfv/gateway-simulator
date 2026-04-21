@@ -14,6 +14,7 @@ import java.util.Map;
 @Component
 public class TraceDataMappingStrategy implements SectionMappingStrategy<List<TraceDataDTO>> {
 
+
     @Override
     public List<TraceDataDTO> mapper(ISO8583 input, Map<String, String> subFields) {
 
@@ -35,6 +36,7 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
                     .key("PAYMENT_ID")
                     .value(GrpcHeadersInfo.getTraceId())
                     .build();
+
 
             List<TraceDataDTO> traceDataList = new ArrayList<>();
             traceDataList.add(posAdditionalData);
@@ -62,6 +64,7 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
     }
 
 
+
     private String findValueByKey(List<TraceDataDTO> input, String key) {
         if (input == null) {
             return null;
@@ -72,5 +75,6 @@ public class TraceDataMappingStrategy implements SectionMappingStrategy<List<Tra
                 .findFirst()
                 .orElse("");
     }
+
 
 }
