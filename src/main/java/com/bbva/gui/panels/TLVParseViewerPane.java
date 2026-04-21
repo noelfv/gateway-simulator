@@ -8,6 +8,8 @@ import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
+import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
@@ -28,7 +30,7 @@ public class TLVParseViewerPane extends AbstractBasePane {
     }
 
     private void initComponents() {
-        inputPane = new InputTextPane("Mensaje de entrada", "Parser", "Limpiar");
+        inputPane = new InputTextPane("Mensaje de entrada", "Procesar", "Limpiar");
         inputPane.getTextArea().setText(SAMPLE_MESSAGE);
         outputPane = new OutputTextPane("output", "Copiar");
         treePane = new TreeOutputPane("Estructura TLV");
@@ -55,8 +57,10 @@ public class TLVParseViewerPane extends AbstractBasePane {
 
             MastercardHandlerField mastercardHandlerField = ApplicationContextProvider
                     .getBean(MastercardHandlerField.class);
-            CompositeTlvFieldParser fieldTLV = new CompositeTlvFieldParser("48");
-            Map<String, String> mapValues = fieldTLV.parseToMap(inputMessage, null, mastercardHandlerField);
+            CompositeTlvFieldParser field48Parser = new CompositeTlvFieldParser("48",
+                    TLVFieldLoadStructure.getDirectSubFieldDefinitionsForField48());
+            Map<String, String> mapValues = field48Parser.parseToMap(inputMessage,
+                    MastercardISOField.ADDITIONAL_DATA_48, mastercardHandlerField);
             ParseResult result = FXParseGUI.processTLV(mapValues);
             FXParseGUI.updateTreeViewTLV(treePane.getTreeView(), result);
             outputPane.getTextArea().setText(ISOUtil.ebcdicToString(inputMessage));

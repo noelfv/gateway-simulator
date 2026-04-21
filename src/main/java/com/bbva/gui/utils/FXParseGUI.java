@@ -23,6 +23,8 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -142,62 +144,104 @@ public class FXParseGUI {
         try {
             String raw = nodeText.substring(1, 4).trim();
             String fieldId = raw.replaceFirst("^0+", "");
-            if (fieldId.isEmpty())
-                fieldId = "0";
-            // Extraer valor entre corchetes: "P001: [valor]" → "valor"
+            if (fieldId.isEmpty()) fieldId = "0";
+
             String data = "";
             int bracketStart = nodeText.indexOf('[');
-            int bracketEnd = nodeText.lastIndexOf(']');
+            int bracketEnd   = nodeText.lastIndexOf(']');
             if (bracketStart >= 0 && bracketEnd > bracketStart) {
                 data = nodeText.substring(bracketStart + 1, bracketEnd);
             } else if (nodeText.length() > 6) {
                 data = nodeText.substring(6).trim();
             }
 
-            ISOFieldInfo dataType = getDataTypeISO8583(fieldId);
+            ISOFieldInfo info = getDataTypeISO8583(fieldId);
 
-            GridPane grid = new GridPane();
-            grid.setHgap(12);
-            grid.setVgap(8);
-            grid.setPadding(new Insets(12, 16, 4, 16));
+            // ── Header navy ──────────────────────────────────────────────────
+            Label lblCampo = new Label("Campo  " + fieldId);
+            lblCampo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 15));
+            lblCampo.setStyle("-fx-text-fill: white;");
 
-            String[][] rows = {
-                    { "ID", String.valueOf(dataType.getId()) },
-                    { "Nombre", dataType.getName() },
-                    { "Tipo dato", dataType.getTypeData() },
-                    { "Caracteristicas", dataType.getCaracteristicaDato() },
-                    { "Longitud", String.valueOf(dataType.getLength()) }
+            Label lblNombre = new Label(nvl(info.getName()));
+            lblNombre.setFont(Font.font("Segoe UI", 11));
+            lblNombre.setStyle("-fx-text-fill: #A8CFED;");
+
+            VBox header = new VBox(3, lblCampo, lblNombre);
+            header.setPadding(new Insets(14, 20, 14, 20));
+            header.setStyle("-fx-background-color: #004481;");
+
+            // ── Filas de metadatos ───────────────────────────────────────────
+            String[][] meta = {
+                { "ID",              String.valueOf(info.getId()) },
+                { "Tipo dato",       nvl(info.getTypeData()) },
+                { "Caracteristicas", nvl(info.getCaracteristicaDato()) },
+                { "Longitud",        String.valueOf(info.getLength()) }
             };
 
-            for (int i = 0; i < rows.length; i++) {
-                Label lbl = new Label(rows[i][0] + ":");
-                lbl.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
-                Label val = new Label(rows[i][1]);
+            VBox metaBox = new VBox(0);
+            metaBox.setPadding(new Insets(6, 0, 6, 0));
+            for (int i = 0; i < meta.length; i++) {
+                HBox row = new HBox();
+                row.setPadding(new Insets(7, 20, 7, 20));
+                row.setStyle("-fx-background-color: " + (i % 2 == 0 ? "#FFFFFF" : "#F7F9FC") + ";");
+
+                Label key = new Label(meta[i][0]);
+                key.setMinWidth(130);
+                key.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+                key.setStyle("-fx-text-fill: #004481;");
+
+                Label val = new Label(meta[i][1]);
                 val.setFont(Font.font("Segoe UI", 12));
-                grid.add(lbl, 0, i);
-                grid.add(val, 1, i);
+                val.setStyle("-fx-text-fill: #1A1A2E;");
+                HBox.setHgrow(val, Priority.ALWAYS);
+
+                row.getChildren().addAll(key, val);
+                metaBox.getChildren().add(row);
             }
 
-            Label lblData = new Label("Data:");
-            lblData.setFont(Font.font("Segoe UI", FontWeight.BOLD, 12));
+            // ── Sección Data ─────────────────────────────────────────────────
+            Label lblDataTitle = new Label("DATA");
+            lblDataTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+            lblDataTitle.setStyle("-fx-text-fill: #004481;");
+
             TextField tfData = new TextField(data);
             tfData.setEditable(false);
             tfData.setFont(Font.font("Consolas", 12));
-            tfData.setPrefWidth(420);
-            tfData.setStyle("-fx-background-color: #F4F8FF; -fx-border-color: #B0C8E8; -fx-border-radius: 3;");
-            grid.add(lblData, 0, rows.length);
-            grid.add(tfData, 1, rows.length);
+            tfData.setMaxWidth(Double.MAX_VALUE);
+            tfData.setStyle(
+                "-fx-background-color: #FFFFFF; " +
+                "-fx-border-color: #B0C8E8; " +
+                "-fx-border-radius: 4; " +
+                "-fx-background-radius: 4; " +
+                "-fx-padding: 6 8;");
+
+            VBox dataSection = new VBox(5, lblDataTitle, tfData);
+            dataSection.setPadding(new Insets(12, 20, 14, 20));
+            dataSection.setStyle(
+                "-fx-background-color: #EBF4FF; " +
+                "-fx-border-color: #D0E4F7; " +
+                "-fx-border-width: 1 0 0 0;");
+
+            // ── Dialog ───────────────────────────────────────────────────────
+            VBox content = new VBox(header, metaBox, dataSection);
 
             Dialog<Void> dialog = new Dialog<>();
             dialog.setTitle("Detalle del campo");
-            dialog.setHeaderText("Campo " + fieldId);
             DialogPane pane = dialog.getDialogPane();
-            pane.setContent(grid);
+            pane.setHeader(null);
+            pane.setGraphic(null);
+            pane.setContent(content);
             pane.getButtonTypes().add(ButtonType.CLOSE);
+            pane.setPrefWidth(480);
+            pane.setStyle("-fx-padding: 0; -fx-background-color: white;");
             dialog.showAndWait();
         } catch (Exception e) {
             showSimpleInfo(nodeText);
         }
+    }
+
+    private static String nvl(String s) {
+        return s != null ? s : "-";
     }
 
     public static void showExportJsonDialog(TreeView<String> treeView) {

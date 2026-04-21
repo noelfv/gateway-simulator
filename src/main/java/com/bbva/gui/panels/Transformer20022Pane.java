@@ -54,7 +54,7 @@ public class Transformer20022Pane extends AbstractBasePane {
     }
 
     private void initComponents() {
-        inputPane = new InputTextPane("ISO20022 de entrada", "Unparser", "Limpiar");
+        inputPane = new InputTextPane("ISO20022 de entrada", "Procesar", "Limpiar");
         outputPane = new OutputTextPane("output", "Copiar");
         treePane = new TreeOutputPane("Estructura del mensaje");
         // Platform.runLater garantiza que el setText se ejecuta después de que

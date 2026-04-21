@@ -44,7 +44,7 @@ public class ParseClearViewerPane extends AbstractBasePane {
     }
 
     private void initComponents() {
-        inputPane = new InputTextPane("input", "Parsear", "Limpiar");
+        inputPane = new InputTextPane("input", "Procesar", "Limpiar");
         inputPane.getTextArea().setText(SAMPLE_MESSAGE);
         outputPane = new OutputTextPane("output", "Copiar");
         treePane = new TreeOutputPane("Estructura del mensaje");

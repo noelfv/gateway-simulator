@@ -56,12 +56,18 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
 
-    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13, 14, 19, 20, 25));
-    private final List<Integer> listBilletera = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 25, 32));
-    private final List<Integer> listRetiros = new ArrayList<>(Arrays.asList(2, 3, 4, 7, 11, 41, 42));
-    private final Set<Integer> camposMandatoriosCompras = new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 12, 13));
-    private final Set<Integer> camposMandatoriosBilletera = new HashSet<>(Arrays.asList(2, 3, 4, 7, 25, 32));
-    private final Set<Integer> camposMandatoriosRetiros = new HashSet<>(Arrays.asList(2, 3, 4, 7, 11, 41, 42));
+    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19,
+            22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 104, 122));
+    private final List<Integer> listBilletera = new ArrayList<>(
+            Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 70));
+    private final List<Integer> listRetiros = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19,
+            22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 63, 70));
+    private final Set<Integer> camposMandatoriosCompras = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14,
+            18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 104, 122));
+    private final Set<Integer> camposMandatoriosBilletera = new HashSet<>(
+            Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 70));
+    private final Set<Integer> camposMandatoriosRetiros = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14,
+            18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 63, 70));
 
     private ComboBox<String> tipoOperacionComboBox;
     private ComboBox<String> procesarComboBox;

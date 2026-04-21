@@ -107,15 +107,15 @@ public class JavaFXMain {
                         "-fx-border-color: transparent transparent #C8D0DC transparent; " +
                         "-fx-border-width: 0 0 1 0;");
 
-        menuBar.getMenus().addAll(buildParseMenu(), buildConversionMenu(), buildConfigMenu(),buildIAMenu());
+        menuBar.getMenus().addAll(buildParseMenu(), buildConversionMenu(), buildConfigMenu(), buildIAMenu());
         return menuBar;
     }
 
     private Menu buildParseMenu() {
         Menu menu = styledMenu("Parsear");
-        MenuItem parseItem = styledItem("Parsear mensaje");
+        MenuItem parseItem = styledItem("Parsear ISO853");
         // MenuItem parseClearItem = styledItem("Parsear mensaje claro");
-        parseItem.setOnAction(e -> abrirTab("Parsear mensaje", new ParseViewerPane(beans)));
+        parseItem.setOnAction(e -> abrirTab("Parsear ISO853", new ParseViewerPane(beans)));
         // parseClearItem.setOnAction(e -> abrirTab("Parsear mensaje claro", new
         // ParseClearViewerPane(beans)));
         menu.getItems().addAll(parseItem/* , new SeparatorMenuItem(), parseClearItem */);
@@ -123,25 +123,25 @@ public class JavaFXMain {
     }
 
     private Menu buildConversionMenu() {
-        Menu menu = styledMenu("Conversión");
+        Menu menu = styledMenu("Convertir");
         // MenuItem convertirTrama = styledItem("Convertir trama");
-        MenuItem convertirOrig = styledItem("Convertir trama original");
+        MenuItem convertirOrig = styledItem("Convertir ISO8583 a Hexa");
         // MenuItem convertirVisa = styledItem("Convertir trama original Visa");
-        MenuItem convertirIso = styledItem("Convertir ISO20022");
+        MenuItem convertirIso = styledItem("Convertir ISO20022 a Hexa");
         MenuItem generarTrama = styledItem("Generar trama específica");
         MenuItem campo48 = styledItem("Campo 48 (TLV)");
 
         // convertirTrama.setOnAction(e -> abrirTab("Convertir trama", new
         // ConverterTramaTextPlainPane(beans)));
-        convertirOrig.setOnAction(e -> abrirTab("Convertir trama original", new ConvertTramaOriginalPane(beans)));
+        convertirOrig.setOnAction(e -> abrirTab("Convertir ISO8583 a Hexa", new ConvertTramaOriginalPane(beans)));
         // convertirVisa.setOnAction(e -> abrirTab("Convertir trama original Visa", new
         // ConvertTramaOriginalVisaPane(beans)));
-        convertirIso.setOnAction(e -> abrirTab("Convertir Objeto ISO20022", new Transformer20022Pane(beans)));
+        convertirIso.setOnAction(e -> abrirTab("Convertir ISO20022 a Hexa", new Transformer20022Pane(beans)));
         generarTrama.setOnAction(e -> abrirTab("Generar Trama Específica", new GenerateTramaISO8583Pane(beans)));
-        campo48.setOnAction(e -> abrirTab("Parsear TLV", new TLVParseViewerPane(beans)));
+        campo48.setOnAction(e -> abrirTab("Parsear Campo 48", new TLVParseViewerPane(beans)));
 
         menu.getItems().addAll(/* convertirTrama, */ convertirOrig, /* convertirVisa, */
-                 convertirIso, new SeparatorMenuItem(),generarTrama,
+                convertirIso, new SeparatorMenuItem(), generarTrama,
                 new SeparatorMenuItem(), campo48);
         return menu;
     }
@@ -150,8 +150,10 @@ public class JavaFXMain {
         Menu menu = styledMenu("Configuración");
         MenuItem importarItem = styledItem("Importar Configuracion");
         MenuItem cargarLLM = styledItem("Cargar especificacion");
-        //importarItem.setOnAction(e -> abrirTab("Configuración", new ConfigurationPane(beans)));
-        menu.getItems().addAll(importarItem, new SeparatorMenuItem(),cargarLLM);
+        // importarItem.setOnAction(e -> abrirTab("Configuración", new
+        // ConfigurationPane(beans)));
+        menu.setDisable(true);
+        menu.getItems().addAll(importarItem, new SeparatorMenuItem(), cargarLLM);
         return menu;
     }
 
@@ -159,7 +161,8 @@ public class JavaFXMain {
         Menu menu = styledMenu("IA");
         MenuItem importarItem = styledItem("Cargar modelo");
         MenuItem cargarLLM = styledItem("Cargar skill");
-        menu.getItems().addAll(importarItem, new SeparatorMenuItem(),cargarLLM);
+        menu.setDisable(true);
+        menu.getItems().addAll(importarItem, new SeparatorMenuItem(), cargarLLM);
         return menu;
     }
 

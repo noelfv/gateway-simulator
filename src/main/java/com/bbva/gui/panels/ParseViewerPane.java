@@ -59,7 +59,7 @@ public class ParseViewerPane extends AbstractBasePane {
                 new InputTextPane.ComboItem("textClear", "Texto plano"));
         comboBoxOpciones.getSelectionModel().selectFirst();
 
-        inputPane = new InputTextPane("input", "Parsear", "Limpiar",
+        inputPane = new InputTextPane("input", "Procesar", "Limpiar",
                 comboBoxRedes,
                 comboBoxOpciones, "Formato salida:",
                 InputTextPane.ComboDirection.LEFT);
