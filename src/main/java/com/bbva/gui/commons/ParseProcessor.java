@@ -1,4 +1,4 @@
-package com.bbva.gui.utils;
+package com.bbva.gui.commons;
 
 import com.bbva.gui.dto.ParseResult;
 
@@ -8,10 +8,11 @@ import java.util.Map;
 public final class ParseProcessor {
 
     private static final String[] INTERNAL_KEYS = {
-        "networkName", "plainTextPCI", "header", "rejectFlag", "transactionType", "binCode"
+            "networkName", "plainTextPCI", "header", "rejectFlag", "transactionType", "binCode"
     };
 
-    private ParseProcessor() {}
+    private ParseProcessor() {
+    }
 
     public static ParseResult process(Map<String, String> mapValues) {
         for (String key : INTERNAL_KEYS) {

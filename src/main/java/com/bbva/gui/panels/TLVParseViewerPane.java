@@ -1,5 +1,6 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.commons.ParseProcessor;
 import com.bbva.gui.components.InputTextPane;
 import com.bbva.gui.components.OutputTextPane;
 import com.bbva.gui.components.TreeOutputPane;
@@ -8,7 +9,6 @@ import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
-import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.TLVFieldLoadStructure;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;

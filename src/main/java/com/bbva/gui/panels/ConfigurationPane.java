@@ -1,5 +1,6 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.commons.ParseProcessor;
 import com.bbva.gui.components.InputTextPane;
 import com.bbva.gui.components.OutputTextPane;
 import com.bbva.gui.components.TreeOutputPane;
@@ -8,15 +9,12 @@ import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
-import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import javafx.stage.FileChooser;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,7 +97,8 @@ public class ConfigurationPane extends AbstractBasePane {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode root = mapper.readTree(archivo);
                 Iterator<JsonNode> elements = root.elements();
-                if (!elements.hasNext()) throw new IllegalArgumentException("JSON vacío o sin campos");
+                if (!elements.hasNext())
+                    throw new IllegalArgumentException("JSON vacío o sin campos");
                 JsonNode valueNode = elements.next();
                 List<Integer> nuevaLista = new ArrayList<>();
                 if (valueNode.isArray()) {

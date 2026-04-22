@@ -1,5 +1,4 @@
-package com.bbva.gui.enums;
-
+package com.bbva.gui.commons;
 
 public interface FontType {
     String ALGERIAN = "Algerian";

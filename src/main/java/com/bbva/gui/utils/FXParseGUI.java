@@ -1,5 +1,6 @@
 package com.bbva.gui.utils;
 
+import com.bbva.gui.commons.ISOFieldFinder;
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.orchestrator.core.utils.ISOUtil;
@@ -119,11 +120,12 @@ public class FXParseGUI {
         try {
             String raw = nodeText.substring(1, 4).trim();
             String fieldId = raw.replaceFirst("^0+", "");
-            if (fieldId.isEmpty()) fieldId = "0";
+            if (fieldId.isEmpty())
+                fieldId = "0";
 
             String data = "";
             int bracketStart = nodeText.indexOf('[');
-            int bracketEnd   = nodeText.lastIndexOf(']');
+            int bracketEnd = nodeText.lastIndexOf(']');
             if (bracketStart >= 0 && bracketEnd > bracketStart) {
                 data = nodeText.substring(bracketStart + 1, bracketEnd);
             } else if (nodeText.length() > 6) {
@@ -147,10 +149,10 @@ public class FXParseGUI {
 
             // ── Filas de metadatos ───────────────────────────────────────────
             String[][] meta = {
-                { "ID",              String.valueOf(info.getId()) },
-                { "Tipo dato",       nvl(info.getTypeData()) },
-                { "Caracteristicas", nvl(info.getCaracteristicaDato()) },
-                { "Longitud",        String.valueOf(info.getLength()) }
+                    { "ID", String.valueOf(info.getId()) },
+                    { "Tipo dato", nvl(info.getTypeData()) },
+                    { "Caracteristicas", nvl(info.getCaracteristicaDato()) },
+                    { "Longitud", String.valueOf(info.getLength()) }
             };
 
             VBox metaBox = new VBox(0);
@@ -184,18 +186,18 @@ public class FXParseGUI {
             tfData.setFont(Font.font("Consolas", 12));
             tfData.setMaxWidth(Double.MAX_VALUE);
             tfData.setStyle(
-                "-fx-background-color: #FFFFFF; " +
-                "-fx-border-color: #B0C8E8; " +
-                "-fx-border-radius: 4; " +
-                "-fx-background-radius: 4; " +
-                "-fx-padding: 6 8;");
+                    "-fx-background-color: #FFFFFF; " +
+                            "-fx-border-color: #B0C8E8; " +
+                            "-fx-border-radius: 4; " +
+                            "-fx-background-radius: 4; " +
+                            "-fx-padding: 6 8;");
 
             VBox dataSection = new VBox(5, lblDataTitle, tfData);
             dataSection.setPadding(new Insets(12, 20, 14, 20));
             dataSection.setStyle(
-                "-fx-background-color: #EBF4FF; " +
-                "-fx-border-color: #D0E4F7; " +
-                "-fx-border-width: 1 0 0 0;");
+                    "-fx-background-color: #EBF4FF; " +
+                            "-fx-border-color: #D0E4F7; " +
+                            "-fx-border-width: 1 0 0 0;");
 
             // ── Dialog ───────────────────────────────────────────────────────
             VBox content = new VBox(header, metaBox, dataSection);
@@ -232,9 +234,9 @@ public class FXParseGUI {
 
             Button btnCopiar = new Button("Copiar al portapapeles");
             btnCopiar.setStyle(
-                "-fx-background-color: #004481; -fx-text-fill: white; " +
-                "-fx-font-family: 'Segoe UI'; -fx-font-size: 12px; " +
-                "-fx-padding: 5 14; -fx-cursor: hand;");
+                    "-fx-background-color: #004481; -fx-text-fill: white; " +
+                            "-fx-font-family: 'Segoe UI'; -fx-font-size: 12px; " +
+                            "-fx-padding: 5 14; -fx-cursor: hand;");
             btnCopiar.setOnAction(e -> {
                 ClipboardContent content = new ClipboardContent();
                 content.putString(json);
@@ -261,14 +263,16 @@ public class FXParseGUI {
 
     private static String buildTreeJson(TreeView<String> treeView) throws Exception {
         TreeItem<String> root = treeView.getRoot();
-        if (root == null || root.getChildren().isEmpty()) return "{}";
+        if (root == null || root.getChildren().isEmpty())
+            return "{}";
 
         Map<String, Object> result = new LinkedHashMap<>();
 
         for (TreeItem<String> section : root.getChildren()) {
             String sectionName = section.getValue();
             List<TreeItem<String>> children = section.getChildren();
-            if (children.isEmpty()) continue;
+            if (children.isEmpty())
+                continue;
 
             boolean hasPFields = children.stream()
                     .anyMatch(c -> c.getValue() != null && c.getValue().matches("P\\d{3}:.*"));
@@ -277,7 +281,8 @@ public class FXParseGUI {
                 Map<String, String> fields = new LinkedHashMap<>();
                 for (TreeItem<String> child : children) {
                     String nodeText = child.getValue();
-                    if (nodeText == null) continue;
+                    if (nodeText == null)
+                        continue;
                     if (nodeText.matches("P\\d{3}:.*")) {
                         String key = nodeText.substring(0, 4);
                         fields.put(key, extractBracketValue(nodeText));
@@ -298,8 +303,9 @@ public class FXParseGUI {
 
     private static String extractBracketValue(String nodeText) {
         int start = nodeText.indexOf('[');
-        int end   = nodeText.lastIndexOf(']');
-        if (start >= 0 && end > start) return nodeText.substring(start + 1, end);
+        int end = nodeText.lastIndexOf(']');
+        if (start >= 0 && end > start)
+            return nodeText.substring(start + 1, end);
         return nodeText.length() > 5 ? nodeText.substring(5).trim() : "";
     }
 

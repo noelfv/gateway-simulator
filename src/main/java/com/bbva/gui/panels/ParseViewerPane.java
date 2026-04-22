@@ -1,6 +1,7 @@
 package com.bbva.gui.panels;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
+import com.bbva.gui.commons.ParseProcessor;
 import com.bbva.gui.components.InputTextPane;
 import com.bbva.gui.components.OutputTextPane;
 import com.bbva.gui.components.TreeOutputPane;
@@ -8,7 +9,6 @@ import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
-import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
@@ -57,7 +57,7 @@ public class ParseViewerPane extends AbstractBasePane {
         comboBoxOpciones = new ComboBox<>();
         comboBoxOpciones.getItems().addAll(
                 new InputTextPane.ComboItem("iso20022", "ISO20022"),
-                new InputTextPane.ComboItem("textClear", "Texto plano"));
+                new InputTextPane.ComboItem("textClear", "Text clear"));
         comboBoxOpciones.getSelectionModel().selectFirst();
 
         inputPane = new InputTextPane("input", "Procesar", "Limpiar",

@@ -1,4 +1,4 @@
-package com.bbva.gui.utils;
+package com.bbva.gui.commons;
 
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
@@ -8,7 +8,8 @@ import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 
 public final class ISOFieldFinder {
 
-    private ISOFieldFinder() {}
+    private ISOFieldFinder() {
+    }
 
     public static String findFieldIdByName(String fieldName) {
         for (ISOField field : MastercardISOField.values()) {
