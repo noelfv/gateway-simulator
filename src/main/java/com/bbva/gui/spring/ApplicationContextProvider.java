@@ -1,19 +1,22 @@
 package com.bbva.gui.spring;
 
-import lombok.Setter;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationContextProvider {
 
-    @Setter
-    private static ConfigurableApplicationContext context;
+    private static volatile ConfigurableApplicationContext context;
+
+    public static void setContext(ConfigurableApplicationContext ctx) {
+        context = ctx;
+    }
 
     public static <T> T getBean(Class<T> beanClass) {
-        if (context == null) {
-            throw new IllegalStateException("El contexto de Spring no ha sido inicializado");
+        ConfigurableApplicationContext ctx = context;
+        if (ctx == null) {
+            throw new IllegalStateException("Spring context not initialized — ensure SwingApplication sets the context before UI starts");
         }
-        return context.getBean(beanClass);
+        return ctx.getBean(beanClass);
     }
 }

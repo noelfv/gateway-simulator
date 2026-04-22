@@ -9,6 +9,7 @@ import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
+import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.builders.ISO8583Builder;
 import com.bbva.orchestrator.core.dto.ISO8583;
 import com.bbva.orchestrator.core.logic.factory.FieldLogicFactory;
@@ -79,7 +80,7 @@ public class ParseClearViewerPane extends AbstractBasePane {
                         ISOUtil.ebcdicToString(mapValuesTree.get("additionalDataRetailer")));
             }
 
-            ParseResult result = FXParseGUI.process(mapValuesTree);
+            ParseResult result = ParseProcessor.process(mapValuesTree);
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, mapValues);
             Map<String, String> subFields = delegateFieldLogic.parseSubfields(iso8583);
             ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields, "peer02");

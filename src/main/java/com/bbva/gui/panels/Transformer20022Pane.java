@@ -9,6 +9,7 @@ import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
+import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;
 import com.bbva.orchestrator.core.mapper.factory.MapperFactory;
@@ -105,7 +106,7 @@ public class Transformer20022Pane extends AbstractBasePane {
             } else {
                 mapValues = ISO8583Processor.createMapFieldsISO8583Visa(trama);
             }
-            ParseResult result = FXParseGUI.process(mapValues);
+            ParseResult result = ParseProcessor.process(mapValues);
             FXParseGUI.updateTreeView(treePane.getTreeView(), result);
 
         } catch (ParserFieldsException ex) {

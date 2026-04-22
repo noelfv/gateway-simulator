@@ -8,6 +8,7 @@ import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
+import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.parser.factory.ISO8583DelegateParser;
 import com.bbva.orchestrator.core.parser.factory.ParserFactory;
 import com.bbva.orchestrator.core.utils.ISOUtil;
@@ -111,7 +112,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
                 mapValuesTree.put("additionalDataRetailer", ISOUtil.ebcdicToString(campo48));
             }
 
-            ParseResult result = FXParseGUI.process(mapValuesTree);
+            ParseResult result = ParseProcessor.process(mapValuesTree);
             FXParseGUI.updateTreeView(treePane.getTreeView(), result);
 
             ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser(redSeleccionada);

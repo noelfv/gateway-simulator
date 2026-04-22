@@ -8,14 +8,19 @@ import com.bbva.gui.spring.ApplicationContextProvider;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
+import com.bbva.gui.utils.ParseProcessor;
 import com.bbva.orchestrator.core.parser.iso8583.handlers.impl.MastercardHandlerField;
 import com.bbva.orchestrator.core.parser.iso8583.strategy.subfields.CompositeTlvFieldParser;
 import com.bbva.orchestrator.core.utils.ISOUtil;
 import javafx.stage.FileChooser;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +79,7 @@ public class ConfigurationPane extends AbstractBasePane {
                 mapValues = fieldTLV.parseToMap(inputMessageTemp, null, mastercardHandlerField);
             }
 
-            ParseResult result = FXParseGUI.processTLV(mapValues);
+            ParseResult result = ParseProcessor.processTLV(mapValues);
             FXParseGUI.updateTreeViewTLV(treePane.getTreeView(), result);
             outputPane.getTextArea().setText(inputMessageTemp);
 
@@ -91,12 +96,19 @@ public class ConfigurationPane extends AbstractBasePane {
         File archivo = fileChooser.showOpenDialog(getScene() != null ? getScene().getWindow() : null);
         if (archivo != null) {
             try {
-                String content = new String(java.nio.file.Files.readAllBytes(archivo.toPath()));
-                String valores = content.split(":")[1].replace("\"", "").replace("}", "").trim();
-                List<Integer> nuevaLista = Arrays.stream(valores.split(","))
-                        .map(String::trim)
-                        .map(Integer::parseInt)
-                        .toList();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(archivo);
+                Iterator<JsonNode> elements = root.elements();
+                if (!elements.hasNext()) throw new IllegalArgumentException("JSON vacío o sin campos");
+                JsonNode valueNode = elements.next();
+                List<Integer> nuevaLista = new ArrayList<>();
+                if (valueNode.isArray()) {
+                    valueNode.forEach(n -> nuevaLista.add(n.asInt()));
+                } else {
+                    for (String parte : valueNode.asText().split(",")) {
+                        nuevaLista.add(Integer.parseInt(parte.trim()));
+                    }
+                }
                 FXUtils.showInfoAlert("Importación BBVA", "Configuración cargada: " + nuevaLista.size() + " campos.");
             } catch (Exception e) {
                 FXUtils.showErrorAlert("Error al leer el archivo JSON: " + e.getMessage());

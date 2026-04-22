@@ -2,11 +2,9 @@ package com.bbva.gui.utils;
 
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.gui.dto.ParseResult;
-import com.bbva.orchestrator.core.fields.MastercardISOField;
-import com.bbva.orchestrator.core.fields.definitions.ISOField;
-import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
-import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
 import com.bbva.orchestrator.core.utils.ISOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,7 +27,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +34,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class FXParseGUI {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FXParseGUI.class);
 
     public static void updateTreeView(TreeView<String> treeView, ParseResult result) {
         TreeItem<String> root = new TreeItem<>("Mensaje Parseado");
@@ -112,30 +111,6 @@ public class FXParseGUI {
         treeView.setRoot(root);
     }
 
-    public static ParseResult process(Map<String, String> mapValues) {
-        Map<String, String> fieldsById = new HashMap<>();
-        mapValues.remove("networkName");
-        mapValues.remove("plainTextPCI");
-        mapValues.remove("header");
-        mapValues.remove("rejectFlag");
-        mapValues.remove("transactionType");
-        mapValues.remove("binCode");
-        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
-            String fieldId = findFieldIdByName(entry.getKey());
-            fieldsById.put(fieldId != null ? fieldId : entry.getKey(), entry.getValue());
-        }
-        return new ParseResult(mapValues, fieldsById);
-    }
-
-    public static ParseResult processTLV(Map<String, String> mapValues) {
-        Map<String, String> fieldsById = new HashMap<>();
-        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
-            String fieldId = findFieldTLVIdByName(entry.getKey());
-            fieldsById.put(fieldId != null ? fieldId : entry.getKey(), entry.getValue());
-        }
-        return new ParseResult(mapValues, fieldsById);
-    }
-
     public static void showNodeDetails(String nodeText) {
         if (nodeText == null || !nodeText.startsWith("P")) {
             showSimpleInfo(nodeText);
@@ -155,7 +130,7 @@ public class FXParseGUI {
                 data = nodeText.substring(6).trim();
             }
 
-            ISOFieldInfo info = getDataTypeISO8583(fieldId);
+            ISOFieldInfo info = ISOFieldFinder.getDataTypeISO8583(fieldId);
 
             // ── Header navy ──────────────────────────────────────────────────
             Label lblCampo = new Label("Campo  " + fieldId);
@@ -236,6 +211,7 @@ public class FXParseGUI {
             pane.setStyle("-fx-padding: 0; -fx-background-color: white;");
             dialog.showAndWait();
         } catch (Exception e) {
+            LOGGER.error("Error showing field details for node '{}': {}", nodeText, e.getMessage(), e);
             showSimpleInfo(nodeText);
         }
     }
@@ -335,36 +311,4 @@ public class FXParseGUI {
         alert.showAndWait();
     }
 
-    private static String findFieldIdByName(String fieldName) {
-        for (ISOField field : MastercardISOField.values()) {
-            if (field.getName().equalsIgnoreCase(fieldName)) {
-                return String.valueOf(field.getId());
-            }
-        }
-        return null;
-    }
-
-    private static String findFieldTLVIdByName(String fieldName) {
-        for (ISOSubField field : Field48.values()) {
-            if (field.getName().equalsIgnoreCase(fieldName)) {
-                return String.valueOf(field.getId());
-            }
-        }
-        return null;
-    }
-
-    private static ISOFieldInfo getDataTypeISO8583(String fieldId) {
-        try {
-            int id = Integer.parseInt(fieldId);
-            for (MastercardISOField field : MastercardISOField.values()) {
-                if (field.getId() == id) {
-                    String caracteristica = field.isVariable() ? "VARIABLE" : "FIXED";
-                    return new ISOFieldInfo(field.getId(), field.getName(),
-                            field.getTypeData().name(), caracteristica, field.getLength());
-                }
-            }
-        } catch (NumberFormatException ignored) {
-        }
-        return new ISOFieldInfo();
-    }
 }

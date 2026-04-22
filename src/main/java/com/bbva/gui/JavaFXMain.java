@@ -2,6 +2,7 @@ package com.bbva.gui;
 
 import com.bbva.gui.panels.*;
 import com.bbva.gui.spring.BeanProviderInstance;
+import com.bbva.gui.theme.UITheme;
 import com.bbva.gui.utils.FXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -13,17 +14,7 @@ import javafx.stage.Stage;
 
 public class JavaFXMain {
 
-    // ── BBVA Brand Colors ──────────────────────────────────────────
-    private static final String NAVY = "#004481";
-    private static final String NAVY_DARK = "#003366";
-    private static final String NAVY_LIGHT = "#005A9E";
-    private static final String AQUA = "#2DCCCD";
-    private static final String LIGHT_GRAY = "#F4F6F9";
-    private static final String MID_GRAY = "#DDE3ED";
     private static final String TEXT_DARK = "#1A2332";
-    private static final String TEXT_MUTED = "#64748B";
-    private static final String GREEN_DOT = "#22C55E";
-    private static final String WHITE = "#FFFFFF";
 
     private static final String VERSION = "v2.0.0-NFV";
 
@@ -43,7 +34,7 @@ public class JavaFXMain {
         root.setTop(topSection);
         root.setCenter(tabPane);
         root.setBottom(createStatusBar());
-        root.setStyle("-fx-background-color: " + LIGHT_GRAY + ";");
+        root.setStyle("-fx-background-color: " + UITheme.LIGHT_GRAY + ";");
 
         Scene scene = new Scene(root, 1280, 800);
         stage.setScene(scene);
@@ -57,13 +48,13 @@ public class JavaFXMain {
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(10, 20, 10, 20));
         header.setStyle(
-                "-fx-background-color: linear-gradient(to right, " + NAVY_DARK + " 0%, " + NAVY_LIGHT + " 100%);");
+                "-fx-background-color: linear-gradient(to right, " + UITheme.NAVY_DARK + " 0%, " + UITheme.NAVY_LIGHT + " 100%);");
 
         // Marca visual (cuadrado BBVA)
         Region brand = new Region();
         brand.setPrefSize(26, 26);
         brand.setStyle(
-                "-fx-background-color: " + AQUA + "; " +
+                "-fx-background-color: " + UITheme.AQUA + "; " +
                         "-fx-background-radius: 4;");
 
         Label appName = new Label("Gateway Message Simulator");
@@ -75,7 +66,7 @@ public class JavaFXMain {
 
         Label dot = new Label("·");
         dot.setStyle(
-                "-fx-text-fill: " + AQUA + "; " +
+                "-fx-text-fill: " + UITheme.AQUA + "; " +
                         "-fx-font-size: 15px; " +
                         "-fx-font-family: 'Segoe UI';");
 
@@ -173,7 +164,7 @@ public class JavaFXMain {
         tp.setStyle(
                 "-fx-tab-min-height: 30px; " +
                         "-fx-tab-max-height: 30px; " +
-                        "-fx-background-color: " + LIGHT_GRAY + ";");
+                        "-fx-background-color: " + UITheme.LIGHT_GRAY + ";");
         return tp;
     }
 
@@ -183,13 +174,13 @@ public class JavaFXMain {
         bar.setAlignment(Pos.CENTER_LEFT);
         bar.setPadding(new Insets(4, 16, 4, 16));
         bar.setStyle(
-                "-fx-background-color: " + MID_GRAY + "; " +
-                        "-fx-border-color: " + MID_GRAY + " transparent transparent transparent; " +
+                "-fx-background-color: " + UITheme.MID_GRAY + "; " +
+                        "-fx-border-color: " + UITheme.MID_GRAY + " transparent transparent transparent; " +
                         "-fx-border-width: 1 0 0 0;");
 
         Region dot = new Region();
         dot.setPrefSize(8, 8);
-        dot.setStyle("-fx-background-color: " + GREEN_DOT + "; -fx-background-radius: 4;");
+        dot.setStyle("-fx-background-color: " + UITheme.GREEN_DOT + "; -fx-background-radius: 4;");
 
         Label statusLabel = new Label("Listo");
         statusLabel.setStyle(mutedStyle());
@@ -214,7 +205,7 @@ public class JavaFXMain {
     private Menu styledMenu(String text) {
         Menu menu = new Menu(text);
         menu.setStyle(
-                "-fx-text-fill: " + NAVY_DARK + "; " +
+                "-fx-text-fill: " + UITheme.NAVY_DARK + "; " +
                         "-fx-font-family: 'Segoe UI Semibold'; " +
                         "-fx-font-size: 13px;");
         return menu;
@@ -230,7 +221,7 @@ public class JavaFXMain {
     }
 
     private String mutedStyle() {
-        return "-fx-text-fill: " + TEXT_MUTED + "; -fx-font-size: 10px; -fx-font-family: 'Segoe UI';";
+        return "-fx-text-fill: " + UITheme.TEXT_MUTED + "; -fx-font-size: 10px; -fx-font-family: 'Segoe UI';";
     }
 
     private void abrirTab(String title, javafx.scene.Node content) {

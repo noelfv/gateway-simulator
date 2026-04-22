@@ -1,6 +1,7 @@
 package com.bbva.gui.panels;
 
 import com.bbva.gui.spring.BeanProviderInstance;
+import com.bbva.gui.theme.UITheme;
 import com.bbva.gui.utils.FXUtils;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISODataType;
@@ -15,59 +16,29 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class GenerateTramaISO8583Pane extends BorderPane {
 
-    // Light palette
-    private static final String NAVY = "#004481";
-    private static final String BLUE = "#1464A0";
-    private static final String LIGHT_BLUE = "#E8F4FD";
-    private static final String WHITE = "#FFFFFF";
-    private static final String STRIPE = "#F7F9FC";
-    private static final String BORDER = "#D0E4F7";
-    // Dark (output terminal)
-    private static final String DARK_BG = "#1E1E2E";
-    private static final String DARK_HEADER = "#12122A";
-    private static final String DARK_BORDER = "#2D2D4E";
-    private static final String DARK_FOOT = "#16162A";
-    private static final String TEXT_OUT = "#CDD6F4";
-    private static final String ACCENT = "#89B4FA";
-    private static final String ACCENT_DIM = "#5A7FCC";
-    // Field row
-    private static final String TF_RO_BG = "#F0F4F8";
-    private static final String TF_BORDER = "#B8CCE0";
-
-    private static final String STYLE_TF_RO = "-fx-control-inner-background: " + TF_RO_BG + "; " +
+    private static final String STYLE_TF_RO = "-fx-control-inner-background: " + UITheme.TF_RO_BG + "; " +
             "-fx-font-family: Consolas; -fx-font-size: 10px; " +
-            "-fx-border-color: " + TF_BORDER + "; " +
+            "-fx-border-color: " + UITheme.TF_BORDER + "; " +
             "-fx-border-radius: 3; -fx-background-radius: 3;";
-    private static final String STYLE_TF_EDIT = "-fx-control-inner-background: " + WHITE + "; " +
+    private static final String STYLE_TF_EDIT = "-fx-control-inner-background: " + UITheme.WHITE + "; " +
             "-fx-font-family: Consolas; -fx-font-size: 10px; " +
-            "-fx-border-color: " + NAVY + "; " +
+            "-fx-border-color: " + UITheme.NAVY + "; " +
             "-fx-border-radius: 3; -fx-background-radius: 3;";
     private static final String STYLE_EDIT_OFF = "-fx-background-color: transparent; -fx-text-fill: #8899AA; " +
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
-    private static final String STYLE_EDIT_ON = "-fx-background-color: " + NAVY + "; -fx-text-fill: white; " +
+    private static final String STYLE_EDIT_ON = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
 
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
 
-    private final List<Integer> listCompras = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19,
-            22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 104, 122));
-    private final List<Integer> listBilletera = new ArrayList<>(
-            Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 70));
-    private final List<Integer> listRetiros = new ArrayList<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19,
-            22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 63, 70));
-    private final Set<Integer> camposMandatoriosCompras = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14,
-            18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 104, 122));
-    private final Set<Integer> camposMandatoriosBilletera = new HashSet<>(
-            Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 70));
-    private final Set<Integer> camposMandatoriosRetiros = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 7, 11, 12, 13, 14,
-            18, 19, 22, 25, 32, 33, 37, 41, 42, 43, 48, 49, 54, 59, 60, 61, 62, 63, 70));
+    private final List<Integer> listCompras    = new ArrayList<>(FieldConfiguration.COMPRAS);
+    private final List<Integer> listBilletera  = new ArrayList<>(FieldConfiguration.BILLETERA);
+    private final List<Integer> listRetiros    = new ArrayList<>(FieldConfiguration.RETIROS);
 
     private ComboBox<String> tipoOperacionComboBox;
     private ComboBox<String> procesarComboBox;
@@ -93,9 +64,9 @@ public class GenerateTramaISO8583Pane extends BorderPane {
 
         outputTextArea = new TextArea();
         outputTextArea.setStyle(
-                "-fx-control-inner-background: " + DARK_BG + "; " +
+                "-fx-control-inner-background: " + UITheme.DARK_BG + "; " +
                         "-fx-font-family: Consolas; -fx-font-size: 11px; " +
-                        "-fx-text-fill: " + TEXT_OUT + "; " +
+                        "-fx-text-fill: " + UITheme.TEXT_OUT + "; " +
                         "-fx-border-color: transparent;");
         outputTextArea.setWrapText(true);
         outputTextArea.setEditable(false);
@@ -123,13 +94,13 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         for (ComboBox<?> cb : new ComboBox[] { procesarComboBox, tipoOperacionComboBox }) {
             cb.setStyle(
                     "-fx-font-size: 11px; -fx-background-color: white; " +
-                            "-fx-border-color: " + BORDER + "; -fx-border-radius: 3; -fx-background-radius: 3;");
+                            "-fx-border-color: " + UITheme.BORDER + "; -fx-border-radius: 3; -fx-background-radius: 3;");
         }
 
         HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(7, 12, 7, 12));
-        header.setStyle("-fx-background-color: " + NAVY + ";");
+        header.setStyle("-fx-background-color: " + UITheme.NAVY + ";");
         header.getChildren().addAll(title, spacer, lblMarca, procesarComboBox, lblTipo, tipoOperacionComboBox);
         return header;
     }
@@ -155,16 +126,16 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         titleLabel.setPadding(new Insets(5, 10, 5, 10));
         titleLabel.setStyle(
-                "-fx-background-color: " + DARK_HEADER + "; " +
-                        "-fx-text-fill: " + ACCENT + "; " +
+                "-fx-background-color: " + UITheme.DARK_HEADER + "; " +
+                        "-fx-text-fill: " + UITheme.ACCENT + "; " +
                         "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                        "-fx-border-color: transparent transparent " + DARK_BORDER + " transparent; " +
+                        "-fx-border-color: transparent transparent " + UITheme.DARK_BORDER + " transparent; " +
                         "-fx-border-width: 0 0 1 0;");
 
-        Button btnLimpiar = createOutlineBtn("Limpiar", ACCENT, "transparent", ACCENT_DIM);
+        Button btnLimpiar = createOutlineBtn("Limpiar", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
         btnLimpiar.setOnAction(e -> outputTextArea.setText(""));
 
-        Button btnCopiar = createOutlineBtn("Copiar Trama", ACCENT, "transparent", ACCENT_DIM);
+        Button btnCopiar = createOutlineBtn("Copiar Trama", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
         btnCopiar.setOnAction(e -> {
             String trama = outputTextArea.getText();
             if (!trama.isEmpty()) {
@@ -178,14 +149,14 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         HBox footer = new HBox(8);
         footer.setAlignment(Pos.CENTER_RIGHT);
         footer.setPadding(new Insets(6, 8, 8, 8));
-        footer.setStyle("-fx-background-color: " + DARK_FOOT + ";");
+        footer.setStyle("-fx-background-color: " + UITheme.DARK_FOOT + ";");
         footer.getChildren().addAll(btnLimpiar, btnCopiar);
 
         VBox outputPanel = new VBox(0, titleLabel, outputTextArea, footer);
         outputPanel.setStyle(
-                "-fx-border-color: " + DARK_BORDER + "; " +
+                "-fx-border-color: " + UITheme.DARK_BORDER + "; " +
                         "-fx-border-width: 1.5; " +
-                        "-fx-background-color: " + DARK_BG + ";");
+                        "-fx-background-color: " + UITheme.DARK_BG + ";");
         VBox.setVgrow(outputTextArea, Priority.ALWAYS);
         return outputPanel;
     }
@@ -206,8 +177,8 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         HBox topBar = new HBox(8);
         topBar.setAlignment(Pos.CENTER_RIGHT);
         topBar.setPadding(new Insets(6, 10, 6, 10));
-        topBar.setStyle("-fx-background-color: " + LIGHT_BLUE + "; " +
-                "-fx-border-color: transparent transparent " + BORDER + " transparent; " +
+        topBar.setStyle("-fx-background-color: " + UITheme.LIGHT_BLUE + "; " +
+                "-fx-border-color: transparent transparent " + UITheme.BORDER + " transparent; " +
                 "-fx-border-width: 0 0 1 0;");
         topBar.getChildren().addAll(btnAgregarCampo, procesarButton);
 
@@ -236,18 +207,18 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         titleBar.setMaxWidth(Double.MAX_VALUE);
         titleBar.setPadding(new Insets(4, 8, 4, 8));
         titleBar.setStyle(
-                "-fx-background-color: " + NAVY + "; " +
+                "-fx-background-color: " + UITheme.NAVY + "; " +
                         "-fx-text-fill: white; " +
                         "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI';");
 
         // ── Field rows ─────────────────────────────────────────────
         VBox fieldsBox = new VBox(0);
-        fieldsBox.setStyle("-fx-background-color: " + WHITE + ";");
+        fieldsBox.setStyle("-fx-background-color: " + UITheme.WHITE + ";");
 
         Set<Integer> mandatorios = getMandatoriosActuales();
         int rowIdx = 0;
         for (int i : campos) {
-            String bg = (rowIdx % 2 == 0) ? WHITE : STRIPE;
+            String bg = (rowIdx % 2 == 0) ? UITheme.WHITE : UITheme.STRIPE;
 
             CheckBox chk = new CheckBox();
             chk.setSelected(mandatorios.contains(i));
@@ -255,7 +226,7 @@ public class GenerateTramaISO8583Pane extends BorderPane {
 
             Label badge = new Label(String.format("P%03d", i));
             badge.setStyle(
-                    "-fx-background-color: " + NAVY + "; " +
+                    "-fx-background-color: " + UITheme.NAVY + "; " +
                             "-fx-text-fill: white; " +
                             "-fx-font-size: 9px; -fx-font-weight: bold; " +
                             "-fx-padding: 1 5 1 5; -fx-background-radius: 3;");
@@ -282,7 +253,7 @@ public class GenerateTramaISO8583Pane extends BorderPane {
             fieldRow.setPadding(new Insets(4, 8, 4, 8));
             fieldRow.setStyle(
                     "-fx-background-color: " + bg + "; " +
-                            "-fx-border-color: transparent transparent " + BORDER + " transparent; " +
+                            "-fx-border-color: transparent transparent " + UITheme.BORDER + " transparent; " +
                             "-fx-border-width: 0 0 1 0;");
             fieldsBox.getChildren().add(fieldRow);
             rowIdx++;
@@ -290,9 +261,9 @@ public class GenerateTramaISO8583Pane extends BorderPane {
 
         VBox column = new VBox(0, titleBar, fieldsBox);
         column.setStyle(
-                "-fx-border-color: " + NAVY + "; " +
+                "-fx-border-color: " + UITheme.NAVY + "; " +
                         "-fx-border-width: 1.5; " +
-                        "-fx-background-color: " + WHITE + ";");
+                        "-fx-background-color: " + UITheme.WHITE + ";");
         VBox.setVgrow(fieldsBox, Priority.ALWAYS);
         HBox.setHgrow(column, Priority.ALWAYS);
         return column;
@@ -378,17 +349,13 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     private List<Integer> getCamposActuales() {
         return switch (tipoOperacionComboBox.getValue()) {
             case "Billetera" -> listBilletera;
-            case "Retiros" -> listRetiros;
-            default -> listCompras;
+            case "Retiros"   -> listRetiros;
+            default          -> listCompras;
         };
     }
 
     private Set<Integer> getMandatoriosActuales() {
-        return switch (tipoOperacionComboBox.getValue()) {
-            case "Billetera" -> camposMandatoriosBilletera;
-            case "Retiros" -> camposMandatoriosRetiros;
-            default -> camposMandatoriosCompras;
-        };
+        return FieldConfiguration.getMandatorios(tipoOperacionComboBox.getValue());
     }
 
     private void actualizarValoresPorDefecto() {
@@ -407,41 +374,7 @@ public class GenerateTramaISO8583Pane extends BorderPane {
 
     private String getDefaultValue(int i) {
         String tipo = tipoOperacionComboBox != null ? tipoOperacionComboBox.getValue() : "Compras";
-        return switch (tipo) {
-            case "Billetera" -> switch (i) {
-                case 2 -> "5536508888888888";
-                case 3 -> "311000";
-                case 4 -> "50.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 11 -> String.format("%06d", new Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                default -> "";
-            };
-            case "Retiros" -> switch (i) {
-                case 2 -> "5536507777777777";
-                case 3 -> "010000";
-                case 4 -> "200.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 11 -> String.format("%06d", new Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                default -> "";
-            };
-            default -> switch (i) {
-                case 2 -> "5536509999999999";
-                case 3 -> "000000";
-                case 4 -> "100.00";
-                case 7 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmmss"));
-                case 11 -> String.format("%06d", new Random().nextInt(1000000));
-                case 12 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-                case 13 -> LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-                case 14 -> "2701";
-                default -> "";
-            };
-        };
+        return ISO8583DefaultValues.getFor(i, tipo);
     }
 
     private boolean isValorVacio(String value) {
@@ -465,10 +398,10 @@ public class GenerateTramaISO8583Pane extends BorderPane {
 
     private Button createPrimaryBtn(String text) {
         Button btn = new Button(text);
-        String normal = "-fx-background-color: " + NAVY + "; -fx-text-fill: white; " +
+        String normal = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
                 "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
                 "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
-        String hover = "-fx-background-color: " + BLUE + "; -fx-text-fill: white; " +
+        String hover = "-fx-background-color: " + UITheme.BLUE + "; -fx-text-fill: white; " +
                 "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
                 "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
         btn.setStyle(normal);
