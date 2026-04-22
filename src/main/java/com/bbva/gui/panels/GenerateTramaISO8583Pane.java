@@ -1,5 +1,7 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.commons.FieldConfiguration;
+import com.bbva.gui.commons.ISO8583DefaultValues;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.theme.UITheme;
 import com.bbva.gui.utils.FXUtils;
@@ -36,9 +38,9 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
 
-    private final List<Integer> listCompras    = new ArrayList<>(FieldConfiguration.COMPRAS);
-    private final List<Integer> listBilletera  = new ArrayList<>(FieldConfiguration.BILLETERA);
-    private final List<Integer> listRetiros    = new ArrayList<>(FieldConfiguration.RETIROS);
+    private final List<Integer> listCompras = new ArrayList<>(FieldConfiguration.COMPRAS);
+    private final List<Integer> listBilletera = new ArrayList<>(FieldConfiguration.BILLETERA);
+    private final List<Integer> listRetiros = new ArrayList<>(FieldConfiguration.RETIROS);
 
     private ComboBox<String> tipoOperacionComboBox;
     private ComboBox<String> procesarComboBox;
@@ -94,7 +96,8 @@ public class GenerateTramaISO8583Pane extends BorderPane {
         for (ComboBox<?> cb : new ComboBox[] { procesarComboBox, tipoOperacionComboBox }) {
             cb.setStyle(
                     "-fx-font-size: 11px; -fx-background-color: white; " +
-                            "-fx-border-color: " + UITheme.BORDER + "; -fx-border-radius: 3; -fx-background-radius: 3;");
+                            "-fx-border-color: " + UITheme.BORDER
+                            + "; -fx-border-radius: 3; -fx-background-radius: 3;");
         }
 
         HBox header = new HBox(10);
@@ -349,8 +352,8 @@ public class GenerateTramaISO8583Pane extends BorderPane {
     private List<Integer> getCamposActuales() {
         return switch (tipoOperacionComboBox.getValue()) {
             case "Billetera" -> listBilletera;
-            case "Retiros"   -> listRetiros;
-            default          -> listCompras;
+            case "Retiros" -> listRetiros;
+            default -> listCompras;
         };
     }
 

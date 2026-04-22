@@ -10,24 +10,26 @@ Simulador de gateway de pagos que permite parsear, mapear y convertir mensajes *
 ## Compilacion
 
 ```bash
+mvn clean install
+```
+
+### Generar el ejecutable
+
+```bash
 mvn clean package
 ```
 
-Esto genera la estructura de distribucion en `target/dist/`.
+Esto genera la estructura del ejecutable ya que las configuraciones se encuentran en el `pom.xml`.
 
 ## Ejecucion
 
-### Con Maven (desarrollo)
+### Con Maven  
 
 ```bash
 mvn spring-boot:run "-Dspring-boot.run.profiles=gw"
 ```
 
-### Con JAR (produccion)
 
-```bash
-java -Dspring.profiles.active=gw -jar target/dist/gateway-simulator-2.0.0-SNAPSHOT.jar
-```
 
 > El perfil `gw` es **obligatorio**. Activa los sub-perfiles: `data`, `datalocal`, `sensitivedata`.
 
