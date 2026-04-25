@@ -34,6 +34,10 @@ public class GenerateTramaISO8583Pane extends BorderPane {
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
     private static final String STYLE_EDIT_ON = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
+    private static final String STYLE_DEL_OFF = "-fx-background-color: transparent; -fx-text-fill: #CC4444; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
+    private static final String STYLE_DEL_ON = "-fx-background-color: #FFEEEE; -fx-text-fill: #CC0000; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
 
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
@@ -251,7 +255,17 @@ public class GenerateTramaISO8583Pane extends BorderPane {
                 editBtn.setStyle(editing ? STYLE_EDIT_ON : STYLE_EDIT_OFF);
             });
 
-            HBox fieldRow = new HBox(6, chk, badge, txt, editBtn);
+            Button delBtn = new Button("✕");
+            delBtn.setStyle(STYLE_DEL_OFF);
+            delBtn.setOnMouseEntered(ev -> delBtn.setStyle(STYLE_DEL_ON));
+            delBtn.setOnMouseExited(ev -> delBtn.setStyle(STYLE_DEL_OFF));
+            delBtn.setOnAction(e -> {
+                getCamposActuales().remove(Integer.valueOf(i));
+                refreshCampos();
+                actualizarValoresPorDefecto();
+            });
+
+            HBox fieldRow = new HBox(6, chk, badge, txt, editBtn, delBtn);
             fieldRow.setAlignment(Pos.CENTER_LEFT);
             fieldRow.setPadding(new Insets(4, 8, 4, 8));
             fieldRow.setStyle(

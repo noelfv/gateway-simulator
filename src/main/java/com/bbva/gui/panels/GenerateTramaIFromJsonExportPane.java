@@ -39,6 +39,10 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
     private static final String STYLE_EDIT_ON = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
             "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
+    private static final String STYLE_DEL_OFF = "-fx-background-color: transparent; -fx-text-fill: #CC4444; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
+    private static final String STYLE_DEL_ON = "-fx-background-color: #FFEEEE; -fx-text-fill: #CC0000; " +
+            "-fx-font-size: 12px; -fx-cursor: hand; -fx-padding: 1 5; -fx-background-radius: 3;";
 
     private final Map<Integer, CheckBox> checkBoxes = new TreeMap<>();
     private final Map<Integer, TextField> textFields = new TreeMap<>();
@@ -70,8 +74,7 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
                         "-fx-background-color: " + UITheme.WHITE + "; " +
                         "-fx-border-color: " + UITheme.BORDER + "; " +
                         "-fx-border-radius: 3; -fx-background-radius: 3;");
-        comboRed.setOnAction(e ->
-                networkFromJson = "Visa".equals(comboRed.getValue()) ? "peer01" : "peer02");
+        comboRed.setOnAction(e -> networkFromJson = "Visa".equals(comboRed.getValue()) ? "peer01" : "peer02");
 
         outputTextArea = new TextArea();
         outputTextArea.setStyle(
@@ -231,7 +234,7 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
             int fin = Math.min(inicio + camposPorColumna, totalCampos);
             if (inicio < totalCampos) {
                 columnsBox.getChildren().add(
-                        createColumnPanel("Bloque " + (col + 1), camposFromJson.subList(inicio, fin)));
+                        createColumnPanel("", camposFromJson.subList(inicio, fin)));
             }
         }
 
@@ -283,7 +286,16 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
                 editBtn.setStyle(editing ? STYLE_EDIT_ON : STYLE_EDIT_OFF);
             });
 
-            HBox fieldRow = new HBox(6, chk, badge, txt, editBtn);
+            Button delBtn = new Button("✕");
+            delBtn.setStyle(STYLE_DEL_OFF);
+            delBtn.setOnMouseEntered(ev -> delBtn.setStyle(STYLE_DEL_ON));
+            delBtn.setOnMouseExited(ev -> delBtn.setStyle(STYLE_DEL_OFF));
+            delBtn.setOnAction(e -> {
+                camposFromJson.remove(Integer.valueOf(i));
+                refreshCampos();
+            });
+
+            HBox fieldRow = new HBox(6, chk, badge, txt, editBtn, delBtn);
             fieldRow.setAlignment(Pos.CENTER_LEFT);
             fieldRow.setPadding(new Insets(4, 8, 4, 8));
             fieldRow.setStyle(
@@ -309,7 +321,8 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
         fileChooser.setTitle("Importar JSON Exportado");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
         File archivo = fileChooser.showOpenDialog(getScene() != null ? getScene().getWindow() : null);
-        if (archivo == null) return;
+        if (archivo == null)
+            return;
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -336,7 +349,8 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
             Iterator<Map.Entry<String, JsonNode>> sections = root.fields();
             while (sections.hasNext()) {
                 Map.Entry<String, JsonNode> section = sections.next();
-                if ("NetworkName".equals(section.getKey())) continue;
+                if ("NetworkName".equals(section.getKey()))
+                    continue;
 
                 JsonNode sectionValue = section.getValue();
                 if (sectionValue.isObject()) {
@@ -445,7 +459,8 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
     }
 
     private String valorPorDefectoParaCampoVacio(IFieldDefinition fieldDef) {
-        if (fieldDef == null) return "";
+        if (fieldDef == null)
+            return "";
         if (fieldDef.isVariable()) {
             return fieldDef.getLength() == 2 ? "00" : "000";
         }

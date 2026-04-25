@@ -118,26 +118,27 @@ public class JavaFXMain {
     private Menu buildConversionMenu() {
         Menu menu = styledMenu("Convertir");
         // MenuItem convertirTrama = styledItem("Convertir trama");
-        MenuItem convertirOrig = styledItem("Convertir ISO8583 a Hexa");
+        MenuItem convertirOrig = styledItem("ISO8583 clear to Hexa");
         // MenuItem convertirVisa = styledItem("Convertir trama original Visa");
-        MenuItem convertirIso = styledItem("Convertir ISO20022 a Hexa");
-        MenuItem generarTrama = styledItem("Generar trama específica");
+        MenuItem convertirIso = styledItem("ISO20022 clear to Hexa");
+        // MenuItem generarTrama = styledItem("Generar trama específica");
         MenuItem importTrama = styledItem("Transformar import trama");
         // MenuItem campo48 = styledItem("Campo 48 (TLV)");
 
         // convertirTrama.setOnAction(e -> abrirTab("Convertir trama", new
         // ConverterTramaTextPlainPane(beans)));
-        convertirOrig.setOnAction(e -> abrirTab("Convertir ISO8583 a Hexa", new ConvertTramaOriginalPane(beans)));
+        convertirOrig.setOnAction(e -> abrirTab("ISO8583 a Hexa", new ConvertTramaOriginalPane(beans)));
         // convertirVisa.setOnAction(e -> abrirTab("Convertir trama original Visa", new
         // ConvertTramaOriginalVisaPane(beans)));
-        convertirIso.setOnAction(e -> abrirTab("Convertir ISO20022 a Hexa", new Transformer20022Pane(beans)));
-        generarTrama.setOnAction(e -> abrirTab("Generar Trama Específica", new GenerateTramaISO8583Pane(beans)));
-        importTrama.setOnAction(e -> abrirTab("Transformar import trama", new GenerateTramaIFromJsonExportPane(beans)));
+        convertirIso.setOnAction(e -> abrirTab("ISO20022 a Hexa", new Transformer20022Pane(beans)));
+        // generarTrama.setOnAction(e -> abrirTab("Generar Trama Específica", new
+        // GenerateTramaISO8583Pane(beans)));
+        importTrama.setOnAction(e -> abrirTab("Generar Trama Específica", new GenerateTramaIFromJsonExportPane(beans)));
         // campo48.setOnAction(e -> abrirTab("Parsear Campo 48", new
         // TLVParseViewerPane(beans)));
 
         menu.getItems().addAll(/* convertirTrama, */ convertirOrig, /* convertirVisa, */
-                convertirIso, new SeparatorMenuItem(), generarTrama, importTrama);
+                convertirIso, new SeparatorMenuItem(), importTrama);
         return menu;
     }
 
@@ -153,12 +154,11 @@ public class JavaFXMain {
 
     private Menu buildConfigMenu() {
         Menu menu = styledMenu("Configuración");
-        MenuItem importarItem = styledItem("Importar Configuracion");
+        MenuItem descargarMsgExamples = styledItem("Descargar ejemplos mensajes");
         MenuItem cargarLLM = styledItem("Cargar especificacion");
-        // importarItem.setOnAction(e -> abrirTab("Configuración", new
-        // ConfigurationPane(beans)));
-        menu.setDisable(true);
-        menu.getItems().addAll(importarItem, new SeparatorMenuItem(), cargarLLM);
+        descargarMsgExamples.setOnAction(e -> abrirTab("Descargar Plantillas", new DownloadJsonTemplatePane()));
+        cargarLLM.setDisable(true);
+        menu.getItems().addAll(descargarMsgExamples, new SeparatorMenuItem(), cargarLLM);
         return menu;
     }
 
