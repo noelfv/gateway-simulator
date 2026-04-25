@@ -222,9 +222,9 @@ public class FXParseGUI {
         return s != null ? s : "-";
     }
 
-    public static void showExportJsonDialog(TreeView<String> treeView) {
+    public static void showExportJsonDialog(TreeView<String> treeView, String networkName) {
         try {
-            String json = buildTreeJson(treeView);
+            String json = buildTreeJson(treeView, networkName);
 
             TextArea textArea = new TextArea(json);
             textArea.setEditable(false);
@@ -261,12 +261,19 @@ public class FXParseGUI {
         }
     }
 
-    private static String buildTreeJson(TreeView<String> treeView) throws Exception {
+    private static String buildTreeJson(TreeView<String> treeView, String networkName) throws Exception {
         TreeItem<String> root = treeView.getRoot();
         if (root == null || root.getChildren().isEmpty())
             return "{}";
 
         Map<String, Object> result = new LinkedHashMap<>();
+        if (networkName != null && !networkName.isEmpty()) {
+            result.put("NetworkName", networkName);
+            String headerDefault = "Visa".equalsIgnoreCase(networkName)
+                    ? "1601020198880403000000021000489D102902000000"
+                    : "";
+            result.put("HeaderDefault", headerDefault);
+        }
 
         for (TreeItem<String> section : root.getChildren()) {
             String sectionName = section.getValue();

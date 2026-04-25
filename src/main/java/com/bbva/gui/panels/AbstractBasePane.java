@@ -8,6 +8,7 @@ import com.bbva.gui.utils.FXUtils;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.geometry.Orientation;
+import java.util.function.Supplier;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.control.ContextMenu;
@@ -53,7 +54,7 @@ public abstract class AbstractBasePane extends BorderPane {
         });
     }
 
-    protected void setupTreeClickHandler(TreeOutputPane treePane) {
+    protected void setupTreeClickHandler(TreeOutputPane treePane, Supplier<String> networkNameSupplier) {
         MenuItem menuCopiar = new MenuItem("Copiar valor");
         MenuItem menuExportar = new MenuItem("Exportar como JSON");
         ContextMenu contextMenu = new ContextMenu(menuCopiar, new SeparatorMenuItem(), menuExportar);
@@ -69,7 +70,8 @@ public abstract class AbstractBasePane extends BorderPane {
             }
         });
 
-        menuExportar.setOnAction(e -> FXParseGUI.showExportJsonDialog(treePane.getTreeView()));
+        menuExportar.setOnAction(e -> FXParseGUI.showExportJsonDialog(
+                treePane.getTreeView(), networkNameSupplier.get()));
 
         treePane.getTreeView().setContextMenu(contextMenu);
 

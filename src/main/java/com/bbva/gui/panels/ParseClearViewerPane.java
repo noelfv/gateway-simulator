@@ -55,7 +55,7 @@ public class ParseClearViewerPane extends AbstractBasePane {
         registerPrimaryButton(inputPane, this::parseMessage);
         registerSecondaryButton(inputPane, () -> clearFields(inputPane, outputPane, treePane));
         setupCopyToClipboard(outputPane);
-        setupTreeClickHandler(treePane);
+        setupTreeClickHandler(treePane, () -> "Mastercard");
     }
 
     private void parseMessage() {

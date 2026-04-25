@@ -51,7 +51,7 @@ public class ConfigurationPane extends AbstractBasePane {
         registerPrimaryButton(inputPane, this::parseMessage);
         registerSecondaryButton(inputPane, this::importarConfiguracionCampos);
         setupCopyToClipboard(outputPane);
-        setupTreeClickHandler(treePane);
+        setupTreeClickHandler(treePane, () -> "");
     }
 
     private void parseMessage() {

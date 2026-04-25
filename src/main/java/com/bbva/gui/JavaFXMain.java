@@ -122,6 +122,7 @@ public class JavaFXMain {
         // MenuItem convertirVisa = styledItem("Convertir trama original Visa");
         MenuItem convertirIso = styledItem("Convertir ISO20022 a Hexa");
         MenuItem generarTrama = styledItem("Generar trama específica");
+        MenuItem importTrama = styledItem("Transformar import trama");
         // MenuItem campo48 = styledItem("Campo 48 (TLV)");
 
         // convertirTrama.setOnAction(e -> abrirTab("Convertir trama", new
@@ -131,21 +132,22 @@ public class JavaFXMain {
         // ConvertTramaOriginalVisaPane(beans)));
         convertirIso.setOnAction(e -> abrirTab("Convertir ISO20022 a Hexa", new Transformer20022Pane(beans)));
         generarTrama.setOnAction(e -> abrirTab("Generar Trama Específica", new GenerateTramaISO8583Pane(beans)));
+        importTrama.setOnAction(e -> abrirTab("Transformar import trama", new GenerateTramaIFromJsonExportPane(beans)));
         // campo48.setOnAction(e -> abrirTab("Parsear Campo 48", new
         // TLVParseViewerPane(beans)));
 
         menu.getItems().addAll(/* convertirTrama, */ convertirOrig, /* convertirVisa, */
-                convertirIso, new SeparatorMenuItem(), generarTrama);
+                convertirIso, new SeparatorMenuItem(), generarTrama, importTrama);
         return menu;
     }
 
     private Menu buildTLVMenu() {
         Menu menu = styledMenu("TLV");
-        MenuItem parsearCampo48 = styledItem("Parsear Campo 48");
-        parsearCampo48.setOnAction(e -> abrirTab("Parsear Campo 48", new TLVParseViewerPane(beans)));
-        MenuItem generarCampo48 = styledItem("Generar Campo 48");
+        MenuItem parsearCampoTLVItem = styledItem("Parsear TLV");
+        parsearCampoTLVItem.setOnAction(e -> abrirTab("Parsear TLV", new TLVParseViewerPane(beans)));
+        MenuItem generarCampo48 = styledItem("Generar TLV");
         generarCampo48.setDisable(true);
-        menu.getItems().addAll(parsearCampo48, new SeparatorMenuItem(), generarCampo48);
+        menu.getItems().addAll(parsearCampoTLVItem, new SeparatorMenuItem(), generarCampo48);
         return menu;
     }
 

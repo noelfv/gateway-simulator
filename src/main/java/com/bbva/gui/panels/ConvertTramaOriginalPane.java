@@ -90,7 +90,7 @@ public class ConvertTramaOriginalPane extends AbstractBasePane {
         registerPrimaryButton(inputPane, this::parseMessage);
         registerSecondaryButton(inputPane, () -> clearFields(inputPane, outputPane, treePane));
         setupCopyToClipboard(outputPane);
-        setupTreeClickHandler(treePane);
+        setupTreeClickHandler(treePane, () -> "peer01".equalsIgnoreCase(redSeleccionada) ? "Visa" : "Mastercard");
     }
 
     private void parseMessage() {

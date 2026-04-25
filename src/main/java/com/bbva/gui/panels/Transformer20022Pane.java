@@ -45,6 +45,7 @@ public class Transformer20022Pane extends AbstractBasePane {
     private InputTextPane inputPane;
     private OutputTextPane outputPane;
     private TreeOutputPane treePane;
+    private String lastNetworkName = "";
 
     public Transformer20022Pane(BeanProviderInstance beans) {
         this.parserFactory = beans.parserFactory();
@@ -74,7 +75,7 @@ public class Transformer20022Pane extends AbstractBasePane {
         registerPrimaryButton(inputPane, this::convertMessage);
         registerSecondaryButton(inputPane, () -> clearFields(inputPane, outputPane, treePane));
         setupCopyToClipboard(outputPane);
-        setupTreeClickHandler(treePane);
+        setupTreeClickHandler(treePane, () -> lastNetworkName);
     }
 
     private void convertMessage() {
@@ -93,6 +94,7 @@ public class Transformer20022Pane extends AbstractBasePane {
             objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             ISO20022 iso20022 = objectMapper.readValue(jsonString, ISO20022.class);
 
+            lastNetworkName = iso20022.getNetworkName().equalsIgnoreCase("PEER02") ? "Mastercard" : "Visa";
             ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser(iso20022.getNetworkName());
             ISO20022DelegateMapper delegateMapper = mapperFactory.getDelegateMapper(iso20022.getNetworkName());
             Map<String, String> fieldsValues = delegateMapper.unMapper(iso20022);

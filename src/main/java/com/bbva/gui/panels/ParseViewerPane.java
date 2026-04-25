@@ -89,7 +89,7 @@ public class ParseViewerPane extends AbstractBasePane {
         registerPrimaryButton(inputPane, this::parseMessage);
         registerSecondaryButton(inputPane, () -> clearFields(inputPane, outputPane, treePane));
         setupCopyToClipboard(outputPane);
-        setupTreeClickHandler(treePane);
+        setupTreeClickHandler(treePane, () -> "peer01".equals(itemSeleccionado) ? "Visa" : "Mastercard");
     }
 
     private void parseMessage() {
