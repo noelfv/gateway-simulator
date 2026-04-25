@@ -1,6 +1,7 @@
 package com.bbva.gui.panels;
 
 import com.bbva.gateway.dto.iso20022.ISO20022;
+import com.bbva.gui.commons.FXParseGUI;
 import com.bbva.gui.commons.ISO8583Processor;
 import com.bbva.gui.commons.ParseProcessor;
 import com.bbva.gui.components.InputTextPane;
@@ -8,7 +9,6 @@ import com.bbva.gui.components.OutputTextPane;
 import com.bbva.gui.components.TreeOutputPane;
 import com.bbva.gui.dto.ParseResult;
 import com.bbva.gui.spring.BeanProviderInstance;
-import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
 import com.bbva.orchestrator.core.exception.ParserFieldsException;
 import com.bbva.orchestrator.core.mapper.factory.ISO20022DelegateMapper;

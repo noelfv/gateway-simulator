@@ -1,115 +1,31 @@
-package com.bbva.gui.utils;
+package com.bbva.gui.components;
 
 import com.bbva.gui.commons.ISOFieldFinder;
 import com.bbva.gui.dto.ISOFieldInfo;
-import com.bbva.gui.dto.ParseResult;
-import com.bbva.orchestrator.core.utils.ISOUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.bbva.gui.utils.FXUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class FXParseGUI {
+public final class FXDialogs {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FXParseGUI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FXDialogs.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static void updateTreeView(TreeView<String> treeView, ParseResult result) {
-        TreeItem<String> root = new TreeItem<>("Mensaje Parseado");
-        TreeItem<String> headerNode = new TreeItem<>("TypeMessage");
-        TreeItem<String> bitmapNode1 = new TreeItem<>("Bitmap1");
-        TreeItem<String> bitmapNode2 = new TreeItem<>("Bitmap2");
-
-        Map<Integer, TreeItem<String>> sortedBitmap1 = new TreeMap<>();
-        Map<Integer, TreeItem<String>> sortedBitmap2 = new TreeMap<>();
-
-        String typeMessage = result.fieldsByDescription().get("messageType");
-        if (typeMessage != null) {
-            headerNode.getChildren().add(new TreeItem<>(typeMessage));
-        }
-
-        for (Map.Entry<String, String> entry : result.fieldsById().entrySet()) {
-            String field = entry.getKey();
-            String value = entry.getValue();
-            String nodeText = "P" + UtilGUI.padLeft(field, 3, '0') + ": [" + value + "]";
-            TreeItem<String> fieldNode = new TreeItem<>(nodeText);
-
-            if (field.equals("0")) {
-                fieldNode = new TreeItem<>("P000: [" + ISOUtil.convertBITMAPtoHEX(value) + "]");
-                bitmapNode1.getChildren().add(fieldNode);
-            } else if (field.equals("1")) {
-                fieldNode = new TreeItem<>("P001: [" + ISOUtil.convertBITMAPtoHEX(value) + "]");
-                bitmapNode1.getChildren().add(fieldNode);
-            } else {
-                try {
-                    int fieldNumber = Integer.parseInt(field);
-                    if (fieldNumber < 65) {
-                        sortedBitmap1.put(fieldNumber, fieldNode);
-                    } else {
-                        sortedBitmap2.put(fieldNumber, fieldNode);
-                    }
-                } catch (NumberFormatException e) {
-                    bitmapNode1.getChildren().add(fieldNode);
-                }
-            }
-        }
-
-        sortedBitmap1.values().forEach(n -> bitmapNode1.getChildren().add(n));
-        sortedBitmap2.values().forEach(n -> bitmapNode2.getChildren().add(n));
-
-        if (!headerNode.getChildren().isEmpty())
-            root.getChildren().add(headerNode);
-        if (!bitmapNode1.getChildren().isEmpty())
-            root.getChildren().add(bitmapNode1);
-        if (!bitmapNode2.getChildren().isEmpty())
-            root.getChildren().add(bitmapNode2);
-
-        root.setExpanded(true);
-        headerNode.setExpanded(true);
-        bitmapNode1.setExpanded(true);
-        bitmapNode2.setExpanded(true);
-
-        treeView.setRoot(root);
-    }
-
-    public static void updateTreeViewTLV(TreeView<String> treeView, ParseResult result) {
-        TreeItem<String> root = new TreeItem<>("DATO TLV");
-        TreeItem<String> headerNode = new TreeItem<>("Campo 48");
-
-        result.fieldsById().entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .forEach(entry -> headerNode.getChildren().add(
-                        new TreeItem<>(entry.getKey() + ": [" + entry.getValue() + "]")));
-
-        if (!headerNode.getChildren().isEmpty())
-            root.getChildren().add(headerNode);
-        root.setExpanded(true);
-        headerNode.setExpanded(true);
-        treeView.setRoot(root);
+    private FXDialogs() {
     }
 
     public static void showNodeDetails(String nodeText) {
@@ -134,7 +50,6 @@ public class FXParseGUI {
 
             ISOFieldInfo info = ISOFieldFinder.getDataTypeISO8583(fieldId);
 
-            // ── Header navy ──────────────────────────────────────────────────
             Label lblCampo = new Label("Campo  " + fieldId);
             lblCampo.setFont(Font.font("Segoe UI", FontWeight.BOLD, 15));
             lblCampo.setStyle("-fx-text-fill: white;");
@@ -147,7 +62,6 @@ public class FXParseGUI {
             header.setPadding(new Insets(14, 20, 14, 20));
             header.setStyle("-fx-background-color: #004481;");
 
-            // ── Filas de metadatos ───────────────────────────────────────────
             String[][] meta = {
                     { "ID", String.valueOf(info.getId()) },
                     { "Tipo dato", nvl(info.getTypeData()) },
@@ -176,7 +90,6 @@ public class FXParseGUI {
                 metaBox.getChildren().add(row);
             }
 
-            // ── Sección Data ─────────────────────────────────────────────────
             Label lblDataTitle = new Label("DATA");
             lblDataTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
             lblDataTitle.setStyle("-fx-text-fill: #004481;");
@@ -188,18 +101,14 @@ public class FXParseGUI {
             tfData.setStyle(
                     "-fx-background-color: #FFFFFF; " +
                             "-fx-border-color: #B0C8E8; " +
-                            "-fx-border-radius: 4; " +
-                            "-fx-background-radius: 4; " +
-                            "-fx-padding: 6 8;");
+                            "-fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 6 8;");
 
             VBox dataSection = new VBox(5, lblDataTitle, tfData);
             dataSection.setPadding(new Insets(12, 20, 14, 20));
             dataSection.setStyle(
                     "-fx-background-color: #EBF4FF; " +
-                            "-fx-border-color: #D0E4F7; " +
-                            "-fx-border-width: 1 0 0 0;");
+                            "-fx-border-color: #D0E4F7; -fx-border-width: 1 0 0 0;");
 
-            // ── Dialog ───────────────────────────────────────────────────────
             VBox content = new VBox(header, metaBox, dataSection);
 
             Dialog<Void> dialog = new Dialog<>();
@@ -212,14 +121,11 @@ public class FXParseGUI {
             pane.setPrefWidth(480);
             pane.setStyle("-fx-padding: 0; -fx-background-color: white;");
             dialog.showAndWait();
+
         } catch (Exception e) {
             LOGGER.error("Error showing field details for node '{}': {}", nodeText, e.getMessage(), e);
             showSimpleInfo(nodeText);
         }
-    }
-
-    private static String nvl(String s) {
-        return s != null ? s : "-";
     }
 
     public static void showExportJsonDialog(TreeView<String> treeView, String networkName) {
@@ -288,11 +194,8 @@ public class FXParseGUI {
                 Map<String, String> fields = new LinkedHashMap<>();
                 for (TreeItem<String> child : children) {
                     String nodeText = child.getValue();
-                    if (nodeText == null)
-                        continue;
-                    if (nodeText.matches("P\\d{3}:.*")) {
-                        String key = nodeText.substring(0, 4);
-                        fields.put(key, extractBracketValue(nodeText));
+                    if (nodeText != null && nodeText.matches("P\\d{3}:.*")) {
+                        fields.put(nodeText.substring(0, 4), extractBracketValue(nodeText));
                     }
                 }
                 result.put(sectionName, fields);
@@ -305,7 +208,7 @@ public class FXParseGUI {
             }
         }
 
-        return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result);
+        return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(result);
     }
 
     private static String extractBracketValue(String nodeText) {
@@ -324,4 +227,7 @@ public class FXParseGUI {
         alert.showAndWait();
     }
 
+    private static String nvl(String s) {
+        return s != null ? s : "-";
+    }
 }

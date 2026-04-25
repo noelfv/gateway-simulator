@@ -1,9 +1,9 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.components.FXDialogs;
 import com.bbva.gui.components.InputTextPane;
 import com.bbva.gui.components.OutputTextPane;
 import com.bbva.gui.components.TreeOutputPane;
-import com.bbva.gui.utils.FXParseGUI;
 import com.bbva.gui.utils.FXUtils;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -70,7 +70,7 @@ public abstract class AbstractBasePane extends BorderPane {
             }
         });
 
-        menuExportar.setOnAction(e -> FXParseGUI.showExportJsonDialog(
+        menuExportar.setOnAction(e -> FXDialogs.showExportJsonDialog(
                 treePane.getTreeView(), networkNameSupplier.get()));
 
         treePane.getTreeView().setContextMenu(contextMenu);
@@ -79,14 +79,15 @@ public abstract class AbstractBasePane extends BorderPane {
             if (evt.getButton() == MouseButton.PRIMARY && evt.getClickCount() == 1) {
                 TreeItem<String> selected = treePane.getTreeView().getSelectionModel().getSelectedItem();
                 if (selected != null && selected.getChildren().isEmpty()) {
-                    FXParseGUI.showNodeDetails(selected.getValue());
+                    FXDialogs.showNodeDetails(selected.getValue());
                 }
             }
         });
     }
 
     private String extractNodeValue(String nodeText) {
-        if (nodeText == null) return "";
+        if (nodeText == null)
+            return "";
         // Para nodos tipo "P001: [valor]" extrae solo el valor entre corchetes
         int start = nodeText.indexOf('[');
         int end = nodeText.lastIndexOf(']');

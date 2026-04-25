@@ -38,7 +38,7 @@ public class JavaFXMain {
 
         Scene scene = new Scene(root, 1280, 800);
         stage.setScene(scene);
-        stage.setTitle("BBVA · Gateway Message Simulator");
+        stage.setTitle("BBVA · Gateway Message Interface");
         stage.setMaximized(true);
     }
 
@@ -58,7 +58,7 @@ public class JavaFXMain {
                 "-fx-background-color: " + UITheme.AQUA + "; " +
                         "-fx-background-radius: 4;");
 
-        Label appName = new Label("Gateway Message Simulator");
+        Label appName = new Label("Gateway Message Interface");
         appName.setStyle(
                 "-fx-text-fill: white; " +
                         "-fx-font-size: 15px; " +

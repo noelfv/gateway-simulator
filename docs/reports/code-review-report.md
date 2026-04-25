@@ -1,4 +1,4 @@
-# Code Review Report - 2026-04-21
+# Code Review Report - 2026-04-22 (actualizado)
 
 ## Executive Summary
 
@@ -314,12 +314,111 @@ inputMessageTemp.substring(2, 3).startsWith("F")  // falla si len < 3
 
 ---
 
-### [Code Smell] - `ParseViewerPane.java:116` (Network hardcodeado)
+### [Bug] - `ParseViewerPane.java:117` (Network hardcodeado → mapper incorrecto)
 
 ```java
-delegateMapper.mapper(iso8583, subFields, "peer01");  // debería ser dinámico
+// ACTUAL (bug): siempre llama al mapper de Visa sin importar la red seleccionada
+ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields, "peer01");
+
+// FIX: usar la variable de red ya disponible
+ISO20022 iso20022 = delegateMapper.mapper(iso8583, subFields, itemSeleccionado);
 ```
-**Fix:** Usar el valor del combo de selección de red en lugar de string fijo.
+**Impacto:** Cuando el usuario selecciona Mastercard y procesa, el mapeo ISO20022 usa la lógica de Visa — el objeto `ISO20022` resultante tiene datos incorrectos.
+
+---
+
+### [Bug] - `GenerateTramaISO8583Pane.java:304` (Network hardcodeado → Visa ignorada)
+
+```java
+// ACTUAL (bug): siempre usa Mastercard aunque procesarComboBox seleccione "Visa"
+ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser("PEER02");
+
+// FIX: usar el valor del combo
+String red = "Visa".equals(procesarComboBox.getValue()) ? "peer01" : "peer02";
+ISO8583DelegateParser delegateParser = parserFactory.getDelegateParser(red);
+// Y reemplazar MastercardISOField.getById() con lookups polimórficos
+```
+**Impacto:** El combo "Marca" en el header es funcional visualmente pero no afecta la generación de tramas.
+
+---
+
+### [Bug] - `ParseProcessor.process()` (Muta el mapa de entrada)
+
+```java
+// ACTUAL: elimina keys del mapa que el llamador puede necesitar
+public static ParseResult process(Map<String, String> mapValues) {
+    for (String key : INTERNAL_KEYS) {
+        mapValues.remove(key);   // ← side-effect destructivo
+    }
+    ...
+}
+
+// FIX: trabajar sobre una copia
+public static ParseResult process(Map<String, String> mapValues) {
+    Map<String, String> clean = new HashMap<>(mapValues);
+    for (String key : INTERNAL_KEYS) { clean.remove(key); }
+    ...
+    return new ParseResult(clean, fieldsById);
+}
+```
+**Impacto:** `ConvertTramaOriginalPane.parseMessage()` llama `delegateParser.unParser(mapValues)` después de `ParseProcessor.process(mapValuesTree)`, pero pasa el mapa original — funciona solo porque se creó `mapValuesTree` como copia. Si algún caller usa el mismo mapa, los campos internos se pierden silenciosamente.
+
+---
+
+### [Bug] - `ISOFieldFinder.findFieldIdByName()` (Solo itera Mastercard)
+
+```java
+// ACTUAL: siempre itera MastercardISOField aunque el mensaje sea Visa
+public static String findFieldIdByName(String fieldName) {
+    for (ISOField field : MastercardISOField.values()) { ... }
+}
+
+// FIX: necesita recibir el peerId o iterar ambos enums
+public static String findFieldIdByName(String fieldName, String peerId) {
+    ISOField[] fields = "peer01".equalsIgnoreCase(peerId)
+            ? VisaISOField.values() : MastercardISOField.values();
+    for (ISOField field : fields) {
+        if (field.getName().equalsIgnoreCase(fieldName)) return String.valueOf(field.getId());
+    }
+    return null;
+}
+```
+**Impacto:** El tree view de mensajes Visa muestra IDs de campo incorrectos (o "null" para campos exclusivos de Visa).
+
+---
+
+### [Code Smell] - `DownloadJsonTemplatePane.actualizarPreview()` (InputStream no cerrado)
+
+```java
+// ACTUAL: el InputStream queda abierto si la lectura tiene éxito
+InputStream is = getClass().getResourceAsStream(RESOURCE_BASE + filename);
+if (is != null) {
+    String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+    // ← is nunca se cierra en el path feliz
+
+// FIX: try-with-resources
+try (InputStream is = getClass().getResourceAsStream(RESOURCE_BASE + filename)) {
+    if (is != null) {
+        String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        ...
+    } else { ... }
+}
+```
+
+---
+
+### [Performance] - `ObjectMapper` instanciado por operación (3 lugares)
+
+| Archivo | Línea | Contexto |
+|---|---|---|
+| `ParseViewerPane.java` | 122 | `new ObjectMapper()` dentro de `parseMessage()` |
+| `FXParseGUI.java` | 308 | `new ObjectMapper()` dentro de `buildTreeJson()` |
+| `GenerateTramaIFromJsonExportPane.java` | 328 | `new ObjectMapper()` dentro de `importarJson()` |
+
+`ObjectMapper` es thread-safe y costoso de construir. Debe ser una constante estática compartida:
+```java
+private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+```
 
 ---
 
@@ -379,11 +478,11 @@ public final class FontType {
 ## Summary of Changes (Checklist)
 
 ### Critical (resolver primero)
-- [ ] Dividir `FXParseGUI.java` en `ParseProcessor`, `UIUpdater`, `DialogFactory`, `FieldFinder`
-- [ ] Dividir `GenerateTramaISO8583Pane.java` en `FieldSelectionPanel`, `ISO8583FieldGenerator`, `GenerateTramaPane`
-- [ ] Refactorizar `Metadata.java` usando tabla de mapeo con `Function<ISO20022, String>`
-- [ ] Reemplazar parsing manual de JSON en `ConfigurationPane.java` con `ObjectMapper`
-- [ ] Agregar `volatile` y validación de null a `ApplicationContextProvider`
+- [x] Dividir `FXParseGUI.java` → `FXParseGUI` (tree methods) + `FXDialogs` (dialog methods); `ParseProcessor` e `ISOFieldFinder` ya existían
+- [x] Dividir `GenerateTramaISO8583Pane.java` → `FieldSelectionPanel` (UI component) + `GenerateTramaISO8583Pane` (orchestrator); botones extraídos a `UIButtonFactory`
+- [ ] Refactorizar `Metadata.java` usando tabla de mapeo con `Function<ISO20022, String>` (fuera del paquete gui)
+- [x] `ConfigurationPane.java` — no existe en este codebase (panel Swing removido)
+- [x] `ApplicationContextProvider` — ya tenía `volatile` y validación de null aplicados
 
 ### High
 - [ ] Crear `UITheme.java` y eliminar duplicación de colores en 8 archivos
@@ -393,11 +492,18 @@ public final class FontType {
 - [ ] Agregar logging y relanzar excepción en `ISO8583Processor.java:140`
 - [ ] Agregar logging en `FXParseGUI.java:238-240`
 
+### Bugs confirmados (resolver urgente)
+- [ ] **`ParseViewerPane.java:117`** — cambiar `"peer01"` por `itemSeleccionado` en llamada a `delegateMapper.mapper()`
+- [ ] **`GenerateTramaISO8583Pane.java:304`** — usar `procesarComboBox.getValue()` para resolver `getDelegateParser()` y reemplazar `MastercardISOField.getById()` con lookup polimórfico
+- [ ] **`ParseProcessor.process()`** — operar sobre copia del mapa, no mutar el parámetro
+- [ ] **`ISOFieldFinder.findFieldIdByName()`** — recibir peerId para iterar el enum correcto (Visa vs Mastercard)
+- [ ] **`DownloadJsonTemplatePane.actualizarPreview()`** — envolver `getResourceAsStream` en try-with-resources
+- [ ] **`ObjectMapper`** — convertir a constante estática en `ParseViewerPane`, `FXParseGUI` y `GenerateTramaIFromJsonExportPane`
+
 ### Medium
 - [ ] Reemplazar `assert` por `Objects.requireNonNull` en `MappingMetadata.java`
 - [ ] Agregar validación de longitud antes de `substring` en `ConfigurationPane.java:70`
 - [ ] Crear constantes para magic numbers (ver tabla arriba)
-- [ ] Usar network dinámico en `ParseViewerPane.java:116`
 - [ ] Eliminar código comentado de `Transformer20022Pane`, `ConvertTramaOriginalPane`
 - [ ] Cambiar `interface FontType` a `final class FontType`
 - [ ] Crear `UIStyles.java` para centralizar CSS

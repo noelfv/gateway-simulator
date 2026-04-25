@@ -1,5 +1,6 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.components.UIButtonFactory;
 import com.bbva.gui.spring.BeanProviderInstance;
 import com.bbva.gui.theme.UITheme;
 import com.bbva.gui.utils.FXUtils;
@@ -161,10 +162,12 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
                         "-fx-border-color: transparent transparent " + UITheme.DARK_BORDER + " transparent; " +
                         "-fx-border-width: 0 0 1 0;");
 
-        Button btnLimpiar = createOutlineBtn("Limpiar", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
+        Button btnLimpiar = UIButtonFactory.createOutlineBtn("Limpiar", UITheme.ACCENT, "transparent",
+                UITheme.ACCENT_DIM);
         btnLimpiar.setOnAction(e -> outputTextArea.setText(""));
 
-        Button btnCopiar = createOutlineBtn("Copiar Trama", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
+        Button btnCopiar = UIButtonFactory.createOutlineBtn("Copiar Trama", UITheme.ACCENT, "transparent",
+                UITheme.ACCENT_DIM);
         btnCopiar.setOnAction(e -> {
             String trama = outputTextArea.getText();
             if (!trama.isEmpty()) {
@@ -195,13 +198,15 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
         textFields.clear();
         camposContainer.getChildren().clear();
 
-        Button procesarButton = createPrimaryBtn("Procesar");
+        Button procesarButton = UIButtonFactory.createPrimaryBtn("Procesar");
         procesarButton.setOnAction(e -> procesarTrama());
 
-        Button btnAgregarCampo = createOutlineBtn("+ Agregar campo", "#228B22", "transparent", "#E8F5E9");
+        Button btnAgregarCampo = UIButtonFactory.createOutlineBtn("+ Agregar campo", "#228B22", "transparent",
+                "#E8F5E9");
         btnAgregarCampo.setOnAction(e -> mostrarDialogoAgregarCampo());
 
-        Button btnImportar = createOutlineBtn("Importar JSON", UITheme.NAVY, UITheme.LIGHT_BLUE, UITheme.BORDER);
+        Button btnImportar = UIButtonFactory.createOutlineBtn("Importar JSON", UITheme.NAVY, UITheme.LIGHT_BLUE,
+                UITheme.BORDER);
         btnImportar.setOnAction(e -> importarJson());
 
         HBox topBar = new HBox(8);
@@ -473,31 +478,4 @@ public class GenerateTramaIFromJsonExportPane extends BorderPane {
         return " ".repeat(fieldDef.getLength());
     }
 
-    private Button createPrimaryBtn(String text) {
-        Button btn = new Button(text);
-        String normal = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
-                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
-        String hover = "-fx-background-color: " + UITheme.BLUE + "; -fx-text-fill: white; " +
-                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 7 20 7 20; -fx-cursor: hand; -fx-background-radius: 4;";
-        btn.setStyle(normal);
-        btn.setOnMouseEntered(e -> btn.setStyle(hover));
-        btn.setOnMouseExited(e -> btn.setStyle(normal));
-        return btn;
-    }
-
-    private Button createOutlineBtn(String text, String borderColor, String bgNormal, String bgHover) {
-        Button btn = new Button(text);
-        String base = "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 6 18 6 18; -fx-cursor: hand; " +
-                "-fx-border-color: " + borderColor + "; -fx-border-radius: 4; " +
-                "-fx-border-width: 1.5; -fx-background-radius: 4;";
-        String normal = "-fx-background-color: " + bgNormal + "; -fx-text-fill: " + borderColor + "; " + base;
-        String hover = "-fx-background-color: " + bgHover + "; -fx-text-fill: " + borderColor + "; " + base;
-        btn.setStyle(normal);
-        btn.setOnMouseEntered(e -> btn.setStyle(hover));
-        btn.setOnMouseExited(e -> btn.setStyle(normal));
-        return btn;
-    }
 }

@@ -1,7 +1,9 @@
 package com.bbva.gui.panels;
 
+import com.bbva.gui.components.UIButtonFactory;
 import com.bbva.gui.theme.UITheme;
 import com.bbva.gui.utils.FXUtils;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -69,11 +71,11 @@ public class DownloadJsonTemplatePane extends BorderPane {
         previewArea.setEditable(false);
         previewArea.setWrapText(false);
 
-        btnDescargar = createPrimaryBtn("Descargar");
+        btnDescargar = UIButtonFactory.createPrimaryBtn("Descargar");
         btnDescargar.setMaxWidth(Double.MAX_VALUE);
         btnDescargar.setOnAction(e -> descargarPlantilla());
 
-        btnCopiar = createOutlineBtn("Copiar JSON", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
+        btnCopiar = UIButtonFactory.createOutlineBtn("Copiar JSON", UITheme.ACCENT, "transparent", UITheme.ACCENT_DIM);
         btnCopiar.setOnAction(e -> {
             String texto = previewArea.getText();
             if (!texto.isEmpty() && !texto.startsWith("Plantilla no disponible")) {
@@ -189,24 +191,23 @@ public class DownloadJsonTemplatePane extends BorderPane {
         String filename = buildFilename();
         lblArchivoActual.setText(filename);
 
-        InputStream is = getClass().getResourceAsStream(RESOURCE_BASE + filename);
-        if (is != null) {
-            try {
+        try (InputStream is = getClass().getResourceAsStream(RESOURCE_BASE + filename)) {
+            if (is != null) {
                 String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 previewArea.setText(content);
                 previewArea.positionCaret(0);
                 setDisponible(true);
                 btnDescargar.setDisable(false);
                 btnCopiar.setDisable(false);
-            } catch (Exception ex) {
-                previewArea.setText("Error al leer la plantilla: " + ex.getMessage());
+            } else {
+                previewArea.setText("Plantilla no disponible: " + filename);
                 setDisponible(false);
+                btnDescargar.setDisable(true);
+                btnCopiar.setDisable(true);
             }
-        } else {
-            previewArea.setText("Plantilla no disponible: " + filename);
+        } catch (Exception ex) {
+            previewArea.setText("Error al leer la plantilla: " + ex.getMessage());
             setDisponible(false);
-            btnDescargar.setDisable(true);
-            btnCopiar.setDisable(true);
         }
     }
 
@@ -276,31 +277,4 @@ public class DownloadJsonTemplatePane extends BorderPane {
                         "-fx-border-radius: 3; -fx-background-radius: 3;");
     }
 
-    private Button createPrimaryBtn(String text) {
-        Button btn = new Button(text);
-        String normal = "-fx-background-color: " + UITheme.NAVY + "; -fx-text-fill: white; " +
-                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 8 20 8 20; -fx-cursor: hand; -fx-background-radius: 4;";
-        String hover = "-fx-background-color: " + UITheme.BLUE + "; -fx-text-fill: white; " +
-                "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 8 20 8 20; -fx-cursor: hand; -fx-background-radius: 4;";
-        btn.setStyle(normal);
-        btn.setOnMouseEntered(e -> btn.setStyle(hover));
-        btn.setOnMouseExited(e -> btn.setStyle(normal));
-        return btn;
-    }
-
-    private Button createOutlineBtn(String text, String borderColor, String bgNormal, String bgHover) {
-        Button btn = new Button(text);
-        String base = "-fx-font-weight: bold; -fx-font-size: 11px; -fx-font-family: 'Segoe UI'; " +
-                "-fx-padding: 6 18 6 18; -fx-cursor: hand; " +
-                "-fx-border-color: " + borderColor + "; -fx-border-radius: 4; " +
-                "-fx-border-width: 1.5; -fx-background-radius: 4;";
-        String normal = "-fx-background-color: " + bgNormal + "; -fx-text-fill: " + borderColor + "; " + base;
-        String hover = "-fx-background-color: " + bgHover + "; -fx-text-fill: " + borderColor + "; " + base;
-        btn.setStyle(normal);
-        btn.setOnMouseEntered(e -> btn.setStyle(hover));
-        btn.setOnMouseExited(e -> btn.setStyle(normal));
-        return btn;
-    }
 }

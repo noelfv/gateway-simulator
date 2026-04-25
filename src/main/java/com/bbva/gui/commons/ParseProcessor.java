@@ -14,16 +14,21 @@ public final class ParseProcessor {
     private ParseProcessor() {
     }
 
-    public static ParseResult process(Map<String, String> mapValues) {
+    public static ParseResult process(Map<String, String> mapValues, String peerId) {
+        Map<String, String> clean = new HashMap<>(mapValues);
         for (String key : INTERNAL_KEYS) {
-            mapValues.remove(key);
+            clean.remove(key);
         }
         Map<String, String> fieldsById = new HashMap<>();
-        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
-            String fieldId = ISOFieldFinder.findFieldIdByName(entry.getKey());
+        for (Map.Entry<String, String> entry : clean.entrySet()) {
+            String fieldId = ISOFieldFinder.findFieldIdByName(entry.getKey(), peerId);
             fieldsById.put(fieldId != null ? fieldId : entry.getKey(), entry.getValue());
         }
-        return new ParseResult(mapValues, fieldsById);
+        return new ParseResult(clean, fieldsById);
+    }
+
+    public static ParseResult process(Map<String, String> mapValues) {
+        return process(mapValues, "peer02");
     }
 
     public static ParseResult processTLV(Map<String, String> mapValues) {

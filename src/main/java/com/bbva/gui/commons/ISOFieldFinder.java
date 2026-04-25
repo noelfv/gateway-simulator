@@ -2,6 +2,7 @@ package com.bbva.gui.commons;
 
 import com.bbva.gui.dto.ISOFieldInfo;
 import com.bbva.orchestrator.core.fields.MastercardISOField;
+import com.bbva.orchestrator.core.fields.VisaISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOField;
 import com.bbva.orchestrator.core.fields.definitions.ISOSubField;
 import com.bbva.orchestrator.core.fields.definitions.subfields.tlv.Field48;
@@ -11,13 +12,20 @@ public final class ISOFieldFinder {
     private ISOFieldFinder() {
     }
 
-    public static String findFieldIdByName(String fieldName) {
-        for (ISOField field : MastercardISOField.values()) {
+    public static String findFieldIdByName(String fieldName, String peerId) {
+        ISOField[] fields = "peer01".equalsIgnoreCase(peerId)
+                ? VisaISOField.values()
+                : MastercardISOField.values();
+        for (ISOField field : fields) {
             if (field.getName().equalsIgnoreCase(fieldName)) {
                 return String.valueOf(field.getId());
             }
         }
         return null;
+    }
+
+    public static String findFieldIdByName(String fieldName) {
+        return findFieldIdByName(fieldName, "peer02");
     }
 
     public static String findFieldTLVIdByName(String fieldName) {
