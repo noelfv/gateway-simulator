@@ -106,10 +106,10 @@ public class ParseViewerPane extends AbstractBasePane {
             Map<String, String> mapValues = delegateParser.parser(inputMessage);
 
             Map<String, String> mapValuesTree = new HashMap<>(mapValues);
-            if (mapValues.containsKey("additionalDataRetailer")) {
+            /*if (mapValues.containsKey("additionalDataRetailer")) {
                 mapValuesTree.put("additionalDataRetailer",
                         ISOUtil.ebcdicToString(mapValuesTree.get("additionalDataRetailer")));
-            }
+            }*/
 
             ParseResult result = ParseProcessor.process(mapValuesTree);
             ISO8583 iso8583 = ISO8583Builder.buildISO8583(inputMessage, mapValues);
